@@ -1,0 +1,14 @@
+\EXCEEDER_EFFECTS_FILE_VERSION 1.0
+
+\DEF_BEGIN appear_left
+
+  \START_POS 0,0
+  \END_POS 200,200
+  \TIMER 50
+  \STEP 2
+
+  \BLOCKING          // this parameter blocks all other actions - they are unblocked after effect end
+
+\DEF_END
+
+\END

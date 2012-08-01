@@ -1,0 +1,15 @@
+\EXCEEDER_SUPFILE_VERSION 1.0
+
+\SCREEN_WIDTH 800
+\SCREEN_HEIGHT 600
+
+\SLIDES
+ slides_one.exf
+
+\EFFECTS
+ effects_one.exf
+
+\STYLES
+ styles_one.exf
+
+\END
