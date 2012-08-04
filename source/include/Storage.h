@@ -4,6 +4,7 @@
 #include "Global.h"
 #include "Singleton.h"
 #include "Defines\Styles.h"
+#include "Defines\Slides.h"
 
 class Storage
 {
@@ -40,6 +41,18 @@ class Storage
             return NULL;
         }
 
+        void AddSlideElement(SlideElement* elem)
+        {
+            m_slideData.push_back(elem);
+        }
+        SlideElement* GetSlideElement(uint32 pos)
+        {
+            if (m_slideData.size() < pos)
+                return NULL;
+
+            return m_slideData[pos];
+        }
+
     private:
 
         std::string m_supfilePath;
@@ -54,6 +67,7 @@ class Storage
 
         // content
         StyleMap m_styleMap;
+        SlideElementVector m_slideData;
 };
 
 #define sStorage Singleton<Storage>::instance()

@@ -1,8 +1,8 @@
 \EXCEEDER_SLIDE_FILE_VERSION 1.0
 
 \BACKGROUND BLUE
-\TEXT{S:my_title}{E:appear_left} Muj nadpis, hajzlove!
-\TEXT{P:100,300} Nejakej malej text!
+\TEXT{ID:title_1}{S:my_title}{E:appear_left} Muj nadpis, hajzlove!
+\TEXT{ID:test_text_1}{P:100,300} Nejakej malej text!
 
 \MOUSE_LEFT
 \BACKGROUND GREEN

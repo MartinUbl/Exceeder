@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="D:\Data\Programming\SimplyFlat\include;./source/include"
+				AdditionalIncludeDirectories="..\..\SimplyFlat\include;./source/include;..\SimplyFlat\include"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -58,7 +58,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="opengl32.lib glu32.lib D:\Data\Programming\SimplyFlat\Debug\SimplyFlat.lib"
+				AdditionalDependencies="opengl32.lib glu32.lib SimplyFlat.lib"
+				AdditionalLibraryDirectories="..\SimplyFlat\Debug\;..\..\SimplyFlat\Debug\"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>

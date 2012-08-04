@@ -1,6 +1,8 @@
 #include "Global.h"
 #include "Helpers.h"
 
+#include <sstream>
+
 const char* CharVectorToString(std::vector<char>* vect)
 {
     if (!vect)
@@ -155,4 +157,103 @@ char* RemoveBeginningSpaces(const char* input)
     }
 
     return NULL;
+}
+
+void ParseInputDefinitions(char* input, ParsedDefs* output)
+{
+    char* tmp = NULL;
+    while (input != NULL && strlen(input) > 0)
+    {
+        tmp = LeftSide(input, '}');
+
+        output->push_back(std::make_pair(LeftSide(tmp, ':'), RightSide(tmp, ':')));
+
+        input = RightSide(input, '{');
+    }
+}
+
+const char* GetDefinitionKeyValue(ParsedDefs* input, const char* key)
+{
+    if (!input || !key || strlen(key) < 1)
+        return "";
+
+    const char* upkey = ToUppercase(key);
+
+    for (ParsedDefs::const_iterator itr = input->begin(); itr != input->end(); ++itr)
+    {
+        if (EqualString(ToUppercase((*itr).first), upkey))
+            return (*itr).second.c_str();
+    }
+
+    return "";
+}
+
+void GetPositionDefinitionKeyValue(ParsedDefs* input, const char* key, uint32* destX, uint32* destY)
+{
+    (*destX) = 0;
+    (*destY) = 0;
+
+    if (const char* pos = GetDefinitionKeyValue(input, key))
+    {
+        if (strlen(pos) > 0)
+        {
+            const char* xpos = LeftSide(pos, ',');
+            const char* ypos = RightSide(pos, ',');
+            if (IsNumeric(xpos) && IsNumeric(ypos))
+            {
+                if (destX)
+                    (*destX) = ToInt(xpos);
+                if (destY)
+                    (*destY) = ToInt(ypos);
+            }
+        }
+    }
+}
+
+static const char* patt_lowcase = {"abcdefghijklmnopqrstuvwxyz"};
+static const char* patt_upcase  = {"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
+
+char UpperChar(char inp)
+{
+    for (uint32 i = 0; i < strlen(patt_lowcase); i++)
+        if (patt_lowcase[i] == inp)
+            return patt_upcase[i];
+
+    return inp;
+}
+
+char LowerChar(char inp)
+{
+    for (uint32 i = 0; i < strlen(patt_upcase); i++)
+        if (patt_upcase[i] == inp)
+            return patt_lowcase[i];
+
+    return inp;
+}
+
+const char* ToUppercase(const char* input)
+{
+    char* ret = new char[strlen(input)+1];
+
+    for (uint32 i = 0; i < strlen(input); i++)
+        ret[i] = UpperChar(input[i]);
+
+    ret[strlen(input)] = '\0';
+
+    return ret;
+}
+
+const char* ToLowercase(const char* input)
+{
+    std::stringstream ss;
+
+    for (uint32 i = 0; i < strlen(input); i++)
+        ss << LowerChar(input[i]);
+
+    ss << char(0);
+
+    char* pp = new char[ss.str().size()];
+    strncpy(pp, ss.str().c_str(), ss.str().size());
+
+    return pp;
 }

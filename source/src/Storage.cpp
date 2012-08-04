@@ -3,6 +3,7 @@
 #include "Parsers\Parser.h"
 #include "Parsers\SupfileParser.h"
 #include "Parsers\StyleParser.h"
+#include "Parsers\SlideParser.h"
 
 Storage::Storage()
 {
@@ -43,6 +44,12 @@ bool Storage::ParseInputFiles()
     for (std::list<std::string>::const_iterator itr = m_styleFiles.begin(); itr != m_styleFiles.end(); ++itr)
     {
         if (!StyleParser::ParseFile((*itr).c_str()))
+            return false;
+    }
+
+    for (std::list<std::string>::const_iterator itr = m_slideFiles.begin(); itr != m_slideFiles.end(); ++itr)
+    {
+        if (!SlideParser::ParseFile((*itr).c_str()))
             return false;
     }
 
