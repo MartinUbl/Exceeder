@@ -67,6 +67,13 @@ bool SlideParser::Parse(std::vector<std::string> *input)
             if (!StyleParser::ParseColor(right, &tmp->typeBackground.color))
                 RAISE_ERROR("SlideParser: Invalid expression '%s' used as background color", (right)?right:"none");
 
+            tmp->typeBackground.imageResourceId = 0;
+            // TODO: make resource system work
+
+            sStorage->AddSlideElement(tmp);
+
+            tmp = NULL;
+
             continue;
         }
         // text element
@@ -112,6 +119,10 @@ bool SlideParser::Parse(std::vector<std::string> *input)
 
             GetPositionDefinitionKeyValue(&defs, "PLU", &tmp->typeMouseEvent.positionSquareLU[0], &tmp->typeMouseEvent.positionSquareLU[1]);
             GetPositionDefinitionKeyValue(&defs, "PRL", &tmp->typeMouseEvent.positionSquareRL[0], &tmp->typeMouseEvent.positionSquareRL[1]);
+
+            sStorage->AddSlideElement(tmp);
+
+            tmp = NULL;
 
             continue;
         }

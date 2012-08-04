@@ -47,7 +47,7 @@ class Storage
         }
         SlideElement* GetSlideElement(uint32 pos)
         {
-            if (m_slideData.size() < pos)
+            if (m_slideData.size() <= pos)
                 return NULL;
 
             return m_slideData[pos];

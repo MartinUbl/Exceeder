@@ -23,4 +23,6 @@ extern int ToInt(const char* inp);
 extern const char* ToUppercase(const char* input);
 extern const char* ToLowercase(const char* input);
 
+#define IN_SQUARE(x, y, a, b, c, d) (x >= a && x <= c && y >= b && y <= d)
+
 #endif

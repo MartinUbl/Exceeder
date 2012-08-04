@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "Log.h"
 #include "Storage.h"
+#include "Presentation.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -9,6 +10,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     if (!sApplication->Initialized())
         return -1;
+
+    sApplication->Run();
 
     return 0;
 }
@@ -63,4 +66,15 @@ void Application::Init(const char *cmdline)
     }
 
     m_init = true;
+}
+
+void Application::Run()
+{
+    if (!m_init)
+        return;
+
+    if (!sPresentation->Init())
+        return;
+
+    sPresentation->Run();
 }

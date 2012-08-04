@@ -166,6 +166,10 @@ void ParseInputDefinitions(char* input, ParsedDefs* output)
     {
         tmp = LeftSide(input, '}');
 
+        // no definitions?
+        if (strlen(tmp) == strlen(input))
+            break;
+
         output->push_back(std::make_pair(LeftSide(tmp, ':'), RightSide(tmp, ':')));
 
         input = RightSide(input, '{');

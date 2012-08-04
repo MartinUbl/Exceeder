@@ -1,4 +1,5 @@
 #include "Global.h"
+#include "Log.h"
 #include "Storage.h"
 #include "Parsers\Parser.h"
 #include "Parsers\SupfileParser.h"
@@ -41,6 +42,10 @@ bool Storage::ReadInputSupfile(const char *path)
 
 bool Storage::ParseInputFiles()
 {
+    // there has to be at least one input slide file
+    if (m_slideFiles.empty())
+        RAISE_ERROR("There is no slide files defined!");
+
     for (std::list<std::string>::const_iterator itr = m_styleFiles.begin(); itr != m_styleFiles.end(); ++itr)
     {
         if (!StyleParser::ParseFile((*itr).c_str()))
@@ -52,6 +57,10 @@ bool Storage::ParseInputFiles()
         if (!SlideParser::ParseFile((*itr).c_str()))
             return false;
     }
+
+    // also if there is no slide elements parsed, exit
+    if (m_slideData.empty())
+        RAISE_ERROR("There are no slide data for your presentation!");
 
     return true;
 }

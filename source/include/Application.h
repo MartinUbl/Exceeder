@@ -11,6 +11,7 @@ class Application
 
         void Init(const char* cmdline);
         bool Initialized() { return m_init; };
+        void Run();
 
     private:
         bool m_init;
