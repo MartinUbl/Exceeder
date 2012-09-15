@@ -47,6 +47,8 @@ struct SlideElement
 
     void Draw();
 
+    // Drawable slide element data
+
     struct elemTextData
     {
         uint32 position[2]; // text position
@@ -54,6 +56,8 @@ struct SlideElement
         uint32 depth;       // depth of drawing - for some kind of "layers"
         void Draw(SlideElement* parent);
     } typeText;
+
+    // Event-based / static content-based / other nondrawable element data
 
     struct elemBackgroundData
     {

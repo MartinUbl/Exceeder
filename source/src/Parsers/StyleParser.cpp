@@ -50,6 +50,10 @@ bool StyleParser::Parse(std::vector<std::string> *input)
             if (EqualString(left, "\\FONT_FAMILY"))
             {
                 tmp->fontFamily = right;
+
+                // And set "flag" for generate a new font
+                if (tmp->fontId >= 0)
+                    tmp->fontId = -2;
             }
             // font size in pixels
             else if (EqualString(left, "\\FONT_SIZE"))
@@ -58,6 +62,9 @@ bool StyleParser::Parse(std::vector<std::string> *input)
                     tmp->fontSize = new uint32(ToInt(right));
                 else
                     RAISE_ERROR("StyleParser: Non-numeric value '%s' used as font size", (right)?right:"none");
+
+                if (tmp->fontId >= 0)
+                    tmp->fontId = -2;
             }
             // font color
             else if (EqualString(left, "\\FONT_COLOR"))
@@ -67,6 +74,9 @@ bool StyleParser::Parse(std::vector<std::string> *input)
                     tmp->fontColor = new uint32(dst);
                 else
                     RAISE_ERROR("StyleParser: Invalid expression '%s' used as font color", (right)?right:"none");
+
+                if (tmp->fontId >= 0)
+                    tmp->fontId = -2;
             }
             else if (EqualString(left, "\\DEF_END"))
             {

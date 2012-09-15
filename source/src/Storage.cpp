@@ -11,6 +11,8 @@ Storage::Storage()
     // implicit screen resolution
     m_screenWidth = 800;
     m_screenHeight = 600;
+
+    m_defaultFontId = -1;
 }
 
 Storage::~Storage()
@@ -63,4 +65,13 @@ bool Storage::ParseInputFiles()
         RAISE_ERROR("There are no slide data for your presentation!");
 
     return true;
+}
+
+void Storage::BuildStyleFonts()
+{
+    for (StyleMap::iterator itr = m_styleMap.begin(); itr != m_styleMap.end(); ++itr)
+    {
+        if (itr->second->fontId == -2)
+            itr->second->fontId = sSimplyFlat->BuildFont(itr->second->fontFamily, (*(itr->second->fontSize)));
+    }
 }

@@ -27,6 +27,10 @@ class Storage
         const char* GetSupfileVersion() { return m_supfileVersion.c_str(); };
         const char* GetSupfilePath() { return m_supfilePath.c_str(); };
 
+        void SetDefaultFontId(int32 id) { m_defaultFontId = id; };
+        int32 GetDefaultFontId() { return m_defaultFontId; };
+        void BuildStyleFonts();
+
         void AddNewStyle(const char* name, Style* style)
         {
             if (!name || !style)
@@ -36,8 +40,9 @@ class Storage
         }
         Style* GetStyle(const char* name)
         {
-            if (m_styleMap.find(name) != m_styleMap.end())
-                return m_styleMap[name];
+            for (StyleMap::iterator itr = m_styleMap.begin(); itr != m_styleMap.end(); ++itr)
+                if (EqualString(itr->first, name))
+                    return itr->second;
             return NULL;
         }
 
@@ -68,6 +73,8 @@ class Storage
         // content
         StyleMap m_styleMap;
         SlideElementVector m_slideData;
+
+        int32 m_defaultFontId;
 };
 
 #define sStorage Singleton<Storage>::instance()

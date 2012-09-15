@@ -23,6 +23,24 @@ void KeyPressed(uint16 key, bool pressed)
     else
         sPresentation->InterfaceEvent(IE_KEYBOARD_RELEASE, key);
 }
+
+void MouseButtonPress(bool left, bool pressed)
+{
+    if (left)
+    {
+        if (pressed)
+            sPresentation->InterfaceEvent(IE_MOUSE_LEFT_DOWN);
+        else
+            sPresentation->InterfaceEvent(IE_MOUSE_LEFT_UP);
+    }
+    else
+    {
+        if (pressed)
+            sPresentation->InterfaceEvent(IE_MOUSE_RIGHT_DOWN);
+        else
+            sPresentation->InterfaceEvent(IE_MOUSE_RIGHT_UP);
+    }
+}
 /////
 
 bool PresentationMgr::Init()
@@ -32,6 +50,14 @@ bool PresentationMgr::Init()
         RAISE_ERROR("Could not initialize main window!");
 
     sSimplyFlat->Interface->HookEvent(VK_RETURN, KeyPressed);
+    sSimplyFlat->Interface->HookMouseEvent(MouseButtonPress);
+
+    sStorage->SetDefaultFontId(sSimplyFlat->BuildFont("Arial", 25));
+
+    if (sStorage->GetDefaultFontId() < 0)
+        RAISE_ERROR("Could not initialize default font!");
+
+    sStorage->BuildStyleFonts();
 
     srand((unsigned int)(time(NULL)));
 

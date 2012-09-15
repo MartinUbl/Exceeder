@@ -19,5 +19,11 @@ void SlideElement::Draw()
 
 void SlideElement::elemTextData::Draw(SlideElement* parent)
 {
-    
+    if (parent->elemStyle.size() > 0)
+    {
+        Style* myStyle = sStorage->GetStyle(parent->elemStyle.c_str());
+
+        if (myStyle->fontId >= 0)
+            sSimplyFlat->Drawing->PrintText(myStyle->fontId, parent->typeText.position[0], parent->typeText.position[1], parent->typeText.text.c_str());
+    }
 }

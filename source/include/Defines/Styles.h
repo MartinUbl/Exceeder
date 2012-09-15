@@ -19,6 +19,8 @@ struct Style
     uint32*     fontSize;
     uint32*     fontColor;
 
+    int32       fontId;                  // built font id - created after style definition (DEF_END)
+
     TextPosition* textPosition;
 };
 

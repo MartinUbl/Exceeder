@@ -58,7 +58,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="opengl32.lib glu32.lib SimplyFlat.lib"
+				AdditionalDependencies="opengl32.lib glu32.lib freetype.lib SimplyFlat.lib"
 				AdditionalLibraryDirectories="..\SimplyFlat\Debug\;..\..\SimplyFlat\Debug\"
 				GenerateDebugInformation="true"
 				TargetMachine="1"

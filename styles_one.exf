@@ -8,4 +8,12 @@
 
 \DEF_END
 
+\DEF_BEGIN my_test_text
+
+  \FONT_FAMILY Times New Roman
+  \FONT_SIZE 14
+  \FONT_COLOR WHITE
+
+\DEF_END
+
 \END
