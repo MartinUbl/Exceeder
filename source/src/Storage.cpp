@@ -5,6 +5,7 @@
 #include "Parsers\SupfileParser.h"
 #include "Parsers\StyleParser.h"
 #include "Parsers\SlideParser.h"
+#include "Parsers\EffectParser.h"
 
 Storage::Storage()
 {
@@ -46,11 +47,17 @@ bool Storage::ParseInputFiles()
 {
     // there has to be at least one input slide file
     if (m_slideFiles.empty())
-        RAISE_ERROR("There is no slide files defined!");
+        RAISE_ERROR("There are no slide files defined!");
 
     for (std::list<std::string>::const_iterator itr = m_styleFiles.begin(); itr != m_styleFiles.end(); ++itr)
     {
         if (!StyleParser::ParseFile((*itr).c_str()))
+            return false;
+    }
+
+    for (std::list<std::string>::const_iterator itr = m_effectsFiles.begin(); itr != m_effectsFiles.end(); ++itr)
+    {
+        if (!EffectParser::ParseFile((*itr).c_str()))
             return false;
     }
 

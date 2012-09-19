@@ -4,6 +4,7 @@
 #include "Global.h"
 #include "Singleton.h"
 #include "Defines\Styles.h"
+#include "Defines\Effects.h"
 #include "Defines\Slides.h"
 
 class Storage
@@ -46,6 +47,21 @@ class Storage
             return NULL;
         }
 
+        void AddNewEffect(const char* name, Effect* eff)
+        {
+            if (!name || !eff)
+                return;
+
+            m_effectMap[name] = eff;
+        }
+        Effect* GetEffect(const char* name)
+        {
+            for (EffectMap::iterator itr = m_effectMap.begin(); itr != m_effectMap.end(); ++itr)
+                if (EqualString(itr->first, name))
+                    return itr->second;
+            return NULL;
+        }
+
         void AddSlideElement(SlideElement* elem)
         {
             m_slideData.push_back(elem);
@@ -72,6 +88,7 @@ class Storage
 
         // content
         StyleMap m_styleMap;
+        EffectMap m_effectMap;
         SlideElementVector m_slideData;
 
         int32 m_defaultFontId;
