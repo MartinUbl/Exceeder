@@ -157,6 +157,7 @@ bool SlideParser::Parse(std::vector<std::string> *input)
 
             continue;
         }
+        // clear everything from screen
         else if (EqualString(left, "\\NEW_SLIDE"))
         {
             tmp = new SlideElement;

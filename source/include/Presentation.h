@@ -37,8 +37,6 @@ class PresentationMgr
         void SetBlocking(bool block) { m_blocking = block; };
         bool IsBlocking() { return m_blocking; };
 
-        void ClearActiveElements();
-
     private:
         uint32 m_slideElementPos;
         SlideElement* m_slideElement;

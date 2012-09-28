@@ -58,6 +58,7 @@ bool EffectParser::Parse(std::vector<std::string> *input)
                 else
                     RAISE_ERROR("EffectParser: Unknown move type '%s'", right);
             }
+            // starting position
             else if (EqualString(left, "\\START_POS"))
             {
                 char* xpos = LeftSide(right, ',');
@@ -70,6 +71,7 @@ bool EffectParser::Parse(std::vector<std::string> *input)
                 tmp->startPos[0] = ToInt(xpos);
                 tmp->startPos[1] = ToInt(ypos);
             }
+            // end position
             else if (EqualString(left, "\\END_POS"))
             {
                 char* xpos = LeftSide(right, ',');
@@ -82,6 +84,7 @@ bool EffectParser::Parse(std::vector<std::string> *input)
                 tmp->endPos[0] = ToInt(xpos);
                 tmp->endPos[1] = ToInt(ypos);
             }
+            // time for whole effect
             else if (EqualString(left, "\\TIMER"))
             {
                 if (!IsNumeric(right))
@@ -89,10 +92,12 @@ bool EffectParser::Parse(std::vector<std::string> *input)
 
                 tmp->effectTimer = new uint32(ToInt(right));
             }
+            // sets effect as blocking
             else if (EqualString(left, "\\BLOCKING"))
             {
                 tmp->isBlocking = true;
             }
+            // sets effect as non blocking (it is, by default, but some global config option can change that)
             else if (EqualString(left, "\\NOBLOCKING"))
             {
                 tmp->isBlocking = false;
