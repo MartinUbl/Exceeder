@@ -6,8 +6,23 @@
 #include "Defines\Styles.h"
 #include "Defines\Effects.h"
 
+void SlideElement::CreateEffectIfAny()
+{
+    myEffect = NULL;
+
+    if (elemEffect.size() > 0)
+    {
+        Effect* tmp = sStorage->GetEffect(elemEffect.c_str());
+        if (tmp)
+            myEffect = new EffectHandler(this, tmp);
+    }
+}
+
 void SlideElement::Draw()
 {
+    if (myEffect && !myEffect->isExpired())
+        myEffect->Animate();
+
     switch (elemType)
     {
         case SLIDE_ELEM_TEXT:

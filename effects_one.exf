@@ -5,8 +5,7 @@
   \START_POS 0,0
   \END_POS 200,200
   \MOVE linear
-  \TIMER 50
-  \STEP 2
+  \TIMER 1000
 
   \BLOCKING          // this parameter blocks all other actions - they are unblocked after effect end
 

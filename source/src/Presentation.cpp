@@ -92,6 +92,10 @@ void PresentationMgr::InterfaceEvent(InterfaceEventTypes type, int32 param1, int
                     m_slideElement->typeMouseEvent.positionSquareRL[1])))
                 SetBlocking(false);
             break;
+        case IE_EFFECT_END:
+            if (m_slideElement && m_slideElement->myEffect && m_slideElement->myEffect->getEffectProto()->isBlocking)
+                SetBlocking(false);
+            break;
         default:
             break;
     }
@@ -144,6 +148,10 @@ bool PresentationMgr::Run()
         m_slideElement = new SlideElement;
         memcpy(m_slideElement, tmp, sizeof(SlideElement));
         tmp = NULL;
+
+        m_slideElement->CreateEffectIfAny();
+        if (m_slideElement->myEffect && m_slideElement->myEffect->getEffectProto()->isBlocking)
+            m_blocking = true;
 
         m_activeElements.push_back(m_slideElement);
 

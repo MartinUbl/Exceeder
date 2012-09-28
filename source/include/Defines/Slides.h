@@ -37,6 +37,8 @@ struct SlideElement
         elemId = "";
         elemStyle = "";
         elemEffect = "";
+
+        myEffect = NULL;
     }
 
     SlideElementTypes elemType;
@@ -45,6 +47,9 @@ struct SlideElement
     std::string elemStyle;
     std::string elemEffect;
 
+    EffectHandler* myEffect;
+
+    void CreateEffectIfAny();
     void Draw();
 
     // Drawable slide element data

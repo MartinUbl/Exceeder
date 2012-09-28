@@ -16,8 +16,7 @@ struct Effect
         memset(this, 0, sizeof(Style));
     }
 
-    uint32* stepTimer;
-    uint32* stepValue;
+    uint32* effectTimer;
 
     bool isBlocking;
 
@@ -28,5 +27,30 @@ struct Effect
 };
 
 typedef std::map<const char*, Effect*> EffectMap;
+
+struct SlideElement;
+
+class EffectHandler
+{
+    public:
+        EffectHandler(SlideElement* parent, Effect* elementEffect);
+        ~EffectHandler();
+
+        void Animate();
+        bool isExpired() { return expired; };
+
+        Effect* getEffectProto() { return effectProto; };
+
+    private:
+        void AnimateMoveLinear();
+
+        void SetExpired() { expired = true; };
+        bool expired;
+
+        clock_t startTime;
+
+        SlideElement* effectOwner;
+        Effect* effectProto;
+};
 
 #endif

@@ -18,6 +18,7 @@ enum InterfaceEventTypes
     IE_MOUSE_MOVE           = 4,
     IE_KEYBOARD_PRESS       = 5,
     IE_KEYBOARD_RELEASE     = 6,
+    IE_EFFECT_END           = 7,
     IE_MAX
 };
 

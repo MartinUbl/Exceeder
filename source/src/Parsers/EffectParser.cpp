@@ -87,14 +87,15 @@ bool EffectParser::Parse(std::vector<std::string> *input)
                 if (!IsNumeric(right))
                     RAISE_ERROR("EffectParser: Non-numeric value supplied as timer parameter");
 
-                tmp->stepTimer = new uint32(ToInt(right));
+                tmp->effectTimer = new uint32(ToInt(right));
             }
-            else if (EqualString(left, "\\STEP"))
+            else if (EqualString(left, "\\BLOCKING"))
             {
-                if (!IsNumeric(right))
-                    RAISE_ERROR("EffectParser: Non-numeric value supplied as step value parameter");
-
-                tmp->stepValue = new uint32(ToInt(right));
+                tmp->isBlocking = true;
+            }
+            else if (EqualString(left, "\\NOBLOCKING"))
+            {
+                tmp->isBlocking = false;
             }
             else if (EqualString(left, "\\DEF_END"))
             {
