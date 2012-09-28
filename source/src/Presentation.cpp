@@ -146,7 +146,10 @@ bool PresentationMgr::Run()
 
         // draw active elements which should be drawn
         for (SlideList::iterator itr = m_activeElements.begin(); itr != m_activeElements.end(); ++itr)
-            (*itr)->Draw();
+        {
+            if ((*itr)->drawable)
+                (*itr)->Draw();
+        }
 
         sSimplyFlat->AfterDraw();
 
@@ -165,7 +168,8 @@ bool PresentationMgr::Run()
         if (m_slideElement->myEffect && m_slideElement->myEffect->getEffectProto()->isBlocking)
             m_blocking = true;
 
-        m_activeElements.push_back(m_slideElement);
+        if (m_slideElement->drawable)
+            m_activeElements.push_back(m_slideElement);
 
         switch (m_slideElement->elemType)
         {
@@ -179,6 +183,18 @@ bool PresentationMgr::Run()
 
                 bgData.color = m_slideElement->typeBackground.color;
                 break;
+            case SLIDE_ELEM_NEW_SLIDE:
+            {
+                for (SlideList::iterator itr = m_activeElements.begin(); itr != m_activeElements.end();)
+                {
+                    // drawable check for future and some kind of "hidden" effects
+                    if ((*itr)->drawable)
+                        itr = m_activeElements.erase(itr);
+                    else
+                        ++itr;
+                }
+                break;
+            }
             default:
                 break;
         }

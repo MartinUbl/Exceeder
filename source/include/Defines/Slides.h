@@ -8,6 +8,7 @@ enum SlideElementTypes
     SLIDE_ELEM_BACKGROUND       = 2,
     SLIDE_ELEM_MOUSE_EVENT      = 3,
     SLIDE_ELEM_KEYBOARD_EVENT   = 4,
+    SLIDE_ELEM_NEW_SLIDE        = 5,
     SLIDE_ELEM_MAX
 };
 
@@ -53,12 +54,14 @@ struct SlideElement
         elemEffect = "";
 
         myEffect = NULL;
+        drawable = false;
 
         for (uint32 i = 0; i <= 1; i++)
             position[i] = 0;
     }
 
     SlideElementTypes elemType;
+    bool drawable;
 
     std::string elemId;
     std::string elemStyle;

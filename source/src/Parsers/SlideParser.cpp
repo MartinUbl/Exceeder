@@ -81,6 +81,7 @@ bool SlideParser::Parse(std::vector<std::string> *input)
         {
             tmp = new SlideElement;
             tmp->elemType = SLIDE_ELEM_TEXT;
+            tmp->drawable = true;
 
             ParseInputDefinitions(middle, &defs);
 
@@ -154,6 +155,16 @@ bool SlideParser::Parse(std::vector<std::string> *input)
 
             tmp = NULL;
 
+            continue;
+        }
+        else if (EqualString(left, "\\NEW_SLIDE"))
+        {
+            tmp = new SlideElement;
+            tmp->elemType = SLIDE_ELEM_NEW_SLIDE;
+
+            sStorage->AddSlideElement(tmp);
+
+            tmp = NULL;
             continue;
         }
         // end
