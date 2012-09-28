@@ -48,9 +48,9 @@ void SlideElement::elemTextData::Draw(SlideElement* parent)
 
         // draw text with own font. If not set, use default font
         if (myStyle->fontId >= 0)
-            sSimplyFlat->Drawing->PrintText(myStyle->fontId, parent->typeText.position[0], parent->typeText.position[1], parent->typeText.text.c_str());
+            sSimplyFlat->Drawing->PrintText(myStyle->fontId, parent->position[0], parent->position[1], parent->typeText.text.c_str());
         else
-            sSimplyFlat->Drawing->PrintText(sStorage->GetDefaultFontId(), parent->typeText.position[0], parent->typeText.position[1], parent->typeText.text.c_str());
+            sSimplyFlat->Drawing->PrintText(sStorage->GetDefaultFontId(), parent->position[0], parent->position[1], parent->typeText.text.c_str());
 
         // Set color back to white if necessary
         if (myStyle->fontColor)

@@ -43,6 +43,6 @@ void EffectHandler::AnimateMoveLinear()
     if (effectOwner->elemType == SLIDE_ELEM_TEXT)
     {
         for (uint32 i = 0; i <= 1; i++)
-            effectOwner->typeText.position[i] = effectProto->startPos[i] + uint32(timeCoef * float(effectProto->endPos[i] - effectProto->startPos[i]));
+            effectOwner->position[i] = effectProto->startPos[i] + uint32(timeCoef * float(effectProto->endPos[i] - effectProto->startPos[i]));
     }
 }

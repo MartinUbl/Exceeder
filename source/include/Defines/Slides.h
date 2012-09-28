@@ -39,6 +39,9 @@ struct SlideElement
         elemEffect = "";
 
         myEffect = NULL;
+
+        for (uint32 i = 0; i <= 1; i++)
+            position[i] = 0;
     }
 
     SlideElementTypes elemType;
@@ -49,6 +52,8 @@ struct SlideElement
 
     EffectHandler* myEffect;
 
+    uint32 position[2]; // element position
+
     void CreateEffectIfAny();
     void Draw();
 
@@ -56,7 +61,6 @@ struct SlideElement
 
     struct elemTextData
     {
-        uint32 position[2]; // text position
         std::string text;   // text... text!
         uint32 depth;       // depth of drawing - for some kind of "layers"
         void Draw(SlideElement* parent);

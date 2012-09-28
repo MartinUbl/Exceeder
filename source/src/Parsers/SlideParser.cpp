@@ -90,7 +90,7 @@ bool SlideParser::Parse(std::vector<std::string> *input)
 
             tmp->typeText.text = right;
 
-            GetPositionDefinitionKeyValue(&defs, "P", &tmp->typeText.position[0], &tmp->typeText.position[1]);
+            GetPositionDefinitionKeyValue(&defs, "P", &tmp->position[0], &tmp->position[1]);
 
             tmp->typeText.depth = 0;
             if (const char* depth = GetDefinitionKeyValue(&defs, "D"))
