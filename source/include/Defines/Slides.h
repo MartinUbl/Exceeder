@@ -30,6 +30,20 @@ enum KeyboardEventTypes
     KEYBOARD_EVENT_MAX
 };
 
+struct KnownKey
+{
+    const char* name;
+    uint16 code;
+};
+
+static const KnownKey KnownKeys[] = {
+    {"ENTER",     VK_RETURN},
+    {"RETURN",    VK_RETURN},
+    {"SPACE",     VK_SPACE},
+    {"CTRL",      VK_CONTROL},
+    {"SHIFT",     VK_SHIFT}
+};
+
 struct SlideElement
 {
     SlideElement()

@@ -49,7 +49,7 @@ bool PresentationMgr::Init()
         32, false, 60, &MyWndProc))
         RAISE_ERROR("Could not initialize main window!");
 
-    sSimplyFlat->Interface->HookEvent(VK_RETURN, KeyPressed);
+    sSimplyFlat->Interface->HookEvent(0, KeyPressed);
     sSimplyFlat->Interface->HookMouseEvent(MouseButtonPress);
 
     sStorage->SetDefaultFontId(sSimplyFlat->BuildFont("Arial", 25));
@@ -85,6 +85,18 @@ void PresentationMgr::InterfaceEvent(InterfaceEventTypes type, int32 param1, int
             // if click position is equal to 0 (line) or if clicked point is within the click position
             if (m_slideElement && m_slideElement->elemType == SLIDE_ELEM_MOUSE_EVENT &&
                 m_slideElement->typeMouseEvent.type == MOUSE_EVENT_LEFT_DOWN &&
+                ((m_slideElement->typeMouseEvent.positionSquareLU[0] == 0 && m_slideElement->typeMouseEvent.positionSquareRL[0] == 0) ||
+                 IN_SQUARE(param1, param2, m_slideElement->typeMouseEvent.positionSquareLU[0],
+                    m_slideElement->typeMouseEvent.positionSquareLU[1],
+                    m_slideElement->typeMouseEvent.positionSquareRL[0],
+                    m_slideElement->typeMouseEvent.positionSquareRL[1])))
+                SetBlocking(false);
+            break;
+        case IE_MOUSE_RIGHT_DOWN:
+            // Verifies if blocking event is mouse event for left button down,
+            // if click position is equal to 0 (line) or if clicked point is within the click position
+            if (m_slideElement && m_slideElement->elemType == SLIDE_ELEM_MOUSE_EVENT &&
+                m_slideElement->typeMouseEvent.type == MOUSE_EVENT_RIGHT_DOWN &&
                 ((m_slideElement->typeMouseEvent.positionSquareLU[0] == 0 && m_slideElement->typeMouseEvent.positionSquareRL[0] == 0) ||
                  IN_SQUARE(param1, param2, m_slideElement->typeMouseEvent.positionSquareLU[0],
                     m_slideElement->typeMouseEvent.positionSquareLU[1],
@@ -158,6 +170,7 @@ bool PresentationMgr::Run()
         switch (m_slideElement->elemType)
         {
             case SLIDE_ELEM_MOUSE_EVENT:
+            case SLIDE_ELEM_KEYBOARD_EVENT:
                 m_blocking = true;
                 break;
             case SLIDE_ELEM_BACKGROUND:

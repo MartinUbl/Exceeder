@@ -14,6 +14,7 @@ class SlideParser: public Parser
     public:
         static bool ParseFile(const char* path);
         static bool Parse(std::vector<std::string>* input);
+        static uint16 ResolveKey(const char* input);
 };
 
 #endif

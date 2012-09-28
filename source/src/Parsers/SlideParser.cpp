@@ -102,12 +102,16 @@ bool SlideParser::Parse(std::vector<std::string> *input)
             tmp = NULL;
             continue;
         }
-        // text element
-        else if (EqualString(left, "\\MOUSE_LEFT"))
+        // mouse press event element
+        else if (EqualString(left, "\\MOUSE_LEFT") || EqualString(left, "\\MOUSE_RIGHT"))
         {
             tmp = new SlideElement;
             tmp->elemType = SLIDE_ELEM_MOUSE_EVENT;
-            tmp->typeMouseEvent.type = MOUSE_EVENT_LEFT_DOWN;
+
+            if (EqualString(left, "\\MOUSE_LEFT"))
+                tmp->typeMouseEvent.type = MOUSE_EVENT_LEFT_DOWN;
+            else
+                tmp->typeMouseEvent.type = MOUSE_EVENT_RIGHT_DOWN;
 
             for (uint32 i = 0; i < 2; i++)
             {
@@ -119,6 +123,32 @@ bool SlideParser::Parse(std::vector<std::string> *input)
 
             GetPositionDefinitionKeyValue(&defs, "PLU", &tmp->typeMouseEvent.positionSquareLU[0], &tmp->typeMouseEvent.positionSquareLU[1]);
             GetPositionDefinitionKeyValue(&defs, "PRL", &tmp->typeMouseEvent.positionSquareRL[0], &tmp->typeMouseEvent.positionSquareRL[1]);
+
+            sStorage->AddSlideElement(tmp);
+
+            tmp = NULL;
+
+            continue;
+        }
+        // keyboard press event element
+        else if (EqualString(left, "\\KEY_PRESS") || EqualString(left, "\\KEY_RELEASE"))
+        {
+            uint16 key = 0;
+            if (right != NULL)
+            {
+                if (IsNumeric(right))
+                    key = ToInt(right);
+                else
+                    key = ResolveKey(right);
+            }
+
+            tmp = new SlideElement;
+            tmp->elemType = SLIDE_ELEM_KEYBOARD_EVENT;
+            if (EqualString(left, "\\KEY_PRESS"))
+                tmp->typeKeyboardEvent.type = KEYBOARD_EVENT_KEY_DOWN;
+            else
+                tmp->typeKeyboardEvent.type = KEYBOARD_EVENT_KEY_UP;
+            tmp->typeKeyboardEvent.key = key;
 
             sStorage->AddSlideElement(tmp);
 
@@ -138,4 +168,18 @@ bool SlideParser::Parse(std::vector<std::string> *input)
     }
 
     return true;
+}
+
+uint16 SlideParser::ResolveKey(const char* input)
+{
+    if (!input)
+        return 0;
+
+    for (uint32 i = 0; i < sizeof(KnownKeys)/sizeof(KnownKey); i++)
+    {
+        if (EqualString(input, KnownKeys[i].name))
+            return KnownKeys[i].code;
+    }
+
+    return 0;
 }
