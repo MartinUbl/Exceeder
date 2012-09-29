@@ -38,6 +38,10 @@ struct Style
     const char* fontFamily;
     uint32*     fontSize;
     uint32*     fontColor;
+    bool        bold;
+    bool        italic;
+    bool        underline;
+    bool        strikeout;
 
     int32       fontId;                  // built font id - created after style definition (DEF_END)
 

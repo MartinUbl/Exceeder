@@ -7,6 +7,19 @@
 #include "Defines\Effects.h"
 #include "Defines\Slides.h"
 
+struct StoredFont
+{
+    const char* fontName;
+    uint32 fontSize;
+
+    bool bold;
+    bool italic;
+    bool underline;
+    bool strikeout;
+
+    uint32 fontId;
+};
+
 class Storage
 {
     public:
@@ -92,6 +105,7 @@ class Storage
         SlideElementVector m_slideData;
 
         int32 m_defaultFontId;
+        std::list<StoredFont> m_fontMap;
 };
 
 #define sStorage Singleton<Storage>::instance()

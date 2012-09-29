@@ -76,9 +76,43 @@ bool Storage::ParseInputFiles()
 
 void Storage::BuildStyleFonts()
 {
+    bool fontMatch = false;
+
     for (StyleMap::iterator itr = m_styleMap.begin(); itr != m_styleMap.end(); ++itr)
     {
         if (itr->second->fontId == -2)
-            itr->second->fontId = sSimplyFlat->BuildFont(itr->second->fontFamily, (*(itr->second->fontSize)));
+        {
+            // This mechanism determines, if some font with that parameters already exists
+            for (std::list<StoredFont>::const_iterator iter = m_fontMap.begin(); iter != m_fontMap.end(); ++iter)
+            {
+                // If yes, assign its ID to style definition and continue to next style
+                if (EqualString(ToUppercase(iter->fontName), ToUppercase(itr->second->fontFamily))
+                    && iter->fontSize == (*itr->second->fontSize)
+                    && iter->bold == itr->second->bold
+                    && iter->italic == itr->second->italic
+                    && iter->underline == itr->second->underline
+                    && iter->strikeout == itr->second->strikeout)
+                {
+                    itr->second->fontId = iter->fontId;
+                    fontMatch = true;
+                    break;
+                }
+            }
+            if (fontMatch)
+                continue;
+
+            itr->second->fontId = sSimplyFlat->BuildFont(itr->second->fontFamily, (*(itr->second->fontSize)), (itr->second->bold ? FW_BOLD : 0), itr->second->italic, itr->second->underline, itr->second->strikeout);
+
+            // Save font definition for later use
+            StoredFont fnt;
+            fnt.fontName  = itr->second->fontFamily;
+            fnt.fontSize  = (*itr->second->fontSize);
+            fnt.fontId    = itr->second->fontId;
+            fnt.bold      = itr->second->bold;
+            fnt.italic    = itr->second->italic;
+            fnt.underline = itr->second->underline;
+            fnt.strikeout = itr->second->strikeout;
+            m_fontMap.push_back(fnt);
+        }
     }
 }
