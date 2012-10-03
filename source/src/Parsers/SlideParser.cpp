@@ -103,6 +103,52 @@ bool SlideParser::Parse(std::vector<std::string> *input)
             tmp = NULL;
             continue;
         }
+        // loading an external image
+        else if (EqualString(left, "\\LOAD_IMAGE"))
+        {
+            std::string name, path;
+
+            name = RemoveBeginningSpaces(LeftSide(right, ','));
+            path = RemoveBeginningSpaces(RightSide(right, ','));
+
+            if (name.size() < 2)
+                RAISE_ERROR("SlideParser: Invalid name %s - name must have at least 2 characters", name.c_str());
+            if (path.size() < 1)
+                RAISE_ERROR("SlideParser: Invalid path - not entered or not valid");
+
+            sStorage->PrepareImageResource(name.c_str(), path.c_str());
+
+            continue;
+        }
+        // drawing loaded image
+        else if (EqualString(left, "\\DRAW_IMAGE"))
+        {
+            tmp = new SlideElement;
+            tmp->elemType = SLIDE_ELEM_IMAGE;
+            tmp->drawable = true;
+
+            defs.clear();
+            ParseInputDefinitions(middle, &defs);
+
+            tmp->elemId = GetDefinitionKeyValue(&defs, "ID");
+            tmp->elemStyle = GetDefinitionKeyValue(&defs, "S");
+            tmp->elemEffect = GetDefinitionKeyValue(&defs, "E");
+
+            GetPositionDefinitionKeyValue(&defs, "P", &tmp->position[0], &tmp->position[1]);
+            GetPositionDefinitionKeyValue(&defs, "V", &tmp->typeImage.size[0], &tmp->typeImage.size[1]);
+
+            ResourceEntry* res = sStorage->GetResource(right);
+            if (res)
+                tmp->typeImage.resourceId = res->internalId;
+            else
+                tmp->typeImage.resourceId = 0;
+
+            sStorage->AddSlideElement(tmp);
+
+            tmp = NULL;
+
+            continue;
+        }
         // mouse press event element
         else if (EqualString(left, "\\MOUSE_LEFT") || EqualString(left, "\\MOUSE_RIGHT"))
         {

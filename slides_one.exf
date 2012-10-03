@@ -14,6 +14,9 @@
 
 \BACKGROUND BLUE
 
+\LOAD_IMAGE obrazek, ./ukazka.jpg
+\DRAW_IMAGE{P:200,200}{V:150,100} obrazek
+
 \MOUSE_LEFT
 \TEXT{ID:title_2}{S:my_title}{E:appear_left} Dalsi nadpis
 

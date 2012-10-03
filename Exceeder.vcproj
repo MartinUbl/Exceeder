@@ -185,6 +185,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\src\Resources.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\source\src\Storage.cpp"
 				>
 			</File>
@@ -244,6 +248,10 @@
 			</File>
 			<File
 				RelativePath=".\source\include\Presentation.h"
+				>
+			</File>
+			<File
+				RelativePath=".\source\include\Resources.h"
 				>
 			</File>
 			<File

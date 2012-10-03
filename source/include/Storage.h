@@ -6,6 +6,7 @@
 #include "Defines\Styles.h"
 #include "Defines\Effects.h"
 #include "Defines\Slides.h"
+#include "Resources.h"
 
 struct StoredFont
 {
@@ -87,12 +88,20 @@ class Storage
             return m_slideData[pos];
         }
 
+        // Resources.cpp
+        uint32 PrepareImageResource(const char* name, const char* path);
+        void LoadImageResources();
+        ResourceEntry* GetResource(uint32 id);
+        ResourceEntry* GetResource(const char* name);
+
     private:
 
         std::string m_supfilePath;
         std::list<std::string> m_styleFiles;
         std::list<std::string> m_effectsFiles;
         std::list<std::string> m_slideFiles;
+
+        std::vector<ResourceEntry*> m_resources;
 
         std::string m_supfileVersion;
 

@@ -9,6 +9,7 @@ enum SlideElementTypes
     SLIDE_ELEM_MOUSE_EVENT      = 3,
     SLIDE_ELEM_KEYBOARD_EVENT   = 4,
     SLIDE_ELEM_NEW_SLIDE        = 5,
+    SLIDE_ELEM_IMAGE            = 6,
     SLIDE_ELEM_MAX
 };
 
@@ -103,6 +104,13 @@ struct SlideElement
         KeyboardEventTypes type;   // type of kb event
         uint16 key;                // virtual key id
     } typeKeyboardEvent;
+
+    struct elemImageData
+    {
+        uint32 resourceId;         // internal id of resource
+        uint32 size[2];            // size of rectangle - width, height
+        void Draw(SlideElement* parent);
+    } typeImage;
 };
 
 typedef std::vector<SlideElement*> SlideElementVector;

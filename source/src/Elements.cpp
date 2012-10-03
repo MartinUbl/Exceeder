@@ -28,6 +28,8 @@ void SlideElement::Draw()
         case SLIDE_ELEM_TEXT:
             typeText.Draw(this);
             break;
+        case SLIDE_ELEM_IMAGE:
+            typeImage.Draw(this);
         default:
             break;
     }
@@ -55,5 +57,15 @@ void SlideElement::elemTextData::Draw(SlideElement* parent)
         // Set color back to white if necessary
         if (myStyle->fontColor)
             glColor3ub(255, 255, 255);
+    }
+}
+
+void SlideElement::elemImageData::Draw(SlideElement* parent)
+{
+    if (parent->typeImage.resourceId > 0)
+    {
+        ResourceEntry* res = sStorage->GetResource(parent->typeImage.resourceId);
+        if (res && res->image)
+            sSimplyFlat->Drawing->DrawRectangle(parent->position[0], parent->position[1], parent->typeImage.size[0], parent->typeImage.size[1], 0, res->image->textureId);
     }
 }
