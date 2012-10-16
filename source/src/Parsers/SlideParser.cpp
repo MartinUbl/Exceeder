@@ -5,17 +5,17 @@
 #include "Parsers\StyleParser.h"
 #include "Defines\Slides.h"
 
-bool SlideParser::ParseFile(const char *path)
+bool SlideParser::ParseFile(const wchar_t *path)
 {
     if (!path)
         return false;
 
-    FILE* sfile = fopen(path, "r");
+    FILE* sfile = _wfopen(path, L"r, ccs=UTF-8");
     if (!sfile)
         return false;
 
-    std::vector<std::string> slidefile;
-    char* ln = NULL;
+    std::vector<std::wstring> slidefile;
+    wchar_t* ln = NULL;
     while ((ln = ReadLine(sfile)) != NULL)
     {
         if (PrepareLine(ln))
@@ -25,14 +25,14 @@ bool SlideParser::ParseFile(const char *path)
     return Parse(&slidefile);
 }
 
-bool SlideParser::Parse(std::vector<std::string> *input)
+bool SlideParser::Parse(std::vector<std::wstring> *input)
 {
     if (!input)
         return false;
 
-    char* left = NULL;
-    char* right = NULL;
-    char* middle = NULL; // for additional element definitions
+    wchar_t* left = NULL;
+    wchar_t* right = NULL;
+    wchar_t* middle = NULL; // for additional element definitions
 
     SlideElement* tmp = NULL;
 
@@ -40,32 +40,32 @@ bool SlideParser::Parse(std::vector<std::string> *input)
 
     ParsedDefs defs;
 
-    for (std::vector<std::string>::const_iterator itr = input->begin(); itr != input->end(); ++itr)
+    for (std::vector<std::wstring>::const_iterator itr = input->begin(); itr != input->end(); ++itr)
     {
         defs.clear();
 
         middle = LeftSide(itr->c_str(), ' ');
-        len = strlen(middle);
+        len = wcslen(middle);
         // we have to try it again with { delimiter, because of additional definitions of elements
         left = LeftSide(middle, '{');
-        if (strlen(left) != strlen(middle))
+        if (wcslen(left) != wcslen(middle))
             middle = RightSide(middle, '{');
 
         right = RightSide(itr->c_str(), ' ');
 
         // file version
-        if (EqualString(left, "\\EXCEEDER_SLIDE_FILE_VERSION"))
+        if (EqualString(left, L"\\EXCEEDER_SLIDE_FILE_VERSION"))
         {
             //
         }
         // background element
-        else if (EqualString(left, "\\BACKGROUND"))
+        else if (EqualString(left, L"\\BACKGROUND"))
         {
             tmp = new SlideElement;
             tmp->elemType = SLIDE_ELEM_BACKGROUND;
 
             if (!StyleParser::ParseColor(right, &tmp->typeBackground.color))
-                RAISE_ERROR("SlideParser: Invalid expression '%s' used as background color", (right)?right:"none");
+                RAISE_ERROR("SlideParser: Invalid expression '%s' used as background color", (right)?ToMultiByteString(right):"none");
 
             tmp->typeBackground.imageResourceId = 0;
             // TODO: make resource system work
@@ -77,7 +77,7 @@ bool SlideParser::Parse(std::vector<std::string> *input)
             continue;
         }
         // text element
-        else if (EqualString(left, "\\TEXT"))
+        else if (EqualString(left, L"\\TEXT"))
         {
             tmp = new SlideElement;
             tmp->elemType = SLIDE_ELEM_TEXT;
@@ -85,16 +85,16 @@ bool SlideParser::Parse(std::vector<std::string> *input)
 
             ParseInputDefinitions(middle, &defs);
 
-            tmp->elemId = GetDefinitionKeyValue(&defs, "ID");
-            tmp->elemStyle = GetDefinitionKeyValue(&defs, "S");
-            tmp->elemEffect = GetDefinitionKeyValue(&defs, "E");
+            tmp->elemId = GetDefinitionKeyValue(&defs, L"ID");
+            tmp->elemStyle = GetDefinitionKeyValue(&defs, L"S");
+            tmp->elemEffect = GetDefinitionKeyValue(&defs, L"E");
 
             tmp->typeText.text = right;
 
-            GetPositionDefinitionKeyValue(&defs, "P", &tmp->position[0], &tmp->position[1]);
+            GetPositionDefinitionKeyValue(&defs, L"P", &tmp->position[0], &tmp->position[1]);
 
             tmp->typeText.depth = 0;
-            if (const char* depth = GetDefinitionKeyValue(&defs, "D"))
+            if (const wchar_t* depth = GetDefinitionKeyValue(&defs, L"D"))
                 if (IsNumeric(depth))
                     tmp->typeText.depth = ToInt(depth);
 
@@ -104,9 +104,9 @@ bool SlideParser::Parse(std::vector<std::string> *input)
             continue;
         }
         // loading an external image
-        else if (EqualString(left, "\\LOAD_IMAGE"))
+        else if (EqualString(left, L"\\LOAD_IMAGE"))
         {
-            std::string name, path;
+            std::wstring name, path;
 
             name = RemoveBeginningSpaces(LeftSide(right, ','));
             path = RemoveBeginningSpaces(RightSide(right, ','));
@@ -121,7 +121,7 @@ bool SlideParser::Parse(std::vector<std::string> *input)
             continue;
         }
         // drawing loaded image
-        else if (EqualString(left, "\\DRAW_IMAGE"))
+        else if (EqualString(left, L"\\DRAW_IMAGE"))
         {
             tmp = new SlideElement;
             tmp->elemType = SLIDE_ELEM_IMAGE;
@@ -130,12 +130,12 @@ bool SlideParser::Parse(std::vector<std::string> *input)
             defs.clear();
             ParseInputDefinitions(middle, &defs);
 
-            tmp->elemId = GetDefinitionKeyValue(&defs, "ID");
-            tmp->elemStyle = GetDefinitionKeyValue(&defs, "S");
-            tmp->elemEffect = GetDefinitionKeyValue(&defs, "E");
+            tmp->elemId = GetDefinitionKeyValue(&defs, L"ID");
+            tmp->elemStyle = GetDefinitionKeyValue(&defs, L"S");
+            tmp->elemEffect = GetDefinitionKeyValue(&defs, L"E");
 
-            GetPositionDefinitionKeyValue(&defs, "P", &tmp->position[0], &tmp->position[1]);
-            GetPositionDefinitionKeyValue(&defs, "V", &tmp->typeImage.size[0], &tmp->typeImage.size[1]);
+            GetPositionDefinitionKeyValue(&defs, L"P", &tmp->position[0], &tmp->position[1]);
+            GetPositionDefinitionKeyValue(&defs, L"V", &tmp->typeImage.size[0], &tmp->typeImage.size[1]);
 
             ResourceEntry* res = sStorage->GetResource(right);
             if (res)
@@ -150,12 +150,12 @@ bool SlideParser::Parse(std::vector<std::string> *input)
             continue;
         }
         // mouse press event element
-        else if (EqualString(left, "\\MOUSE_LEFT") || EqualString(left, "\\MOUSE_RIGHT"))
+        else if (EqualString(left, L"\\MOUSE_LEFT") || EqualString(left, L"\\MOUSE_RIGHT"))
         {
             tmp = new SlideElement;
             tmp->elemType = SLIDE_ELEM_MOUSE_EVENT;
 
-            if (EqualString(left, "\\MOUSE_LEFT"))
+            if (EqualString(left, L"\\MOUSE_LEFT"))
                 tmp->typeMouseEvent.type = MOUSE_EVENT_LEFT_DOWN;
             else
                 tmp->typeMouseEvent.type = MOUSE_EVENT_RIGHT_DOWN;
@@ -168,8 +168,8 @@ bool SlideParser::Parse(std::vector<std::string> *input)
 
             ParseInputDefinitions(middle, &defs);
 
-            GetPositionDefinitionKeyValue(&defs, "PLU", &tmp->typeMouseEvent.positionSquareLU[0], &tmp->typeMouseEvent.positionSquareLU[1]);
-            GetPositionDefinitionKeyValue(&defs, "PRL", &tmp->typeMouseEvent.positionSquareRL[0], &tmp->typeMouseEvent.positionSquareRL[1]);
+            GetPositionDefinitionKeyValue(&defs, L"PLU", &tmp->typeMouseEvent.positionSquareLU[0], &tmp->typeMouseEvent.positionSquareLU[1]);
+            GetPositionDefinitionKeyValue(&defs, L"PRL", &tmp->typeMouseEvent.positionSquareRL[0], &tmp->typeMouseEvent.positionSquareRL[1]);
 
             sStorage->AddSlideElement(tmp);
 
@@ -178,7 +178,7 @@ bool SlideParser::Parse(std::vector<std::string> *input)
             continue;
         }
         // keyboard press event element
-        else if (EqualString(left, "\\KEY_PRESS") || EqualString(left, "\\KEY_RELEASE"))
+        else if (EqualString(left, L"\\KEY_PRESS") || EqualString(left, L"\\KEY_RELEASE"))
         {
             uint16 key = 0;
             if (right != NULL)
@@ -191,7 +191,7 @@ bool SlideParser::Parse(std::vector<std::string> *input)
 
             tmp = new SlideElement;
             tmp->elemType = SLIDE_ELEM_KEYBOARD_EVENT;
-            if (EqualString(left, "\\KEY_PRESS"))
+            if (EqualString(left, L"\\KEY_PRESS"))
                 tmp->typeKeyboardEvent.type = KEYBOARD_EVENT_KEY_DOWN;
             else
                 tmp->typeKeyboardEvent.type = KEYBOARD_EVENT_KEY_UP;
@@ -204,7 +204,7 @@ bool SlideParser::Parse(std::vector<std::string> *input)
             continue;
         }
         // clear everything from screen
-        else if (EqualString(left, "\\NEW_SLIDE"))
+        else if (EqualString(left, L"\\NEW_SLIDE"))
         {
             tmp = new SlideElement;
             tmp->elemType = SLIDE_ELEM_NEW_SLIDE;
@@ -215,7 +215,7 @@ bool SlideParser::Parse(std::vector<std::string> *input)
             continue;
         }
         // end
-        else if (EqualString(left, "\\END"))
+        else if (EqualString(left, L"\\END"))
         {
             return true;
         }
@@ -228,7 +228,7 @@ bool SlideParser::Parse(std::vector<std::string> *input)
     return true;
 }
 
-uint16 SlideParser::ResolveKey(const char* input)
+uint16 SlideParser::ResolveKey(const wchar_t* input)
 {
     if (!input)
         return 0;

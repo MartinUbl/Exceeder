@@ -4,17 +4,17 @@
 #include "Parsers\EffectParser.h"
 #include "Defines\Effects.h"
 
-bool EffectParser::ParseFile(const char *path)
+bool EffectParser::ParseFile(const wchar_t *path)
 {
     if (!path)
         return false;
 
-    FILE* efile = fopen(path, "r");
+    FILE* efile = _wfopen(path, L"r, ccs=UTF-8");
     if (!efile)
         return false;
 
-    std::vector<std::string> efffile;
-    char* ln = NULL;
+    std::vector<std::wstring> efffile;
+    wchar_t* ln = NULL;
     while ((ln = ReadLine(efile)) != NULL)
     {
         if (PrepareLine(ln))
@@ -24,18 +24,18 @@ bool EffectParser::ParseFile(const char *path)
     return Parse(&efffile);
 }
 
-bool EffectParser::Parse(std::vector<std::string> *input)
+bool EffectParser::Parse(std::vector<std::wstring> *input)
 {
     if (!input)
         return false;
 
-    char* left = NULL;
-    char* right = NULL;
+    wchar_t* left = NULL;
+    wchar_t* right = NULL;
 
-    char* effname = NULL;
+    wchar_t* effname = NULL;
     Effect* tmp = NULL;
 
-    for (std::vector<std::string>::const_iterator itr = input->begin(); itr != input->end(); ++itr)
+    for (std::vector<std::wstring>::const_iterator itr = input->begin(); itr != input->end(); ++itr)
     {
         left = LeftSide(itr->c_str(), ' ');
         right = RightSide(itr->c_str(), ' ');
@@ -47,22 +47,22 @@ bool EffectParser::Parse(std::vector<std::string> *input)
                 tmp = new Effect;
 
             // move type
-            if (EqualString(left, "\\MOVE"))
+            if (EqualString(left, L"\\MOVE"))
             {
-                if (EqualString(right, "linear"))
+                if (EqualString(right, L"linear"))
                     tmp->moveType = new uint32(MOVE_TYPE_LINEAR);
-                else if (EqualString(right, "circular"))
+                else if (EqualString(right, L"circular"))
                     tmp->moveType = new uint32(MOVE_TYPE_CIRCULAR);
-                else if (EqualString(right, "bezier"))
+                else if (EqualString(right, L"bezier"))
                     tmp->moveType = new uint32(MOVE_TYPE_BEZIER);
                 else
                     RAISE_ERROR("EffectParser: Unknown move type '%s'", right);
             }
             // starting position
-            else if (EqualString(left, "\\START_POS"))
+            else if (EqualString(left, L"\\START_POS"))
             {
-                char* xpos = LeftSide(right, ',');
-                char* ypos = LeftSide(right, ',');
+                wchar_t* xpos = LeftSide(right, ',');
+                wchar_t* ypos = LeftSide(right, ',');
 
                 if (!IsNumeric(xpos) || !IsNumeric(ypos))
                     RAISE_ERROR("EffectParser: Non-numeric value supplied as position parameter");
@@ -72,10 +72,10 @@ bool EffectParser::Parse(std::vector<std::string> *input)
                 tmp->startPos[1] = ToInt(ypos);
             }
             // end position
-            else if (EqualString(left, "\\END_POS"))
+            else if (EqualString(left, L"\\END_POS"))
             {
-                char* xpos = LeftSide(right, ',');
-                char* ypos = LeftSide(right, ',');
+                wchar_t* xpos = LeftSide(right, ',');
+                wchar_t* ypos = LeftSide(right, ',');
 
                 if (!IsNumeric(xpos) || !IsNumeric(ypos))
                     RAISE_ERROR("EffectParser: Non-numeric value supplied as position parameter");
@@ -85,7 +85,7 @@ bool EffectParser::Parse(std::vector<std::string> *input)
                 tmp->endPos[1] = ToInt(ypos);
             }
             // time for whole effect
-            else if (EqualString(left, "\\TIMER"))
+            else if (EqualString(left, L"\\TIMER"))
             {
                 if (!IsNumeric(right))
                     RAISE_ERROR("EffectParser: Non-numeric value supplied as timer parameter");
@@ -93,16 +93,16 @@ bool EffectParser::Parse(std::vector<std::string> *input)
                 tmp->effectTimer = new uint32(ToInt(right));
             }
             // sets effect as blocking
-            else if (EqualString(left, "\\BLOCKING"))
+            else if (EqualString(left, L"\\BLOCKING"))
             {
                 tmp->isBlocking = true;
             }
             // sets effect as non blocking (it is, by default, but some global config option can change that)
-            else if (EqualString(left, "\\NOBLOCKING"))
+            else if (EqualString(left, L"\\NOBLOCKING"))
             {
                 tmp->isBlocking = false;
             }
-            else if (EqualString(left, "\\DEF_END"))
+            else if (EqualString(left, L"\\DEF_END"))
             {
                 sStorage->AddNewEffect(effname, tmp);
                 effname = NULL;
@@ -114,18 +114,18 @@ bool EffectParser::Parse(std::vector<std::string> *input)
 
         // when not parsing effect definition
         // file version
-        if (EqualString(left, "\\EXCEEDER_EFFECTS_FILE_VERSION"))
+        if (EqualString(left, L"\\EXCEEDER_EFFECTS_FILE_VERSION"))
         {
             //
         }
         // start of definition
-        else if (EqualString(left, "\\DEF_BEGIN"))
+        else if (EqualString(left, L"\\DEF_BEGIN"))
         {
             effname = right;
             continue;
         }
         // end
-        else if (EqualString(left, "\\END"))
+        else if (EqualString(left, L"\\END"))
         {
             return true;
         }

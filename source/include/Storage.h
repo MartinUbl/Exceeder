@@ -10,7 +10,7 @@
 
 struct StoredFont
 {
-    const char* fontName;
+    const wchar_t* fontName;
     uint32 fontSize;
 
     bool bold;
@@ -27,10 +27,10 @@ class Storage
         Storage();
         ~Storage();
 
-        bool ReadInputSupfile(const char* path);
-        void AddInputStyleFile(const char* path)   { m_styleFiles.push_back(path); };
-        void AddInputEffectsFile(const char* path) { m_effectsFiles.push_back(path); };
-        void AddInputSlideFile(const char* path)   { m_slideFiles.push_back(path); };
+        bool ReadInputSupfile(const wchar_t* path);
+        void AddInputStyleFile(const wchar_t* path)   { m_styleFiles.push_back(path); };
+        void AddInputEffectsFile(const wchar_t* path) { m_effectsFiles.push_back(path); };
+        void AddInputSlideFile(const wchar_t* path)   { m_slideFiles.push_back(path); };
         bool ParseInputFiles();
 
         void SetScreenWidth(uint32 width) { m_screenWidth = width; };
@@ -38,22 +38,22 @@ class Storage
         uint32 GetScreenWidth() { return m_screenWidth; };
         uint32 GetScreenHeight() { return m_screenHeight; };
 
-        void SetSupfileVersion(std::string ver) { m_supfileVersion = ver.c_str(); };
-        const char* GetSupfileVersion() { return m_supfileVersion.c_str(); };
-        const char* GetSupfilePath() { return m_supfilePath.c_str(); };
+        void SetSupfileVersion(std::wstring ver) { m_supfileVersion = ver.c_str(); };
+        const wchar_t* GetSupfileVersion() { return m_supfileVersion.c_str(); };
+        const wchar_t* GetSupfilePath() { return m_supfilePath.c_str(); };
 
         void SetDefaultFontId(int32 id) { m_defaultFontId = id; };
         int32 GetDefaultFontId() { return m_defaultFontId; };
         void BuildStyleFonts();
 
-        void AddNewStyle(const char* name, Style* style)
+        void AddNewStyle(const wchar_t* name, Style* style)
         {
             if (!name || !style)
                 return;
 
             m_styleMap[name] = style;
         }
-        Style* GetStyle(const char* name)
+        Style* GetStyle(const wchar_t* name)
         {
             for (StyleMap::iterator itr = m_styleMap.begin(); itr != m_styleMap.end(); ++itr)
                 if (EqualString(itr->first, name))
@@ -61,14 +61,14 @@ class Storage
             return NULL;
         }
 
-        void AddNewEffect(const char* name, Effect* eff)
+        void AddNewEffect(const wchar_t* name, Effect* eff)
         {
             if (!name || !eff)
                 return;
 
             m_effectMap[name] = eff;
         }
-        Effect* GetEffect(const char* name)
+        Effect* GetEffect(const wchar_t* name)
         {
             for (EffectMap::iterator itr = m_effectMap.begin(); itr != m_effectMap.end(); ++itr)
                 if (EqualString(itr->first, name))
@@ -89,21 +89,21 @@ class Storage
         }
 
         // Resources.cpp
-        uint32 PrepareImageResource(const char* name, const char* path);
+        uint32 PrepareImageResource(const wchar_t* name, const wchar_t* path);
         void LoadImageResources();
         ResourceEntry* GetResource(uint32 id);
-        ResourceEntry* GetResource(const char* name);
+        ResourceEntry* GetResource(const wchar_t* name);
 
     private:
 
-        std::string m_supfilePath;
-        std::list<std::string> m_styleFiles;
-        std::list<std::string> m_effectsFiles;
-        std::list<std::string> m_slideFiles;
+        std::wstring m_supfilePath;
+        std::list<std::wstring> m_styleFiles;
+        std::list<std::wstring> m_effectsFiles;
+        std::list<std::wstring> m_slideFiles;
 
         std::vector<ResourceEntry*> m_resources;
 
-        std::string m_supfileVersion;
+        std::wstring m_supfileVersion;
 
         uint32 m_screenWidth;
         uint32 m_screenHeight;

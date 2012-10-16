@@ -2,21 +2,21 @@
 #include "Application.h"
 #include "Parsers\Parser.h"
 
-char* Parser::ReadLine(FILE* f)
+wchar_t* Parser::ReadLine(FILE* f)
 {
     if (!f)
         return NULL;
 
-    std::vector<char> charbuf;
-    while (int32 chr = getc(f))
+    std::vector<wchar_t> charbuf;
+    while (int32 chr = getwc(f))
     {
-        if (charbuf.empty() && chr == EOF)
+        if (charbuf.empty() && chr == WEOF)
             return NULL;
 
-        if (chr == '\n' || chr == EOF)
+        if (chr == '\n' || chr == WEOF)
         {
             charbuf.push_back('\0');
-            return (char*)CharVectorToString(&charbuf);
+            return (wchar_t*)CharVectorToString(&charbuf);
         }
 
         charbuf.push_back(chr);
@@ -25,15 +25,15 @@ char* Parser::ReadLine(FILE* f)
     return NULL;
 }
 
-bool Parser::PrepareLine(char *&input)
+bool Parser::PrepareLine(wchar_t *&input)
 {
     // valid line has 1 and more characters
-    if (strlen(input) < 1)
+    if (wcslen(input) < 1)
         return false;
 
     // indicate comments and cut the string
     bool comment = false;
-    for (uint32 i = 0; i < strlen(input)-1; i++)
+    for (uint32 i = 0; i < wcslen(input)-1; i++)
     {
         if (input[i] == '/' && input[i+1] == '/')
             comment = true;
@@ -44,7 +44,7 @@ bool Parser::PrepareLine(char *&input)
 
     // verify that line consists of valid characters - not only from spaces
     bool validline = false;
-    for (uint32 i = 0; i < strlen(input); i++)
+    for (uint32 i = 0; i < wcslen(input); i++)
     {
         if (input[i] != ' ')
         {
@@ -57,7 +57,7 @@ bool Parser::PrepareLine(char *&input)
         return false;
 
     // cut the whitespaces off
-    for (int32 i = strlen(input)-1; i >= 0; i--)
+    for (int32 i = wcslen(input)-1; i >= 0; i--)
     {
         if (input[i] == ' ')
             input[i] = '\0';

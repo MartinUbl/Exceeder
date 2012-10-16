@@ -6,7 +6,7 @@
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-    sApplication->Init(lpCmdLine);
+    sApplication->Init(ToWideString(lpCmdLine));
 
     if (!sApplication->Initialized())
         return -1;
@@ -25,31 +25,31 @@ Application::~Application()
 {
 }
 
-void Application::Init(const char *cmdline)
+void Application::Init(const wchar_t *cmdline)
 {
-    std::vector<char> option;
+    std::vector<wchar_t> option;
     option.clear();
-    for (uint32 i = 0; i <= strlen(cmdline); i++)
+    for (uint32 i = 0; i <= wcslen(cmdline); i++)
     {
         if (cmdline[i] == ' ' || cmdline[i] == '\0')
         {
             // recognize option
             option.push_back('\0');
-            const char* opt = CharVectorToString(&option);
+            const wchar_t* opt = CharVectorToString(&option);
             if (opt)
             {
                 // parameter is file
                 if (opt[0] != '-')
                 {
                     // init error file
-                    if (char* fpath = ExtractFolderFromPath(opt))
+                    if (wchar_t* fpath = ExtractFolderFromPath(opt))
                     {
-                        char newpath[256];
-                        sprintf(&newpath[0], "%s\\err.log", fpath);
+                        wchar_t newpath[256];
+                        swprintf(&newpath[0], L"%s\\err.log", fpath);
                         sLog->InitErrorFile(newpath);
                     }
                     else
-                        sLog->InitErrorFile("./err.log");
+                        sLog->InitErrorFile(L"./err.log");
 
                     if (!sStorage->ReadInputSupfile(opt))
                         return;

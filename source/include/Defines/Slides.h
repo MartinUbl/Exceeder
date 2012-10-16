@@ -34,25 +34,25 @@ enum KeyboardEventTypes
 
 struct KnownKey
 {
-    const char* name;
+    const wchar_t* name;
     uint16 code;
 };
 
 static const KnownKey KnownKeys[] = {
-    {"ENTER",     VK_RETURN},
-    {"RETURN",    VK_RETURN},
-    {"SPACE",     VK_SPACE},
-    {"CTRL",      VK_CONTROL},
-    {"SHIFT",     VK_SHIFT}
+    {L"ENTER",     VK_RETURN},
+    {L"RETURN",    VK_RETURN},
+    {L"SPACE",     VK_SPACE},
+    {L"CTRL",      VK_CONTROL},
+    {L"SHIFT",     VK_SHIFT}
 };
 
 struct SlideElement
 {
     SlideElement()
     {
-        elemId = "";
-        elemStyle = "";
-        elemEffect = "";
+        elemId = L"";
+        elemStyle = L"";
+        elemEffect = L"";
 
         myEffect = NULL;
         drawable = false;
@@ -64,9 +64,9 @@ struct SlideElement
     SlideElementTypes elemType;
     bool drawable;
 
-    std::string elemId;
-    std::string elemStyle;
-    std::string elemEffect;
+    std::wstring elemId;
+    std::wstring elemStyle;
+    std::wstring elemEffect;
 
     EffectHandler* myEffect;
 
@@ -79,7 +79,7 @@ struct SlideElement
 
     struct elemTextData
     {
-        std::string text;   // text... text!
+        std::wstring text;   // text... text!
         uint32 depth;       // depth of drawing - for some kind of "layers"
         void Draw(SlideElement* parent);
     } typeText;

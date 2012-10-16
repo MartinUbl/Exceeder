@@ -3,7 +3,7 @@
 #include "Storage.h"
 #include "Parsers\SupfileParser.h"
 
-bool SupfileParser::Parse(std::vector<std::string>* input)
+bool SupfileParser::Parse(std::vector<std::wstring>* input)
 {
     if (!input)
         return false;
@@ -12,10 +12,10 @@ bool SupfileParser::Parse(std::vector<std::string>* input)
     bool effectfiles = false;
     bool stylefiles = false;
 
-    char* left = NULL;
-    char* right = NULL;
+    wchar_t* left = NULL;
+    wchar_t* right = NULL;
 
-    for (std::vector<std::string>::const_iterator itr = input->begin(); itr != input->end(); ++itr)
+    for (std::vector<std::wstring>::const_iterator itr = input->begin(); itr != input->end(); ++itr)
     {
         left = LeftSide(itr->c_str(), ' ');
         right = RightSide(itr->c_str(), ' ');
@@ -24,9 +24,9 @@ bool SupfileParser::Parse(std::vector<std::string>* input)
         {
             if (slidefiles)
             {
-                FILE* f = fopen(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left), "r");
+                FILE* f = _wfopen(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left), L"r, ccs=UTF-8");
                 if (!f)
-                    RAISE_ERROR("SupfileParser: Input slide file '%s', hasn't been found!", left);
+                    RAISE_ERROR("SupfileParser: Input slide file '%s', hasn't been found!", ToMultiByteString(left));
                 fclose(f);
 
                 sStorage->AddInputSlideFile(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left));
@@ -35,9 +35,9 @@ bool SupfileParser::Parse(std::vector<std::string>* input)
 
             if (effectfiles)
             {
-                FILE* f = fopen(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left), "r");
+                FILE* f = _wfopen(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left), L"r, ccs=UTF-8");
                 if (!f)
-                    RAISE_ERROR("SupfileParser: Input effects file '%s', hasn't been found!", left);
+                    RAISE_ERROR("SupfileParser: Input effects file '%s', hasn't been found!", ToMultiByteString(left));
                 fclose(f);
 
                 sStorage->AddInputEffectsFile(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left));
@@ -46,9 +46,9 @@ bool SupfileParser::Parse(std::vector<std::string>* input)
 
             if (stylefiles)
             {
-                FILE* f = fopen(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left), "r");
+                FILE* f = _wfopen(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left), L"r, ccs=UTF-8");
                 if (!f)
-                    RAISE_ERROR("SupfileParser: Input styles file '%s', hasn't been found!", left);
+                    RAISE_ERROR("SupfileParser: Input styles file '%s', hasn't been found!", ToMultiByteString(left));
                 fclose(f);
 
                 sStorage->AddInputStyleFile(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left));
@@ -64,9 +64,9 @@ bool SupfileParser::Parse(std::vector<std::string>* input)
             stylefiles = false;
 
         // file version
-        if (EqualString(left, "\\EXCEEDER_SUPFILE_VERSION"))
+        if (EqualString(left, L"\\EXCEEDER_SUPFILE_VERSION"))
         {
-            if (right && strlen(right) >= 1)
+            if (right && wcslen(right) >= 1)
             {
                 bool valid = false;
                 for (uint32 i = 0; i < sizeof(SupportedSupfileVersions)/sizeof(const char*); i++)
@@ -82,10 +82,10 @@ bool SupfileParser::Parse(std::vector<std::string>* input)
                     RAISE_ERROR("SupfileParser: Unsupported supfile version '%s'!", right);
             }
             else
-                RAISE_ERROR("SupfileParser: Unknown version '%s'!", right?right:"none");
+                RAISE_ERROR("SupfileParser: Unknown version '%s'!", right?ToMultiByteString(right):"none");
         }
         // screen width
-        else if (EqualString(left, "\\SCREEN_WIDTH"))
+        else if (EqualString(left, L"\\SCREEN_WIDTH"))
         {
             if (IsNumeric(right))
                 sStorage->SetScreenWidth(ToInt(right));
@@ -93,7 +93,7 @@ bool SupfileParser::Parse(std::vector<std::string>* input)
                 RAISE_ERROR("SupfileParser: Non-numeric value '%s' for screen width", right);
         }
         // screen height
-        else if (EqualString(left, "\\SCREEN_HEIGHT"))
+        else if (EqualString(left, L"\\SCREEN_HEIGHT"))
         {
             if (IsNumeric(right))
                 sStorage->SetScreenHeight(ToInt(right));
@@ -101,25 +101,25 @@ bool SupfileParser::Parse(std::vector<std::string>* input)
                 RAISE_ERROR("SupfileParser: Non-numeric value '%s' for screen height", right);
         }
         // slide files
-        else if (EqualString(left, "\\SLIDES"))
+        else if (EqualString(left, L"\\SLIDES"))
         {
             slidefiles = true;
             continue;
         }
         // effect files
-        else if (EqualString(left, "\\EFFECTS"))
+        else if (EqualString(left, L"\\EFFECTS"))
         {
             effectfiles = true;
             continue;
         }
         // style files
-        else if (EqualString(left, "\\STYLES"))
+        else if (EqualString(left, L"\\STYLES"))
         {
             stylefiles = true;
             continue;
         }
         // end of all
-        else if (EqualString(left, "\\END"))
+        else if (EqualString(left, L"\\END"))
         {
             return true;
         }

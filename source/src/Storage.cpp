@@ -1,6 +1,7 @@
 #include "Global.h"
 #include "Log.h"
 #include "Storage.h"
+#include "Helpers.h"
 #include "Parsers\Parser.h"
 #include "Parsers\SupfileParser.h"
 #include "Parsers\StyleParser.h"
@@ -20,20 +21,20 @@ Storage::~Storage()
 {
 }
 
-bool Storage::ReadInputSupfile(const char *path)
+bool Storage::ReadInputSupfile(const wchar_t *path)
 {
-    if (!path || strlen(path) < 1)
+    if (!path || wcslen(path) < 1)
         return false;
 
-    FILE* sfile = fopen(path, "r");
+    FILE* sfile = _wfopen(path, L"r, ccs=UTF-8");
     if (!sfile)
         return false;
 
     m_supfilePath = path;
 
     // preprocess supfile - we need to exclude non-valid lines like all spaces, empty lines or comments
-    std::vector<std::string> supfile;
-    char* ln = NULL;
+    std::vector<std::wstring> supfile;
+    wchar_t* ln = NULL;
     while ((ln = Parser::ReadLine(sfile)) != NULL)
     {
         if (Parser::PrepareLine(ln))
@@ -49,19 +50,19 @@ bool Storage::ParseInputFiles()
     if (m_slideFiles.empty())
         RAISE_ERROR("There are no slide files defined!");
 
-    for (std::list<std::string>::const_iterator itr = m_styleFiles.begin(); itr != m_styleFiles.end(); ++itr)
+    for (std::list<std::wstring>::const_iterator itr = m_styleFiles.begin(); itr != m_styleFiles.end(); ++itr)
     {
         if (!StyleParser::ParseFile((*itr).c_str()))
             return false;
     }
 
-    for (std::list<std::string>::const_iterator itr = m_effectsFiles.begin(); itr != m_effectsFiles.end(); ++itr)
+    for (std::list<std::wstring>::const_iterator itr = m_effectsFiles.begin(); itr != m_effectsFiles.end(); ++itr)
     {
         if (!EffectParser::ParseFile((*itr).c_str()))
             return false;
     }
 
-    for (std::list<std::string>::const_iterator itr = m_slideFiles.begin(); itr != m_slideFiles.end(); ++itr)
+    for (std::list<std::wstring>::const_iterator itr = m_slideFiles.begin(); itr != m_slideFiles.end(); ++itr)
     {
         if (!SlideParser::ParseFile((*itr).c_str()))
             return false;
@@ -101,7 +102,7 @@ void Storage::BuildStyleFonts()
             if (fontMatch)
                 continue;
 
-            itr->second->fontId = sSimplyFlat->BuildFont(itr->second->fontFamily, (*(itr->second->fontSize)), (itr->second->bold ? FW_BOLD : 0), itr->second->italic, itr->second->underline, itr->second->strikeout);
+            itr->second->fontId = sSimplyFlat->BuildFont(ToMultiByteString(itr->second->fontFamily), (*(itr->second->fontSize)), (itr->second->bold ? FW_BOLD : 0), itr->second->italic, itr->second->underline, itr->second->strikeout);
 
             // Save font definition for later use
             StoredFont fnt;

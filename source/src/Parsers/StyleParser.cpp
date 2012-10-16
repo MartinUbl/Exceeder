@@ -4,17 +4,17 @@
 #include "Parsers\StyleParser.h"
 #include "Defines\Styles.h"
 
-bool StyleParser::ParseFile(const char *path)
+bool StyleParser::ParseFile(const wchar_t *path)
 {
     if (!path)
         return false;
 
-    FILE* sfile = fopen(path, "r");
+    FILE* sfile = _wfopen(path, L"r, ccs=UTF-8");
     if (!sfile)
         return false;
 
-    std::vector<std::string> stylefile;
-    char* ln = NULL;
+    std::vector<std::wstring> stylefile;
+    wchar_t* ln = NULL;
     while ((ln = ReadLine(sfile)) != NULL)
     {
         if (PrepareLine(ln))
@@ -24,18 +24,18 @@ bool StyleParser::ParseFile(const char *path)
     return Parse(&stylefile);
 }
 
-bool StyleParser::Parse(std::vector<std::string> *input)
+bool StyleParser::Parse(std::vector<std::wstring> *input)
 {
     if (!input)
         return false;
 
-    char* left = NULL;
-    char* right = NULL;
+    wchar_t* left = NULL;
+    wchar_t* right = NULL;
 
-    char* stylename = NULL;
+    wchar_t* stylename = NULL;
     Style* tmp = NULL;
 
-    for (std::vector<std::string>::const_iterator itr = input->begin(); itr != input->end(); ++itr)
+    for (std::vector<std::wstring>::const_iterator itr = input->begin(); itr != input->end(); ++itr)
     {
         left = LeftSide(itr->c_str(), ' ');
         right = RightSide(itr->c_str(), ' ');
@@ -47,7 +47,7 @@ bool StyleParser::Parse(std::vector<std::string> *input)
                 tmp = new Style;
 
             // font family
-            if (EqualString(left, "\\FONT_FAMILY"))
+            if (EqualString(left, L"\\FONT_FAMILY"))
             {
                 tmp->fontFamily = right;
 
@@ -56,29 +56,29 @@ bool StyleParser::Parse(std::vector<std::string> *input)
                     tmp->fontId = -2;
             }
             // font size in pixels
-            else if (EqualString(left, "\\FONT_SIZE"))
+            else if (EqualString(left, L"\\FONT_SIZE"))
             {
                 if (IsNumeric(right))
                     tmp->fontSize = new uint32(ToInt(right));
                 else
-                    RAISE_ERROR("StyleParser: Non-numeric value '%s' used as font size", (right)?right:"none");
+                    RAISE_ERROR("StyleParser: Non-numeric value '%s' used as font size", (right)?ToMultiByteString(right):"none");
 
                 if (tmp->fontId >= 0)
                     tmp->fontId = -2;
             }
             // font color
-            else if (EqualString(left, "\\FONT_COLOR"))
+            else if (EqualString(left, L"\\FONT_COLOR"))
             {
                 uint32 dst = 0;
                 if (ParseColor(right, &dst))
                     tmp->fontColor = new uint32(dst);
                 else
-                    RAISE_ERROR("StyleParser: Invalid expression '%s' used as font color", (right)?right:"none");
+                    RAISE_ERROR("StyleParser: Invalid expression '%s' used as font color", (right)?ToMultiByteString(right):"none");
 
                 if (tmp->fontId >= 0)
                     tmp->fontId = -2;
             }
-            else if (EqualString(left, "\\DEF_END"))
+            else if (EqualString(left, L"\\DEF_END"))
             {
                 sStorage->AddNewStyle(stylename, tmp);
                 stylename = NULL;
@@ -90,18 +90,18 @@ bool StyleParser::Parse(std::vector<std::string> *input)
 
         // when not parsing style definition
         // file version
-        if (EqualString(left, "\\EXCEEDER_STYLES_FILE_VERSION"))
+        if (EqualString(left, L"\\EXCEEDER_STYLES_FILE_VERSION"))
         {
             //
         }
         // start of definition
-        else if (EqualString(left, "\\DEF_BEGIN"))
+        else if (EqualString(left, L"\\DEF_BEGIN"))
         {
             stylename = right;
             continue;
         }
         // end
-        else if (EqualString(left, "\\END"))
+        else if (EqualString(left, L"\\END"))
         {
             return true;
         }
@@ -114,7 +114,7 @@ bool StyleParser::Parse(std::vector<std::string> *input)
     return true;
 }
 
-bool StyleParser::ParseColor(const char *input, uint32 *dest)
+bool StyleParser::ParseColor(const wchar_t *input, uint32 *dest)
 {
     if (!input || !dest)
         return false;

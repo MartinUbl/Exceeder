@@ -3,26 +3,26 @@
 
 #include <sstream>
 
-const char* CharVectorToString(std::vector<char>* vect)
+const wchar_t* CharVectorToString(std::vector<wchar_t>* vect)
 {
     if (!vect)
         return NULL;
 
-    char* ret = new char[vect->size()];
+    wchar_t* ret = new wchar_t[vect->size()];
     uint32 i = 0;
-    for (std::vector<char>::const_iterator itr = vect->begin(); itr != vect->end(); ++itr)
+    for (std::vector<wchar_t>::const_iterator itr = vect->begin(); itr != vect->end(); ++itr)
         ret[i++] = (*itr);
 
     return ret;
 }
 
-char* ExtractFolderFromPath(const char* input)
+wchar_t* ExtractFolderFromPath(const wchar_t* input)
 {
-    for (int32 i = strlen(input); i >= 0; i--)
+    for (int32 i = wcslen(input); i >= 0; i--)
         if (input[i] == '\\')
         {
-            char* tmp = new char[i+1];
-            strncpy(tmp, input, i);
+            wchar_t* tmp = new wchar_t[i+1];
+            wcsncpy(tmp, input, i);
             tmp[i] = '\0';
             return tmp;
         }
@@ -30,15 +30,15 @@ char* ExtractFolderFromPath(const char* input)
     return NULL;
 }
 
-char* ExtractFilenameFromPath(const char* input)
+wchar_t* ExtractFilenameFromPath(const wchar_t* input)
 {
-    for (int32 i = strlen(input); i > 0; i--)
+    for (int32 i = wcslen(input); i > 0; i--)
     {
         if (input[i-1] == '\\')
         {
-            char* tmp = new char[strlen(input)-i+1];
-            strncpy(tmp, (input+i), strlen(input)-i);
-            tmp[strlen(input)-i] = '\0';
+            wchar_t* tmp = new wchar_t[wcslen(input)-i+1];
+            wcsncpy(tmp, (input+i), wcslen(input)-i);
+            tmp[wcslen(input)-i] = '\0';
             return tmp;
         }
     }
@@ -46,61 +46,61 @@ char* ExtractFilenameFromPath(const char* input)
     return NULL;
 }
 
-char* MakeFilePath(const char* dir, const char* filename)
+wchar_t* MakeFilePath(const wchar_t* dir, const wchar_t* filename)
 {
     if (!dir)
-        return (char*)filename;
+        return (wchar_t*)filename;
 
     if (!filename)
         return NULL;
 
-    char* tmp = NULL;
+    wchar_t* tmp = NULL;
 
-    if (dir[strlen(dir)-1] != '\\')
+    if (dir[wcslen(dir)-1] != '\\')
     {
-        tmp = new char[strlen(dir)+1+strlen(filename)+1];
-        sprintf(tmp, "%s\\%s", dir, filename);
+        tmp = new wchar_t[wcslen(dir)+1+wcslen(filename)+1];
+        swprintf(tmp, L"%s\\%s", dir, filename);
     }
     else
     {
-        tmp = new char[strlen(dir)+strlen(filename)+1];
-        sprintf(tmp, "%s%s", dir, filename);
+        tmp = new wchar_t[wcslen(dir)+wcslen(filename)+1];
+        swprintf(tmp, L"%s%s", dir, filename);
     }
 
     return tmp;
 }
 
-char* LeftSide(const char* input, const char delim)
+wchar_t* LeftSide(const wchar_t* input, const wchar_t delim)
 {
-    if (!input || strlen(input) < 1)
+    if (!input || wcslen(input) < 1)
         return NULL;
 
-    for (uint32 i = 0; i < strlen(input); i++)
+    for (uint32 i = 0; i < wcslen(input); i++)
     {
         if (input[i] == delim)
         {
-            char* tmp = new char[i+1];
-            strncpy(tmp, input, i);
+            wchar_t* tmp = new wchar_t[i+1];
+            wcsncpy(tmp, input, i);
             tmp[i] = '\0';
             return tmp;
         }
     }
 
-    return (char*)input;
+    return (wchar_t*)input;
 }
 
-char* RightSide(const char* input, const char delim)
+wchar_t* RightSide(const wchar_t* input, const wchar_t delim)
 {
-    if (!input || strlen(input) < 1)
+    if (!input || wcslen(input) < 1)
         return NULL;
 
-    for (uint32 i = 0; i < strlen(input); i++)
+    for (uint32 i = 0; i < wcslen(input); i++)
     {
         if (input[i] == delim)
         {
-            char* tmp = new char[strlen(input)-i+1];
-            strncpy(tmp, (input+i+1), strlen(input)-i-1);
-            tmp[strlen(input)-i-1] = '\0';
+            wchar_t* tmp = new wchar_t[wcslen(input)-i+1];
+            wcsncpy(tmp, (input+i+1), wcslen(input)-i-1);
+            tmp[wcslen(input)-i-1] = '\0';
             return tmp;
         }
     }
@@ -108,50 +108,50 @@ char* RightSide(const char* input, const char delim)
     return NULL;
 }
 
-bool EqualString(const char* first, const char* second)
+bool EqualString(const wchar_t* first, const wchar_t* second)
 {
-    if (strlen(first) != strlen(second))
+    if (wcslen(first) != wcslen(second))
         return false;
 
-    for (uint32 i = 0; i < strlen(first); i++)
+    for (uint32 i = 0; i < wcslen(first); i++)
         if (first[i] != second[i])
             return false;
 
     return true;
 }
 
-bool IsNumeric(const char* inp)
+bool IsNumeric(const wchar_t* inp)
 {
-    if (!inp || strlen(inp) < 1)
+    if (!inp || wcslen(inp) < 1)
         return false;
 
-    for (uint32 i = 0; i < strlen(inp); i++)
+    for (uint32 i = 0; i < wcslen(inp); i++)
         if (inp[i] < '0' || inp[i] > '9')
             return false;
 
     return true;
 }
 
-int ToInt(const char* inp)
+int ToInt(const wchar_t* inp)
 {
-    return strtol(inp, (char**)&inp, 10);
+    return wcstol(inp, (wchar_t**)&inp, 10);
 }
 
-char* RemoveBeginningSpaces(const char* input)
+wchar_t* RemoveBeginningSpaces(const wchar_t* input)
 {
     if (!input)
         return NULL;
 
     if (input[0] != ' ')
-        return (char*)input;
+        return (wchar_t*)input;
 
-    for (uint32 i = 0; i < strlen(input); i++)
+    for (uint32 i = 0; i < wcslen(input); i++)
     {
         if (input[i] != ' ')
         {
-            char* tmp = new char[strlen(input)-i];
-            strncpy(tmp, (input+i), strlen(input)-i);
-            tmp[strlen(input)-i] = '\0';
+            wchar_t* tmp = new wchar_t[wcslen(input)-i];
+            wcsncpy(tmp, (input+i), wcslen(input)-i);
+            tmp[wcslen(input)-i] = '\0';
             return tmp;
         }
     }
@@ -159,15 +159,15 @@ char* RemoveBeginningSpaces(const char* input)
     return NULL;
 }
 
-void ParseInputDefinitions(char* input, ParsedDefs* output)
+void ParseInputDefinitions(wchar_t* input, ParsedDefs* output)
 {
-    char* tmp = NULL;
-    while (input != NULL && strlen(input) > 0)
+    wchar_t* tmp = NULL;
+    while (input != NULL && wcslen(input) > 0)
     {
         tmp = LeftSide(input, '}');
 
         // no definitions?
-        if (strlen(tmp) == strlen(input))
+        if (wcslen(tmp) == wcslen(input))
             break;
 
         output->push_back(std::make_pair(LeftSide(tmp, ':'), RightSide(tmp, ':')));
@@ -176,12 +176,12 @@ void ParseInputDefinitions(char* input, ParsedDefs* output)
     }
 }
 
-const char* GetDefinitionKeyValue(ParsedDefs* input, const char* key)
+const wchar_t* GetDefinitionKeyValue(ParsedDefs* input, const wchar_t* key)
 {
-    if (!input || !key || strlen(key) < 1)
-        return "";
+    if (!input || !key || wcslen(key) < 1)
+        return L"";
 
-    const char* upkey = ToUppercase(key);
+    const wchar_t* upkey = ToUppercase(key);
 
     for (ParsedDefs::const_iterator itr = input->begin(); itr != input->end(); ++itr)
     {
@@ -189,20 +189,20 @@ const char* GetDefinitionKeyValue(ParsedDefs* input, const char* key)
             return (*itr).second.c_str();
     }
 
-    return "";
+    return L"";
 }
 
-void GetPositionDefinitionKeyValue(ParsedDefs* input, const char* key, uint32* destX, uint32* destY)
+void GetPositionDefinitionKeyValue(ParsedDefs* input, const wchar_t* key, uint32* destX, uint32* destY)
 {
     (*destX) = 0;
     (*destY) = 0;
 
-    if (const char* pos = GetDefinitionKeyValue(input, key))
+    if (const wchar_t* pos = GetDefinitionKeyValue(input, key))
     {
-        if (strlen(pos) > 0)
+        if (wcslen(pos) > 0)
         {
-            const char* xpos = LeftSide(pos, ',');
-            const char* ypos = RightSide(pos, ',');
+            const wchar_t* xpos = LeftSide(pos, ',');
+            const wchar_t* ypos = RightSide(pos, ',');
             if (IsNumeric(xpos) && IsNumeric(ypos))
             {
                 if (destX)
@@ -214,50 +214,68 @@ void GetPositionDefinitionKeyValue(ParsedDefs* input, const char* key, uint32* d
     }
 }
 
-static const char* patt_lowcase = {"abcdefghijklmnopqrstuvwxyz"};
-static const char* patt_upcase  = {"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
+static const wchar_t* patt_lowcase = {L"abcdefghijklmnopqrstuvwxyz"};
+static const wchar_t* patt_upcase  = {L"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
 
-char UpperChar(char inp)
+wchar_t UpperChar(wchar_t inp)
 {
-    for (uint32 i = 0; i < strlen(patt_lowcase); i++)
+    for (uint32 i = 0; i < wcslen(patt_lowcase); i++)
         if (patt_lowcase[i] == inp)
             return patt_upcase[i];
 
     return inp;
 }
 
-char LowerChar(char inp)
+wchar_t LowerChar(wchar_t inp)
 {
-    for (uint32 i = 0; i < strlen(patt_upcase); i++)
+    for (uint32 i = 0; i < wcslen(patt_upcase); i++)
         if (patt_upcase[i] == inp)
             return patt_lowcase[i];
 
     return inp;
 }
 
-const char* ToUppercase(const char* input)
+const wchar_t* ToUppercase(const wchar_t* input)
 {
-    char* ret = new char[strlen(input)+1];
+    wchar_t* ret = new wchar_t[wcslen(input)+1];
 
-    for (uint32 i = 0; i < strlen(input); i++)
+    for (uint32 i = 0; i < wcslen(input); i++)
         ret[i] = UpperChar(input[i]);
 
-    ret[strlen(input)] = '\0';
+    ret[wcslen(input)] = '\0';
 
     return ret;
 }
 
-const char* ToLowercase(const char* input)
+const wchar_t* ToLowercase(const wchar_t* input)
 {
-    std::stringstream ss;
+    std::wstringstream ss;
 
-    for (uint32 i = 0; i < strlen(input); i++)
+    for (uint32 i = 0; i < wcslen(input); i++)
         ss << LowerChar(input[i]);
 
-    ss << char(0);
+    ss << wchar_t(0);
 
-    char* pp = new char[ss.str().size()];
-    strncpy(pp, ss.str().c_str(), ss.str().size());
+    wchar_t* pp = new wchar_t[ss.str().size()];
+    wcsncpy(pp, ss.str().c_str(), ss.str().size());
 
     return pp;
+}
+
+const wchar_t* ToWideString(const char* input)
+{
+    const size_t origsize = strlen(input)+1;
+    wchar_t* wc = new wchar_t[origsize];
+    mbstowcs(wc, input, origsize);
+
+    return wc;
+}
+
+const char* ToMultiByteString(const wchar_t* input)
+{
+    const size_t origsize = wcslen(input)+1;
+    char* mbc = new char[origsize];
+    wcstombs(mbc, input, origsize);
+
+    return mbc;
 }

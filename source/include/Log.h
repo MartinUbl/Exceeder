@@ -10,7 +10,7 @@ class Log
         Log();
         ~Log();
 
-        void InitErrorFile(const char* path);
+        void InitErrorFile(const wchar_t* path);
 
         void ErrorLog(const char* err, ...);
         const char* GetDateTimeString();

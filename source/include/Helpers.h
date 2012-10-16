@@ -1,27 +1,29 @@
 #ifndef EXCDR_HELPERS_H
 #define EXCDR_HELPERS_H
 
-typedef std::list<std::pair<const char*, std::string>> ParsedDefs;
+typedef std::list<std::pair<const wchar_t*, std::wstring>> ParsedDefs;
 
-extern const char* CharVectorToString(std::vector<char>* vect);
-extern char* ExtractFolderFromPath(const char* input);
-extern char* ExtractFilenameFromPath(const char* input);
-extern char* MakeFilePath(const char* dir, const char* filename);
+extern const wchar_t* CharVectorToString(std::vector<wchar_t>* vect);
+extern wchar_t* ExtractFolderFromPath(const wchar_t* input);
+extern wchar_t* ExtractFilenameFromPath(const wchar_t* input);
+extern wchar_t* MakeFilePath(const wchar_t* dir, const wchar_t* filename);
 
-extern char* LeftSide(const char* input, const char delim);
-extern char* RightSide(const char* input, const char delim);
+extern wchar_t* LeftSide(const wchar_t* input, const wchar_t delim);
+extern wchar_t* RightSide(const wchar_t* input, const wchar_t delim);
 
-extern void ParseInputDefinitions(char* input, ParsedDefs* output);
-extern const char* GetDefinitionKeyValue(ParsedDefs* input, const char* key);
-extern void GetPositionDefinitionKeyValue(ParsedDefs* input, const char* key, uint32* destX, uint32* destY);
+extern void ParseInputDefinitions(wchar_t* input, ParsedDefs* output);
+extern const wchar_t* GetDefinitionKeyValue(ParsedDefs* input, const wchar_t* key);
+extern void GetPositionDefinitionKeyValue(ParsedDefs* input, const wchar_t* key, uint32* destX, uint32* destY);
 
-extern char* RemoveBeginningSpaces(const char* input);
+extern wchar_t* RemoveBeginningSpaces(const wchar_t* input);
 
-extern bool EqualString(const char* first, const char* second);
-extern bool IsNumeric(const char* inp);
-extern int ToInt(const char* inp);
-extern const char* ToUppercase(const char* input);
-extern const char* ToLowercase(const char* input);
+extern bool EqualString(const wchar_t* first, const wchar_t* second);
+extern bool IsNumeric(const wchar_t* inp);
+extern int ToInt(const wchar_t* inp);
+extern const wchar_t* ToUppercase(const wchar_t* input);
+extern const wchar_t* ToLowercase(const wchar_t* input);
+extern const wchar_t* ToWideString(const char* input);
+extern const char*    ToMultiByteString(const wchar_t* input);
 
 #define IN_SQUARE(x, y, a, b, c, d) (x >= a && x <= c && y >= b && y <= d)
 

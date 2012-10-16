@@ -9,7 +9,7 @@ class Application
         Application();
         ~Application();
 
-        void Init(const char* cmdline);
+        void Init(const wchar_t* cmdline);
         bool Initialized() { return m_init; };
         void Run();
 

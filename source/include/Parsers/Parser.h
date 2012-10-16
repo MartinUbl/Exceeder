@@ -4,8 +4,8 @@
 class Parser
 {
     public:
-        static char* ReadLine(FILE* f);
-        static bool PrepareLine(char *&input);
+        static wchar_t* ReadLine(FILE* f);
+        static bool PrepareLine(wchar_t *&input);
 };
 
 #endif

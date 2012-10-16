@@ -13,18 +13,18 @@ enum ResourceTypes
 struct ImageResourceEntry
 {
     uint32 textureId;
-    std::string originalFilename;
+    std::wstring originalFilename;
 };
 
 struct ResourceEntry
 {
     ResourceEntry();
 
-    void Prepare(ResourceTypes type, const char* name, const char* path);
+    void Prepare(ResourceTypes type, const wchar_t* name, const wchar_t* path);
     void Load();
 
     uint32 internalId;
-    std::string name;
+    std::wstring name;
 
     ResourceTypes type;
 

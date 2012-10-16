@@ -9,7 +9,7 @@ ResourceEntry::ResourceEntry()
     image = NULL;
 }
 
-void ResourceEntry::Prepare(ResourceTypes type, const char* name, const char *path)
+void ResourceEntry::Prepare(ResourceTypes type, const wchar_t* name, const wchar_t *path)
 {
     if (type == RESOURCE_IMAGE)
     {
@@ -24,10 +24,10 @@ void ResourceEntry::Prepare(ResourceTypes type, const char* name, const char *pa
 void ResourceEntry::Load()
 {
     if (type == RESOURCE_IMAGE)
-        image->textureId = sSimplyFlat->TextureStorage->LoadTexture(image->originalFilename.c_str(), 0);
+        image->textureId = sSimplyFlat->TextureStorage->LoadTexture(ToMultiByteString(image->originalFilename.c_str()), 0);
 }
 
-uint32 Storage::PrepareImageResource(const char* name, const char *path)
+uint32 Storage::PrepareImageResource(const wchar_t* name, const wchar_t *path)
 {
     ResourceEntry* tmp = new ResourceEntry;
     tmp->Prepare(RESOURCE_IMAGE, name, path);
@@ -60,7 +60,7 @@ ResourceEntry* Storage::GetResource(uint32 id)
     return m_resources[id];
 }
 
-ResourceEntry* Storage::GetResource(const char* name)
+ResourceEntry* Storage::GetResource(const wchar_t* name)
 {
     for (std::vector<ResourceEntry*>::iterator itr = m_resources.begin(); itr != m_resources.end(); ++itr)
         if ((*itr) && EqualString((*itr)->name.c_str(), name))

@@ -15,12 +15,12 @@ Log::~Log()
         fclose(m_errorLog);
 }
 
-void Log::InitErrorFile(const char *path)
+void Log::InitErrorFile(const wchar_t *path)
 {
     if (m_errorLog)
         fclose(m_errorLog);
 
-    m_errorLog = fopen(path, "w");
+    m_errorLog = _wfopen(path, L"w");
 }
 
 void Log::ErrorLog(const char *err, ...)

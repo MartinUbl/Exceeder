@@ -3,16 +3,16 @@
 
 struct KnownColor
 {
-    const char* name;
+    const wchar_t* name;
     uint32 color;
 };
 
 static const KnownColor KnownColors[] = {
-    {"RED",     0xFF000000},
-    {"GREEN",   0x00FF0000},
-    {"BLUE",    0x0000FF00},
-    {"WHITE",   0xFFFFFF00},
-    {"BLACK",   0x00000000}
+    {L"RED",     0xFF000000},
+    {L"GREEN",   0x00FF0000},
+    {L"BLUE",    0x0000FF00},
+    {L"WHITE",   0xFFFFFF00},
+    {L"BLACK",   0x00000000}
 };
 
 #define MAKE_COLOR(r,g,b,a) ((uint32(r) << 24) | (uint32(uint8(g)) << 16) | (uint32(uint8(b)) << 8) | (uint8(a)))
@@ -35,7 +35,7 @@ struct Style
         memset(this, 0, sizeof(Style));
     }
 
-    const char* fontFamily;
+    const wchar_t* fontFamily;
     uint32*     fontSize;
     uint32*     fontColor;
     bool        bold;
@@ -48,6 +48,6 @@ struct Style
     TextPosition* textPosition;
 };
 
-typedef std::map<const char*, Style*> StyleMap;
+typedef std::map<const wchar_t*, Style*> StyleMap;
 
 #endif

@@ -26,7 +26,7 @@ struct Effect
     uint32* endPos;   // 2 coords
 };
 
-typedef std::map<const char*, Effect*> EffectMap;
+typedef std::map<const wchar_t*, Effect*> EffectMap;
 
 struct SlideElement;
 
