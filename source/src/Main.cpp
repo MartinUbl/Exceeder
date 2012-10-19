@@ -29,9 +29,14 @@ void Application::Init(const wchar_t *cmdline)
 {
     std::vector<wchar_t> option;
     option.clear();
-    for (uint32 i = 0; i <= wcslen(cmdline); i++)
+
+    bool endWithQuotes = false;
+    if (cmdline[0] == '\"')
+        endWithQuotes = true;
+
+    for (uint32 i = endWithQuotes?1:0; i <= wcslen(cmdline); i++)
     {
-        if (cmdline[i] == ' ' || cmdline[i] == '\0')
+        if ((endWithQuotes && cmdline[i] == '\"') || (!endWithQuotes && (cmdline[i] == ' ' || cmdline[i] == '\0')))
         {
             // recognize option
             option.push_back('\0');
@@ -42,8 +47,10 @@ void Application::Init(const wchar_t *cmdline)
                 if (opt[0] != '-')
                 {
                     // init error file
-                    if (wchar_t* fpath = ExtractFolderFromPath(opt))
+                    wchar_t* fpath = ExtractFolderFromPath(opt);
+                    if (fpath)
                     {
+                        _wchdir(fpath);
                         wchar_t newpath[256];
                         swprintf(&newpath[0], L"%s\\err.log", fpath);
                         sLog->InitErrorFile(newpath);
