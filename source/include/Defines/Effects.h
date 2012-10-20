@@ -9,11 +9,17 @@ enum MoveType
     MAX_MOVE_TYPE
 };
 
+enum OffsetType
+{
+    OFFSET_TYPE_ABSOLUTE = 0,
+    OFFSET_TYPE_RELATIVE = 1,
+};
+
 struct Effect
 {
     Effect()
     {
-        memset(this, 0, sizeof(Style));
+        memset(this, 0, sizeof(Effect));
     }
 
     uint32* effectTimer;
@@ -22,8 +28,9 @@ struct Effect
 
     // movement data
     uint32* moveType;
-    uint32* startPos; // 2 coords
-    uint32* endPos;   // 2 coords
+    int32* startPos; // 2 coords
+    int32* endPos;   // 2 coords
+    uint32* offsetType;
 
     std::vector<std::wstring> *m_effectChain;
 };
@@ -65,6 +72,10 @@ class EffectHandler
         void QueuedEffectExpired();
         bool expired;
         bool runningQueue;
+
+        // cached position coords
+        int32 startPos[2];
+        int32 endPos[2];
 
         clock_t startTime;
 

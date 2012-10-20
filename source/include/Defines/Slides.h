@@ -71,7 +71,7 @@ struct SlideElement
 
     EffectHandler* myEffect;
 
-    uint32 position[2]; // element position
+    int32 position[2]; // element position
 
     void CreateEffectIfAny();
     void PlayEffect(const wchar_t* effectId);

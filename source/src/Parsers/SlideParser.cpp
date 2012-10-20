@@ -135,7 +135,7 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
             tmp->elemEffect = GetDefinitionKeyValue(&defs, L"E");
 
             GetPositionDefinitionKeyValue(&defs, L"P", &tmp->position[0], &tmp->position[1]);
-            GetPositionDefinitionKeyValue(&defs, L"V", &tmp->typeImage.size[0], &tmp->typeImage.size[1]);
+            GetPositionDefinitionKeyValue(&defs, L"V", (int32*)&tmp->typeImage.size[0], (int32*)&tmp->typeImage.size[1]); // we can make explicit conversion to int32* since range won't exceed
 
             ResourceEntry* res = sStorage->GetResource(right);
             if (res)
@@ -168,8 +168,8 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
 
             ParseInputDefinitions(middle, &defs);
 
-            GetPositionDefinitionKeyValue(&defs, L"PLU", &tmp->typeMouseEvent.positionSquareLU[0], &tmp->typeMouseEvent.positionSquareLU[1]);
-            GetPositionDefinitionKeyValue(&defs, L"PRL", &tmp->typeMouseEvent.positionSquareRL[0], &tmp->typeMouseEvent.positionSquareRL[1]);
+            GetPositionDefinitionKeyValue(&defs, L"PLU", (int32*)&tmp->typeMouseEvent.positionSquareLU[0], (int32*)&tmp->typeMouseEvent.positionSquareLU[1]);
+            GetPositionDefinitionKeyValue(&defs, L"PRL", (int32*)&tmp->typeMouseEvent.positionSquareRL[0], (int32*)&tmp->typeMouseEvent.positionSquareRL[1]);
 
             sStorage->AddSlideElement(tmp);
 

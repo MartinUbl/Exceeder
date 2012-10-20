@@ -58,6 +58,16 @@ bool EffectParser::Parse(std::vector<std::wstring> *input)
                 else
                     RAISE_ERROR("EffectParser: Unknown move type '%s'", right);
             }
+            // move/other offset from
+            else if (EqualString(left, L"\\OFFSET"))
+            {
+                if (EqualString(right, L"absolute"))
+                    tmp->offsetType = new uint32(OFFSET_TYPE_ABSOLUTE);
+                else if (EqualString(right, L"relative"))
+                    tmp->offsetType = new uint32(OFFSET_TYPE_RELATIVE);
+                else
+                    RAISE_ERROR("EffectParser: Unknown offset type '%s'", right);
+            }
             // starting position
             else if (EqualString(left, L"\\START_POS"))
             {
@@ -67,7 +77,7 @@ bool EffectParser::Parse(std::vector<std::wstring> *input)
                 if (!IsNumeric(xpos) || !IsNumeric(ypos))
                     RAISE_ERROR("EffectParser: Non-numeric value supplied as position parameter");
 
-                tmp->startPos = new uint32[2];
+                tmp->startPos = new int32[2];
                 tmp->startPos[0] = ToInt(xpos);
                 tmp->startPos[1] = ToInt(ypos);
             }
@@ -80,7 +90,7 @@ bool EffectParser::Parse(std::vector<std::wstring> *input)
                 if (!IsNumeric(xpos) || !IsNumeric(ypos))
                     RAISE_ERROR("EffectParser: Non-numeric value supplied as position parameter");
 
-                tmp->endPos = new uint32[2];
+                tmp->endPos = new int32[2];
                 tmp->endPos[0] = ToInt(xpos);
                 tmp->endPos[1] = ToInt(ypos);
             }

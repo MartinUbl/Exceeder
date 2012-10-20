@@ -13,7 +13,7 @@ extern wchar_t* RightSide(const wchar_t* input, const wchar_t delim);
 
 extern void ParseInputDefinitions(wchar_t* input, ParsedDefs* output);
 extern const wchar_t* GetDefinitionKeyValue(ParsedDefs* input, const wchar_t* key);
-extern void GetPositionDefinitionKeyValue(ParsedDefs* input, const wchar_t* key, uint32* destX, uint32* destY);
+extern void GetPositionDefinitionKeyValue(ParsedDefs* input, const wchar_t* key, int32* destX, int32* destY);
 
 extern wchar_t* RemoveBeginningSpaces(const wchar_t* input);
 

@@ -126,7 +126,7 @@ bool IsNumeric(const wchar_t* inp)
         return false;
 
     for (uint32 i = 0; i < wcslen(inp); i++)
-        if (inp[i] < '0' || inp[i] > '9')
+        if ((i == 0 && inp[i] != '-') && (inp[i] < '0' || inp[i] > '9'))
             return false;
 
     return true;
@@ -192,7 +192,7 @@ const wchar_t* GetDefinitionKeyValue(ParsedDefs* input, const wchar_t* key)
     return L"";
 }
 
-void GetPositionDefinitionKeyValue(ParsedDefs* input, const wchar_t* key, uint32* destX, uint32* destY)
+void GetPositionDefinitionKeyValue(ParsedDefs* input, const wchar_t* key, int32* destX, int32* destY)
 {
     (*destX) = 0;
     (*destY) = 0;

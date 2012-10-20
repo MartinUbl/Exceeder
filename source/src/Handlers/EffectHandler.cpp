@@ -11,6 +11,28 @@ EffectHandler::EffectHandler(SlideElement *parent, Effect *elementEffect)
     effectOwner = parent;
     effectProto = elementEffect;
 
+    int32 relativeOffset[2] = {0, 0};
+    if (effectProto->offsetType)
+    {
+        if ((*effectProto->offsetType) == OFFSET_TYPE_RELATIVE)
+        {
+            for (uint32 i = 0; i <= 1; i++)
+                relativeOffset[i] = int32(parent->position[i]);
+        }
+    }
+
+    // cache start and end positions to make us able to handle them indepentently of parent effect
+    if (effectProto->startPos)
+    {
+        for (uint32 i = 0; i <= 1; i++)
+            startPos[i] = effectProto->startPos[i] + relativeOffset[i];
+    }
+    if (effectProto->endPos)
+    {
+        for (uint32 i = 0; i <= 1; i++)
+            endPos[i] = effectProto->endPos[i] + relativeOffset[i];
+    }
+
     // Fill effect queue from chained effects defined in effect def
     // for future: allow recursive chaining, but don't forget to avoid endless loop! (effect 1 -> effect 2 -> effect 1 -> ...)
     // note: reversed to make queue building easier from ordered vector of chained effects
@@ -115,5 +137,5 @@ void EffectHandler::AnimateMoveLinear()
     }
 
     for (uint32 i = 0; i <= 1; i++)
-        effectOwner->position[i] = int32(effectProto->startPos[i]) + int32(timeCoef * float(int32(effectProto->endPos[i]) - int32(effectProto->startPos[i])));
+        effectOwner->position[i] = int32(startPos[i]) + int32(timeCoef * float(int32(endPos[i]) - int32(startPos[i])));
 }

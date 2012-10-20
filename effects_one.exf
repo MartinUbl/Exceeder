@@ -24,8 +24,9 @@
 
 \DEF_BEGIN left_continue_2
 
-  \START_POS 100,100
-  \END_POS 0,400
+  \START_POS 0,0
+  \END_POS -100,-100
+  \OFFSET relative
   \MOVE linear
   \TIMER 500
 
