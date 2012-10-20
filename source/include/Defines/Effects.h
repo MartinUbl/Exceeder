@@ -24,6 +24,8 @@ struct Effect
     uint32* moveType;
     uint32* startPos; // 2 coords
     uint32* endPos;   // 2 coords
+
+    std::vector<std::wstring> *m_effectChain;
 };
 
 typedef std::map<const wchar_t*, Effect*> EffectMap;
@@ -38,19 +40,36 @@ class EffectHandler
 
         void Animate();
         bool isExpired() { return expired; };
+        bool isRunningQueue() { return runningQueue; };
 
         Effect* getEffectProto() { return effectProto; };
 
     private:
         void AnimateMoveLinear();
 
-        void SetExpired() { expired = true; };
+        void UnblockPresentationIfNeeded();
+        void SetExpired()
+        {
+            expired = true;
+            UnblockPresentationIfNeeded();
+        };
+        void SetSelfExpired()
+        {
+            if (m_effectQueue.empty())
+                SetExpired();
+            else
+                runningQueue = true;
+        };
+        void QueuedEffectExpired();
         bool expired;
+        bool runningQueue;
 
         clock_t startTime;
 
         SlideElement* effectOwner;
         Effect* effectProto;
+        std::vector<Effect*> m_effectQueue;
+        EffectHandler* m_queuedEffectHandler;
 };
 
 #endif

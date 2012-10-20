@@ -7,7 +7,28 @@
   \MOVE linear
   \TIMER 1000
 
+  \NEXT_EFFECT left_continue
+  \NEXT_EFFECT left_continue_2
+
   \BLOCKING          // this parameter blocks all other actions - they are unblocked after effect end
+
+\DEF_END
+
+\DEF_BEGIN left_continue
+
+  \START_POS 200,200
+  \END_POS 100,100
+  \MOVE linear
+  \TIMER 1000
+
+\DEF_END
+
+\DEF_BEGIN left_continue_2
+
+  \START_POS 100,100
+  \END_POS 0,400
+  \MOVE linear
+  \TIMER 500
 
 \DEF_END
 

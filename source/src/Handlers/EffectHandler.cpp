@@ -1,9 +1,9 @@
 #include "Global.h"
+#include "Presentation.h"
 #include "Log.h"
 #include "Storage.h"
-#include "Presentation.h"
-#include "Parsers\EffectParser.h"
 #include "Defines\Effects.h"
+#include "Parsers\EffectParser.h"
 #include "Defines\Slides.h"
 
 EffectHandler::EffectHandler(SlideElement *parent, Effect *elementEffect)
@@ -11,7 +11,24 @@ EffectHandler::EffectHandler(SlideElement *parent, Effect *elementEffect)
     effectOwner = parent;
     effectProto = elementEffect;
 
+    // Fill effect queue from chained effects defined in effect def
+    // for future: allow recursive chaining, but don't forget to avoid endless loop! (effect 1 -> effect 2 -> effect 1 -> ...)
+    // note: reversed to make queue building easier from ordered vector of chained effects
+    if (effectProto->m_effectChain)
+    {
+        Effect* tmp = NULL;
+        for (std::vector<std::wstring>::reverse_iterator itr = effectProto->m_effectChain->rbegin(); itr != effectProto->m_effectChain->rend(); ++itr)
+        {
+            const wchar_t* name = (*itr).c_str();
+            tmp = sStorage->GetEffect(itr->c_str());
+            if (tmp)
+                m_effectQueue.push_back(tmp);
+        }
+    }
+    m_queuedEffectHandler = NULL;
+
     expired = false;
+    runningQueue = false;
 
     startTime = clock();
 }
@@ -20,10 +37,53 @@ EffectHandler::~EffectHandler()
 {
 }
 
+void EffectHandler::QueuedEffectExpired()
+{
+    if (m_effectQueue.empty())
+    {
+        SetExpired();
+        return;
+    }
+
+    // remove last effect from queue
+    m_effectQueue.erase(--m_effectQueue.end());
+    delete m_queuedEffectHandler;
+    m_queuedEffectHandler = NULL;
+
+    if (m_effectQueue.empty())
+        SetExpired();
+}
+
+void EffectHandler::UnblockPresentationIfNeeded()
+{
+    if (effectProto->isBlocking)
+        sPresentation->InterfaceEvent(IE_EFFECT_END);
+}
+
 void EffectHandler::Animate()
 {
     // Dispatcher for effect types
     // Here we only determine the type and call appropriate function
+
+    if (isRunningQueue())
+    {
+        if (m_effectQueue.empty())
+        {
+            SetSelfExpired();
+            return;
+        }
+
+        // If no effect handler defined, create one from last available effect
+        if (!m_queuedEffectHandler)
+            m_queuedEffectHandler = new EffectHandler(effectOwner ,(*(--m_effectQueue.end())));
+
+        if (m_queuedEffectHandler->isExpired())
+            QueuedEffectExpired();
+        else
+            m_queuedEffectHandler->Animate();
+
+        return;
+    }
 
     // Linear movement
     if (effectProto->moveType && (*effectProto->moveType) == MOVE_TYPE_LINEAR)
@@ -43,11 +103,9 @@ void EffectHandler::AnimateMoveLinear()
         // If the time coefficient is larger than 1, then we passed the end of effect, and finished him
         // We set the coefficient to 1 to avoid glitches, set effect as expired and if blocking, unblock the presentation
         timeCoef = 1.0f;
-        SetExpired();
-        if (effectProto->isBlocking)
-            sPresentation->InterfaceEvent(IE_EFFECT_END);
+        SetSelfExpired();
     }
 
     for (uint32 i = 0; i <= 1; i++)
-        effectOwner->position[i] = effectProto->startPos[i] + uint32(timeCoef * float(effectProto->endPos[i] - effectProto->startPos[i]));
+        effectOwner->position[i] = int32(effectProto->startPos[i]) + int32(timeCoef * float(int32(effectProto->endPos[i]) - int32(effectProto->startPos[i])));
 }

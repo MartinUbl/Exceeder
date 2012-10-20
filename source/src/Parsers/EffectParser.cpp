@@ -62,7 +62,7 @@ bool EffectParser::Parse(std::vector<std::wstring> *input)
             else if (EqualString(left, L"\\START_POS"))
             {
                 wchar_t* xpos = LeftSide(right, ',');
-                wchar_t* ypos = LeftSide(right, ',');
+                wchar_t* ypos = RightSide(right, ',');
 
                 if (!IsNumeric(xpos) || !IsNumeric(ypos))
                     RAISE_ERROR("EffectParser: Non-numeric value supplied as position parameter");
@@ -75,7 +75,7 @@ bool EffectParser::Parse(std::vector<std::wstring> *input)
             else if (EqualString(left, L"\\END_POS"))
             {
                 wchar_t* xpos = LeftSide(right, ',');
-                wchar_t* ypos = LeftSide(right, ',');
+                wchar_t* ypos = RightSide(right, ',');
 
                 if (!IsNumeric(xpos) || !IsNumeric(ypos))
                     RAISE_ERROR("EffectParser: Non-numeric value supplied as position parameter");
@@ -101,6 +101,13 @@ bool EffectParser::Parse(std::vector<std::wstring> *input)
             else if (EqualString(left, L"\\NOBLOCKING"))
             {
                 tmp->isBlocking = false;
+            }
+            else if (EqualString(left, L"\\NEXT_EFFECT"))
+            {
+                if (tmp->m_effectChain == NULL)
+                    tmp->m_effectChain = new std::vector<std::wstring>;
+
+                tmp->m_effectChain->push_back(right);
             }
             else if (EqualString(left, L"\\DEF_END"))
             {
