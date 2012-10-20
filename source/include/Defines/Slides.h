@@ -10,6 +10,7 @@ enum SlideElementTypes
     SLIDE_ELEM_KEYBOARD_EVENT   = 4,
     SLIDE_ELEM_NEW_SLIDE        = 5,
     SLIDE_ELEM_IMAGE            = 6,
+    SLIDE_ELEM_PLAY_EFFECT      = 7,
     SLIDE_ELEM_MAX
 };
 
@@ -73,6 +74,7 @@ struct SlideElement
     uint32 position[2]; // element position
 
     void CreateEffectIfAny();
+    void PlayEffect(const wchar_t* effectId);
     void Draw();
 
     // Drawable slide element data

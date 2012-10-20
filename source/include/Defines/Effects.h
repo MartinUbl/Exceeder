@@ -42,6 +42,8 @@ class EffectHandler
         bool isExpired() { return expired; };
         bool isRunningQueue() { return runningQueue; };
 
+        void QueueEffect(Effect* eff);
+
         Effect* getEffectProto() { return effectProto; };
 
     private:
@@ -68,7 +70,7 @@ class EffectHandler
 
         SlideElement* effectOwner;
         Effect* effectProto;
-        std::vector<Effect*> m_effectQueue;
+        std::list<Effect*> m_effectQueue;
         EffectHandler* m_queuedEffectHandler;
 };
 

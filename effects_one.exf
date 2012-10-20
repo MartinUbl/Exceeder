@@ -8,7 +8,6 @@
   \TIMER 1000
 
   \NEXT_EFFECT left_continue
-  \NEXT_EFFECT left_continue_2
 
   \BLOCKING          // this parameter blocks all other actions - they are unblocked after effect end
 

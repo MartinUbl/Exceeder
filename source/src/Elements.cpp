@@ -18,6 +18,23 @@ void SlideElement::CreateEffectIfAny()
     }
 }
 
+void SlideElement::PlayEffect(const wchar_t* effectId)
+{
+    Effect* tmp = sStorage->GetEffect(effectId);
+    if (!tmp)
+        return;
+
+    if (myEffect && !myEffect->isExpired())
+        myEffect->QueueEffect(tmp);
+    else
+    {
+        if (myEffect)
+            delete myEffect;
+
+        myEffect = new EffectHandler(this, tmp);
+    }
+}
+
 void SlideElement::Draw()
 {
     if (myEffect && !myEffect->isExpired())

@@ -214,6 +214,20 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
             tmp = NULL;
             continue;
         }
+        else if (EqualString(left, L"\\PLAY_EFFECT"))
+        {
+            tmp = new SlideElement;
+            tmp->elemType = SLIDE_ELEM_PLAY_EFFECT;
+
+            ParseInputDefinitions(middle, &defs);
+
+            tmp->elemId = GetDefinitionKeyValue(&defs, L"ID");
+            tmp->elemEffect = GetDefinitionKeyValue(&defs, L"E");
+
+            sStorage->AddSlideElement(tmp);
+
+            tmp = NULL;
+        }
         // end
         else if (EqualString(left, L"\\END"))
         {

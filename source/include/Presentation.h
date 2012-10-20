@@ -37,6 +37,8 @@ class PresentationMgr
         void SetBlocking(bool block) { m_blocking = block; };
         bool IsBlocking() { return m_blocking; };
 
+        SlideElement* GetActiveElementById(const wchar_t* id);
+
     private:
         uint32 m_slideElementPos;
         SlideElement* m_slideElement;

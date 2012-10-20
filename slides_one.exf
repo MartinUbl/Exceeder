@@ -1,10 +1,14 @@
-\EXCEEDER_SLIDE_FILE_VERSION 1.0
+﻿\EXCEEDER_SLIDE_FILE_VERSION 1.0
 
 \NEW_SLIDE
 
 \BACKGROUND BLUE
 \TEXT{ID:title_1}{S:my_title}{E:appear_left}{P:10,10} Muj nadpis, hajzlove!
-\TEXT{ID:test_text_1}{S:my_test_text}{P:100,300} Těstíčko, řešeto, žák, úůéíá 
+\TEXT{ID:test_text_1}{S:my_test_text}{P:100,300} Těstíčko, řešeto, žák, úůéíá
+
+\MOUSE_LEFT
+
+\PLAY_EFFECT{E:left_continue_2}{ID:title_1}
 
 \MOUSE_LEFT
 \BACKGROUND GREEN

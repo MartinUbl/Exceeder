@@ -37,6 +37,14 @@ EffectHandler::~EffectHandler()
 {
 }
 
+void EffectHandler::QueueEffect(Effect* eff)
+{
+    if (isExpired())
+        return;
+
+    m_effectQueue.push_front(eff);
+}
+
 void EffectHandler::QueuedEffectExpired()
 {
     if (m_effectQueue.empty())

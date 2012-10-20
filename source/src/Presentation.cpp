@@ -131,6 +131,18 @@ void PresentationMgr::InterfaceEvent(InterfaceEventTypes type, int32 param1, int
     }
 }
 
+SlideElement* PresentationMgr::GetActiveElementById(const wchar_t* id)
+{
+    if (m_activeElements.empty())
+        return NULL;
+
+    for (SlideList::iterator itr = m_activeElements.begin(); itr != m_activeElements.end(); ++itr)
+        if (EqualString((*itr)->elemId.c_str(), id))
+            return (*itr);
+
+    return NULL;
+}
+
 bool PresentationMgr::Run()
 {
     MSG msg;
@@ -215,6 +227,14 @@ bool PresentationMgr::Run()
 
                 bgData.color = m_slideElement->typeBackground.color;
                 break;
+            // We will also handle playing effects here
+            case SLIDE_ELEM_PLAY_EFFECT:
+            {
+                SlideElement* target = GetActiveElementById(m_slideElement->elemId.c_str());
+                if (target)
+                    target->PlayEffect(m_slideElement->elemEffect.c_str());
+                break;
+            }
             // New slide stuff is also needed to be handled there, this clears all drawable elements from screen
             case SLIDE_ELEM_NEW_SLIDE:
             {
