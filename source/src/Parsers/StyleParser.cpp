@@ -119,11 +119,28 @@ bool StyleParser::ParseColor(const wchar_t *input, uint32 *dest)
     if (!input || !dest)
         return false;
 
+    // At first, search known colors
     for (uint32 i = 0; i < sizeof(KnownColors)/sizeof(KnownColor); i++)
     {
         if (EqualString(input, KnownColors[i].name))
         {
             (*dest) = KnownColors[i].color;
+            return true;
+        }
+    }
+
+    // hexa color?
+    uint32 len = wcslen(input);
+    if (len == 6 || (len == 7 && input[0] == '#'))
+    {
+        for (uint32 i = (len==7) ? 1 : 0; i < len; i++)
+        {
+            if (input[i] < 'A' || input[i] > 'F')
+                if (input[i] < '0' || input[i] > '9')
+                    return false;
+
+            const wchar_t* ptr = (input+len-6);
+            (*dest) = uint32(wcstol(ptr, (wchar_t**)&(ptr), 16) << 8);
             return true;
         }
     }
