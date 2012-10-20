@@ -315,6 +315,10 @@
 				</File>
 			</Filter>
 		</Filter>
+		<File
+			RelativePath=".\source\res.rc"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

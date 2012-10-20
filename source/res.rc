@@ -1,0 +1,2 @@
+// Main application icon - the only thing we need
+IDI_APPICON             ICON                    "exceeder.ico"
