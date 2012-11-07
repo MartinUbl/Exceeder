@@ -43,12 +43,25 @@ void MouseButtonPress(bool left, bool pressed)
 }
 /////
 
+#ifndef _WIN32
+void presentationRun()
+{
+    sPresentationMgr->Run();
+}
+#endif
+
 bool PresentationMgr::Init()
 {
+#ifdef _WIN32
     // Use SimplyFlat framework to initialize everything for us
     if (!sSimplyFlat->CreateMainWindow("Exceeder Presentation", sStorage->GetScreenWidth(), sStorage->GetScreenHeight(),
         32, false, 60, &MyWndProc))
         RAISE_ERROR("Could not initialize main window!");
+#else
+    if (!sSimplyFlat->CreateMainWindow("Exceeder Presentation", sStorage->GetScreenWidth(), sStorage->GetScreenHeight(),
+        32, false, 60, &presentationRun))
+        RAISE_ERROR("Could not initialize main window!");
+#endif
 
     // Hook events usable for our presentation mode (key press/release + mouse button press)
     sSimplyFlat->Interface->HookEvent(0, KeyPressed);
@@ -145,9 +158,12 @@ SlideElement* PresentationMgr::GetActiveElementById(const wchar_t* id)
 
 bool PresentationMgr::Run()
 {
+#ifdef _WIN32
     MSG msg;
+#endif
     SlideElement* tmp;
 
+#ifdef _WIN32
     while (true)
     {
         if (PeekMessage(&msg,NULL,0,0,PM_REMOVE))
@@ -162,6 +178,7 @@ bool PresentationMgr::Run()
 
             continue;
         }
+#endif
 
         // SF before draw events
         sSimplyFlat->BeforeDraw();
@@ -253,7 +270,10 @@ bool PresentationMgr::Run()
         }
 
         m_slideElementPos++;
+
+#ifdef _WIN32
     }
+#endif
 
     return true;
 }

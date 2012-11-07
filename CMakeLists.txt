@@ -1,0 +1,34 @@
+CMAKE_MINIMUM_REQUIRED( VERSION 2.6 FATAL_ERROR )
+
+PROJECT( "Exceeder" C CXX )
+
+SET( CMAKE_MODULE_PATH
+     "${PROJECT_SOURCE_DIR}/cmake"
+     "${CMAKE_MODULE_PATH}" )
+
+SET( TARGET_NAME        "Exceeder" )
+SET( TARGET_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/source/include" )
+SET( TARGET_SOURCE_DIR  "${PROJECT_SOURCE_DIR}/source/src" )
+
+INCLUDE_DIRECTORIES( "${TARGET_INCLUDE_DIR}"
+                     "${TARGET_INCLUDE_DIR}/Defines"
+                     "${TARGET_INCLUDE_DIR}/Handlers"
+                     "${TARGET_INCLUDE_DIR}/Parsers"
+                     "../SimplyFlat/include" )
+
+FIND_PACKAGE( Freetype )
+
+INCLUDE_DIRECTORIES( INCLUDE_DIRECTORIES
+                     ${FREETYPE_INCLUDE_DIRS} )
+
+ADD_LIBRARY( SimplyFlat STATIC IMPORTED )
+SET_PROPERTY( TARGET SimplyFlat PROPERTY
+              IMPORTED_LOCATION ../SimplyFlat/libSimplyFlat.a )
+
+ADD_DEFINITIONS(-lGL)
+
+TARGET_LINK_LIBRARIES( SimplyFlat Freetype )
+
+ADD_SUBDIRECTORY( "source/src" )
+
+SET_TARGET_PROPERTIES( Exceeder PROPERTIES LINKER_LANGUAGE CXX)

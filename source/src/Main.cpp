@@ -4,9 +4,22 @@
 #include "Storage.h"
 #include "Presentation.h"
 
+#ifdef _WIN32
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+#else
+int main(int argc, char** argv)
+#endif
 {
+#ifdef _WIN32
     sApplication->Init(ToWideString(lpCmdLine));
+#else
+    char* line = new char[1024];
+    memset(line, 0, sizeof(char)*1024);
+    for (uint32 i = 1; i <= argc; i++)
+        sprintf(line, "%s %s", line, argv[0]);
+
+    sApplication->Init(ToWideString((const char*)line));
+#endif
 
     if (!sApplication->Initialized())
         return -1;
@@ -50,7 +63,11 @@ void Application::Init(const wchar_t *cmdline)
                     wchar_t* fpath = ExtractFolderFromPath(opt);
                     if (fpath)
                     {
+#ifdef _WIN32
                         _wchdir(fpath);
+#else
+                        chdir(ToMultiByteString(fpath));
+#endif
                         wchar_t newpath[256];
                         swprintf(&newpath[0], L"%s\\err.log", fpath);
                         sLog->InitErrorFile(newpath);
@@ -83,5 +100,7 @@ void Application::Run()
     if (!sPresentation->Init())
         return;
 
+#ifdef _WIN32
     sPresentation->Run();
+#endif
 }

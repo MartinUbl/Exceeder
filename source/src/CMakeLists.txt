@@ -1,0 +1,20 @@
+FILE(GLOB_RECURSE includes_app ${TARGET_INCLUDE_DIR}/*.h)
+FILE(GLOB_RECURSE sources_app ${TARGET_SOURCE_DIR}/*.c ${TARGET_SOURCE_DIR}/*.cpp)
+
+SET( INCLUDE
+     ${includes_app} )
+
+SET( SOURCE
+     ${sources_app} )
+
+
+
+SOURCE_GROUP( "include" FILES ${INCLUDE} )
+SOURCE_GROUP( "src"     FILES ${SOURCE} )
+
+ADD_EXECUTABLE( "${TARGET_NAME}"
+                ${INCLUDE} ${SOURCE} )
+
+SET( ${TARGET_NAME}_INCLUDE_DIR "${TARGET_INCLUDE_DIR}" PARENT_SCOPE )
+
+INSTALL(TARGETS Exceeder DESTINATION bin)

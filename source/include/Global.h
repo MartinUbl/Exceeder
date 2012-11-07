@@ -1,8 +1,13 @@
 #ifndef EXCDR_GLOBAL_H
 #define EXCDR_GLOBAL_H
 
-#include <windows.h>
-#include <direct.h>
+#ifdef _WIN32
+  #include <windows.h>
+  #include <direct.h>
+#else
+  #include <unistd.h>
+#endif
+
 #include <iostream>
 #include <string>
 #include <vector>
