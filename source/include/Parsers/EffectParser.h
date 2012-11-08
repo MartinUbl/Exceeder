@@ -2,8 +2,8 @@
 #define EXCDR_EFFECT_PARSER_H
 
 #include "Global.h"
-#include "Parsers\Parser.h"
-#include "Parsers\StyleParser.h"
+#include "Parsers/Parser.h"
+#include "Parsers/StyleParser.h"
 
 static const wchar_t* SupportedEffectsVersions[] = {
     L"1.0",

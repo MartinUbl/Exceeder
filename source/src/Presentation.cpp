@@ -1,10 +1,12 @@
 #include "Presentation.h"
 #include <ctime>
 
+#ifdef _WIN32
 LRESULT CALLBACK MyWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     return sSimplyFlat->SFWndProc(hWnd, msg, wParam, lParam);
 }
+#endif
 
 PresentationMgr::PresentationMgr()
 {
@@ -46,7 +48,7 @@ void MouseButtonPress(bool left, bool pressed)
 #ifndef _WIN32
 void presentationRun()
 {
-    sPresentationMgr->Run();
+    sPresentation->Run();
 }
 #endif
 
@@ -156,7 +158,7 @@ SlideElement* PresentationMgr::GetActiveElementById(const wchar_t* id)
     return NULL;
 }
 
-bool PresentationMgr::Run()
+void PresentationMgr::Run()
 {
 #ifdef _WIN32
     MSG msg;
@@ -174,9 +176,9 @@ bool PresentationMgr::Run()
                 DispatchMessage(&msg);
             }
             else
-                break;
+                PRESENTATION_BREAK;
 
-            continue;
+            PRESENTATION_CONTINUE;
         }
 #endif
 
@@ -206,12 +208,12 @@ bool PresentationMgr::Run()
 
         // If something blocked our presentation, let's wait for some event to unblock it. It should be unblocked in PresentationMgr::InterfaceEvent
         if (m_blocking)
-            continue;
+            PRESENTATION_CONTINUE;
 
         // We are ready to move on
         tmp = sStorage->GetSlideElement(m_slideElementPos);
         if (!tmp)
-            break;
+            PRESENTATION_BREAK;
 
         // We have to copy the element from prototype to active element, which we would draw
         // This is due to future support for instancing elements and duplicating them - we would like to take the prototype and just copy it
@@ -274,6 +276,4 @@ bool PresentationMgr::Run()
 #ifdef _WIN32
     }
 #endif
-
-    return true;
 }

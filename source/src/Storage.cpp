@@ -2,11 +2,11 @@
 #include "Log.h"
 #include "Storage.h"
 #include "Helpers.h"
-#include "Parsers\Parser.h"
-#include "Parsers\SupfileParser.h"
-#include "Parsers\StyleParser.h"
-#include "Parsers\SlideParser.h"
-#include "Parsers\EffectParser.h"
+#include "Parsers/Parser.h"
+#include "Parsers/SupfileParser.h"
+#include "Parsers/StyleParser.h"
+#include "Parsers/SlideParser.h"
+#include "Parsers/EffectParser.h"
 
 Storage::Storage()
 {
@@ -26,7 +26,11 @@ bool Storage::ReadInputSupfile(const wchar_t *path)
     if (!path || wcslen(path) < 1)
         return false;
 
+#ifdef _WIN32
     FILE* sfile = _wfopen(path, L"r, ccs=UTF-8");
+#else
+    FILE* sfile = fopen(ToMultiByteString(path), "r, ccs=UTF-8");
+#endif
     if (!sfile)
         return false;
 

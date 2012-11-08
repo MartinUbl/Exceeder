@@ -1,15 +1,19 @@
 #include "Global.h"
 #include "Log.h"
 #include "Storage.h"
-#include "Parsers\StyleParser.h"
-#include "Defines\Styles.h"
+#include "Parsers/StyleParser.h"
+#include "Defines/Styles.h"
 
 bool StyleParser::ParseFile(const wchar_t *path)
 {
     if (!path)
         return false;
 
+#ifdef _WIN32
     FILE* sfile = _wfopen(path, L"r, ccs=UTF-8");
+#else
+    FILE* sfile = fopen(ToMultiByteString(path), "r, ccs=UTF-8");
+#endif
     if (!sfile)
         return false;
 

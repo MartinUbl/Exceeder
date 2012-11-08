@@ -69,7 +69,7 @@ void Application::Init(const wchar_t *cmdline)
                         chdir(ToMultiByteString(fpath));
 #endif
                         wchar_t newpath[256];
-                        swprintf(&newpath[0], L"%s\\err.log", fpath);
+                        swprintf(&newpath[0], 99999, L"%s\\err.log", fpath);
                         sLog->InitErrorFile(newpath);
                     }
                     else

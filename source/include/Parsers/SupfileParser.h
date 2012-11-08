@@ -2,7 +2,7 @@
 #define EXCDR_SUPFILE_PARSER_H
 
 #include "Global.h"
-#include "Parsers\Parser.h"
+#include "Parsers/Parser.h"
 
 static const wchar_t* SupportedSupfileVersions[] = {
     L"1.0",

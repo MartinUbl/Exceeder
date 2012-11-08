@@ -1,7 +1,7 @@
 #ifndef EXCDR_HELPERS_H
 #define EXCDR_HELPERS_H
 
-typedef std::list<std::pair<const wchar_t*, std::wstring>> ParsedDefs;
+typedef std::list< std::pair<const wchar_t*, std::wstring> > ParsedDefs;
 
 extern const wchar_t* CharVectorToString(std::vector<wchar_t>* vect);
 extern wchar_t* ExtractFolderFromPath(const wchar_t* input);

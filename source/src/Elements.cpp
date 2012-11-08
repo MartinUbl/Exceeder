@@ -1,10 +1,10 @@
 #include "Global.h"
 #include "Log.h"
 #include "Storage.h"
-#include "Parsers\StyleParser.h"
-#include "Defines\Slides.h"
-#include "Defines\Styles.h"
-#include "Defines\Effects.h"
+#include "Parsers/StyleParser.h"
+#include "Defines/Slides.h"
+#include "Defines/Styles.h"
+#include "Defines/Effects.h"
 
 void SlideElement::CreateEffectIfAny()
 {

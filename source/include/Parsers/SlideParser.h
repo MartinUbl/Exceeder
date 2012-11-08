@@ -2,7 +2,7 @@
 #define EXCDR_SLIDE_PARSER_H
 
 #include "Global.h"
-#include "Parsers\Parser.h"
+#include "Parsers/Parser.h"
 
 static const wchar_t* SupportedSlideVersions[] = {
     L"1.0",

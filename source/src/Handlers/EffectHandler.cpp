@@ -2,9 +2,9 @@
 #include "Presentation.h"
 #include "Log.h"
 #include "Storage.h"
-#include "Defines\Effects.h"
-#include "Parsers\EffectParser.h"
-#include "Defines\Slides.h"
+#include "Defines/Effects.h"
+#include "Parsers/EffectParser.h"
+#include "Defines/Slides.h"
 
 EffectHandler::EffectHandler(SlideElement *parent, Effect *elementEffect)
 {

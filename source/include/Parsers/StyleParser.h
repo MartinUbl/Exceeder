@@ -2,8 +2,8 @@
 #define EXCDR_STYLE_PARSER_H
 
 #include "Global.h"
-#include "Parsers\Parser.h"
-#include "Defines\Styles.h"
+#include "Parsers/Parser.h"
+#include "Defines/Styles.h"
 
 static const wchar_t* SupportedStyleVersions[] = {
     L"1.0",

@@ -1,7 +1,7 @@
 #include "Global.h"
 #include "Log.h"
 #include "Storage.h"
-#include "Parsers\SupfileParser.h"
+#include "Parsers/SupfileParser.h"
 
 bool SupfileParser::Parse(std::vector<std::wstring>* input)
 {
@@ -24,7 +24,11 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
         {
             if (slidefiles)
             {
+#ifdef _WIN32
                 FILE* f = _wfopen(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left), L"r, ccs=UTF-8");
+#else
+                FILE* f = fopen(ToMultiByteString(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left)), "r, ccs=UTF-8");
+#endif
                 if (!f)
                     RAISE_ERROR("SupfileParser: Input slide file '%s', hasn't been found!", ToMultiByteString(left));
                 fclose(f);
@@ -35,7 +39,11 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
 
             if (effectfiles)
             {
+#ifdef _WIN32
                 FILE* f = _wfopen(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left), L"r, ccs=UTF-8");
+#else
+                FILE* f = fopen(ToMultiByteString(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left)), "r, ccs=UTF-8");
+#endif
                 if (!f)
                     RAISE_ERROR("SupfileParser: Input effects file '%s', hasn't been found!", ToMultiByteString(left));
                 fclose(f);
@@ -46,7 +54,11 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
 
             if (stylefiles)
             {
+#ifdef _WIN32
                 FILE* f = _wfopen(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left), L"r, ccs=UTF-8");
+#else
+                FILE* f = fopen(ToMultiByteString(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left)), "r, ccs=UTF-8");
+#endif
                 if (!f)
                     RAISE_ERROR("SupfileParser: Input styles file '%s', hasn't been found!", ToMultiByteString(left));
                 fclose(f);

@@ -1,6 +1,6 @@
 #include "Global.h"
 #include "Application.h"
-#include "Parsers\Parser.h"
+#include "Parsers/Parser.h"
 
 wchar_t* Parser::ReadLine(FILE* f)
 {

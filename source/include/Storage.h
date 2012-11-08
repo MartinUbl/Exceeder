@@ -3,9 +3,9 @@
 
 #include "Global.h"
 #include "Singleton.h"
-#include "Defines\Styles.h"
-#include "Defines\Effects.h"
-#include "Defines\Slides.h"
+#include "Defines/Styles.h"
+#include "Defines/Effects.h"
+#include "Defines/Slides.h"
 #include "Resources.h"
 
 struct StoredFont

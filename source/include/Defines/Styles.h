@@ -28,6 +28,14 @@ enum TextPosition
     TEXT_POSITION_RIGHT  = 2
 };
 
+#ifndef FW_DONTCARE
+  #define FW_DONTCARE 0
+#endif
+
+#ifndef FW_BOLD
+  #define FW_BOLD 700
+#endif
+
 struct Style
 {
     Style()

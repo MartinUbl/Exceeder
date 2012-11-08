@@ -4,10 +4,10 @@
 #include "Global.h"
 #include "Log.h"
 #include "Storage.h"
-#include "Parsers\StyleParser.h"
-#include "Defines\Slides.h"
-#include "Defines\Styles.h"
-#include "Defines\Effects.h"
+#include "Parsers/StyleParser.h"
+#include "Defines/Slides.h"
+#include "Defines/Styles.h"
+#include "Defines/Effects.h"
 
 enum InterfaceEventTypes
 {
@@ -22,6 +22,15 @@ enum InterfaceEventTypes
     IE_MAX
 };
 
+// We have to define this since on Linux we handle the cycle with internal GLUT loop unlike on Windows - on Windows, we have our own cycle
+#ifdef _WIN32
+#define PRESENTATION_CONTINUE continue
+#define PRESENTATION_BREAK break
+#else
+#define PRESENTATION_CONTINUE return
+#define PRESENTATION_BREAK return
+#endif
+
 typedef std::list<SlideElement*> SlideList;
 
 class PresentationMgr
@@ -30,7 +39,7 @@ class PresentationMgr
         PresentationMgr();
 
         bool Init();
-        bool Run();
+        void Run();
 
         void InterfaceEvent(InterfaceEventTypes type, int32 param1 = 0, int32 param2 = 0);
 

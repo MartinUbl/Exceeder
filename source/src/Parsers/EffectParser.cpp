@@ -1,15 +1,19 @@
 #include "Global.h"
 #include "Log.h"
 #include "Storage.h"
-#include "Parsers\EffectParser.h"
-#include "Defines\Effects.h"
+#include "Parsers/EffectParser.h"
+#include "Defines/Effects.h"
 
 bool EffectParser::ParseFile(const wchar_t *path)
 {
     if (!path)
         return false;
 
+#ifdef _WIN32
     FILE* efile = _wfopen(path, L"r, ccs=UTF-8");
+#else
+    FILE* efile = fopen(ToMultiByteString(path), "r, ccs=UTF-8");
+#endif
     if (!efile)
         return false;
 

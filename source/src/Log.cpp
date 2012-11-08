@@ -20,7 +20,11 @@ void Log::InitErrorFile(const wchar_t *path)
     if (m_errorLog)
         fclose(m_errorLog);
 
+#ifdef _WIN32
     m_errorLog = _wfopen(path, L"w");
+#else
+    m_errorLog = fopen(ToMultiByteString(path), "w");
+#endif
 }
 
 void Log::ErrorLog(const char *err, ...)

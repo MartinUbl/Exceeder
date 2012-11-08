@@ -22,7 +22,16 @@ class Log
 
 #define sLog Singleton<Log>::instance()
 
+#ifdef _WIN32
+
 #define RAISE_ERROR(a, ...) { sLog->ErrorLog(a, __VA_ARGS__); return false; }
 #define RAISE_ERROR_NORETVAL(a, ...) { sLog->ErrorLog(a, __VA_ARGS__); return;}
+
+#else
+
+#define RAISE_ERROR(a, ...) { sLog->ErrorLog(a, ##__VA_ARGS__); return false; }
+#define RAISE_ERROR_NORETVAL(a, ...) { sLog->ErrorLog(a, ##__VA_ARGS__); return;}
+
+#endif
 
 #endif

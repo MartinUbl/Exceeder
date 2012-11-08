@@ -59,12 +59,12 @@ wchar_t* MakeFilePath(const wchar_t* dir, const wchar_t* filename)
     if (dir[wcslen(dir)-1] != '\\')
     {
         tmp = new wchar_t[wcslen(dir)+1+wcslen(filename)+1];
-        swprintf(tmp, L"%s\\%s", dir, filename);
+        swprintf(tmp, 99999, L"%s\\%s", dir, filename);
     }
     else
     {
         tmp = new wchar_t[wcslen(dir)+wcslen(filename)+1];
-        swprintf(tmp, L"%s%s", dir, filename);
+        swprintf(tmp, 99999, L"%s%s", dir, filename);
     }
 
     return tmp;
