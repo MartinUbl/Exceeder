@@ -22,7 +22,7 @@ bool SlideParser::ParseFile(const wchar_t *path)
     wchar_t* ln = NULL;
     while ((ln = ReadLine(sfile)) != NULL)
     {
-        if (PrepareLine(ln))
+        if (PrepareLine(ln) && PreParseLine(ln))
             slidefile.push_back(ln);
     }
 

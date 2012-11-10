@@ -6,6 +6,7 @@ class Parser
     public:
         static wchar_t* ReadLine(FILE* f);
         static bool PrepareLine(wchar_t *&input);
+		static bool PreParseLine(wchar_t *&input);
 };
 
 #endif

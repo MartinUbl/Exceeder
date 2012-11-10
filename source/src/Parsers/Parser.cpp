@@ -1,6 +1,8 @@
 #include "Global.h"
 #include "Application.h"
 #include "Parsers/Parser.h"
+#include "Log.h"
+#include "Storage.h"
 
 wchar_t* Parser::ReadLine(FILE* f)
 {
@@ -66,6 +68,68 @@ bool Parser::PrepareLine(wchar_t *&input)
     }
 
     input = RemoveBeginningSpaces(input);
+
+    return true;
+}
+
+bool Parser::PreParseLine(wchar_t *&line)
+{
+    // true  = line has to be parsed by main parser
+    // false = line was parsed by this parser - don't parse anymore
+
+    // Parse macros
+    wchar_t* left = LeftSide(line, ' ');
+    wchar_t* right = RightSide(line, ' ');
+    int pos = -1;
+
+    if (!left)
+        return true;
+
+    while ((pos = ContainsString(line, L"{#")) != -1 && wcslen(line) > pos+2)
+    {
+        wchar_t* tmp = LeftSide(&line[pos+2], '}');
+        wchar_t* tmpright = RightSide(&line[pos+2], '}');
+        if (tmp)
+        {
+            const wchar_t* val = sStorage->GetMacroValue(tmp);
+
+            uint32 newsize = pos-1  +  wcslen(val)  +  wcslen(tmpright)  +1;
+            tmp = new wchar_t[newsize];
+            memset(tmp, 0, sizeof(wchar_t)*newsize);
+
+            wcsncpy(tmp, line, pos);
+
+            swprintf(tmp, newsize+1, L"%s%s%s", tmp, val, tmpright);
+
+            line = tmp;
+        }
+    }
+
+    if (EqualString(left, L"\\MACRO"))
+    {
+        if (!right)
+            return true;
+
+        wchar_t* ident = LeftSide(right, ' ');
+        right = RightSide(right, ' ');
+
+        if (!ident || !right)
+        {
+            sLog->ErrorLog("Parser: invalid macro definition '%S'", line);
+            return true;
+        }
+
+        if (wcslen(ident) < 2)
+            sLog->ErrorLog("Parser: Warning: macro defined with line '%S' has too short identificator", line);
+
+        if (!sStorage->AddMacro(ident, right))
+        {
+            sLog->ErrorLog("Parsed: Macro with identificator '%S' is already defined! Ignored.", ident);
+            return true;
+        }
+
+        return false;
+    }
 
     return true;
 }

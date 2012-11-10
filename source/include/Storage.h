@@ -88,6 +88,35 @@ class Storage
             return m_slideData[pos];
         }
 
+        bool AddMacro(std::wstring id, std::wstring value)
+        {
+            if (IsMacroDefined(id.c_str()))
+                return false;
+
+            MacroPair tmp = MacroPair::pair(id.c_str(), value.c_str());
+            m_macros.push_back(tmp);
+
+            return true;
+        }
+
+        const wchar_t* GetMacroValue(std::wstring id)
+        {
+            for (std::list<MacroPair>::const_iterator itr = m_macros.begin(); itr != m_macros.end(); ++itr)
+                if (EqualString((*itr).first.c_str(), id.c_str()))
+                    return (*itr).second.c_str();
+
+            return NULL;
+        }
+
+        bool IsMacroDefined(std::wstring id)
+        {
+            for (std::list<MacroPair>::const_iterator itr = m_macros.begin(); itr != m_macros.end(); ++itr)
+                if (EqualString((*itr).first.c_str(), id.c_str()))
+                    return true;
+
+            return false;
+        }
+
         // Resources.cpp
         uint32 PrepareImageResource(const wchar_t* name, const wchar_t* path);
         void LoadImageResources();
@@ -95,6 +124,8 @@ class Storage
         ResourceEntry* GetResource(const wchar_t* name);
 
     private:
+
+        typedef std::pair<std::wstring, std::wstring> MacroPair;
 
         std::wstring m_supfilePath;
         std::list<std::wstring> m_styleFiles;
@@ -112,6 +143,9 @@ class Storage
         StyleMap m_styleMap;
         EffectMap m_effectMap;
         SlideElementVector m_slideData;
+
+        // macros
+        std::list<MacroPair> m_macros;
 
         int32 m_defaultFontId;
         std::list<StoredFont> m_fontMap;

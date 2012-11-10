@@ -2,15 +2,18 @@
 
 \NEW_SLIDE
 
+\MACRO AbcdMyMacro Test!
+\MACRO SecondMac SE_LEFT
+
 \BACKGROUND 999999
 \TEXT{ID:title_1}{S:my_title}{E:appear_left}{P:10,10} Muj nadpis!
-\TEXT{ID:test_text_1}{S:my_test_text}{P:100,300} Těstíčko, řešeto, žák, úůéíá
+\TEXT{ID:test_text_1}{S:my_test_text}{P:100,300} Makro vypadá asi takhle: {#AbcdMyMacro}, tak uvidíme :)
 
 \MOUSE_LEFT
 
 \PLAY_EFFECT{E:left_continue_2}{ID:title_1}
 
-\MOUSE_LEFT
+\MOU{#SecondMac}
 \BACKGROUND #555555      // just demonstrates, that color in hexa format _could_ be prefixed with #
 \MOUSE_LEFT
 

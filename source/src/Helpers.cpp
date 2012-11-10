@@ -120,6 +120,38 @@ bool EqualString(const wchar_t* first, const wchar_t* second)
     return true;
 }
 
+int ContainsString(const wchar_t* str, const wchar_t* substr)
+{
+    if (!str || !substr)
+        return -1;
+
+    if (wcslen(substr) > wcslen(str))
+        return -1;
+
+    bool wrong;
+
+    for (uint32 i = 0; i < wcslen(str)-wcslen(substr); i++)
+    {
+        if (str[i] == substr[0])
+        {
+            wrong = false;
+            for (uint32 j = 0; j < wcslen(substr); j++)
+            {
+                if (str[i+j] != substr[j])
+                {
+                    wrong = true;
+                    break;
+                }
+            }
+
+            if (!wrong)
+                return i;
+        }
+    }
+
+    return -1;
+}
+
 bool IsNumeric(const wchar_t* inp)
 {
     if (!inp || wcslen(inp) < 1)
