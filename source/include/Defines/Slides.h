@@ -84,6 +84,7 @@ struct SlideElement
         std::wstring text;   // text... text!
         uint32 depth;       // depth of drawing - for some kind of "layers"
         void Draw(SlideElement* parent);
+        static FeatureArrayIndex GetFeatureArrayIndexOf(Style* style);
     } typeText;
 
     // Event-based / static content-based / other nondrawable element data

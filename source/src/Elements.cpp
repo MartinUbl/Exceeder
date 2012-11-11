@@ -52,6 +52,20 @@ void SlideElement::Draw()
     }
 }
 
+FeatureArrayIndex SlideElement::elemTextData::GetFeatureArrayIndexOf(Style* style)
+{
+    if (style->bold && style->italic)
+        return FA_BOLD_AND_ITALIC;
+
+    if (style->bold)
+        return FA_BOLD;
+
+    if (style->italic)
+        return FA_ITALIC;
+
+    return FA_NORMAL;
+}
+
 void SlideElement::elemTextData::Draw(SlideElement* parent)
 {
     if (parent->elemStyle.size() > 0)
@@ -67,9 +81,9 @@ void SlideElement::elemTextData::Draw(SlideElement* parent)
 
         // draw text with own font. If not set, use default font
         if (myStyle->fontId >= 0)
-            sSimplyFlat->Drawing->PrintText(myStyle->fontId, parent->position[0], parent->position[1], parent->typeText.text.c_str());
+            sSimplyFlat->Drawing->PrintText(myStyle->fontId, parent->position[0], parent->position[1], GetFeatureArrayIndexOf(myStyle), parent->typeText.text.c_str());
         else
-            sSimplyFlat->Drawing->PrintText(sStorage->GetDefaultFontId(), parent->position[0], parent->position[1], parent->typeText.text.c_str());
+            sSimplyFlat->Drawing->PrintText(sStorage->GetDefaultFontId(), parent->position[0], parent->position[1], FA_NORMAL, parent->typeText.text.c_str());
 
         // Set color back to white if necessary
         if (myStyle->fontColor)
