@@ -52,18 +52,9 @@ void SlideElement::Draw()
     }
 }
 
-FeatureArrayIndex SlideElement::elemTextData::GetFeatureArrayIndexOf(Style* style)
+uint8 SlideElement::elemTextData::GetFeatureArrayIndexOf(Style* style)
 {
-    if (style->bold && style->italic)
-        return FA_BOLD_AND_ITALIC;
-
-    if (style->bold)
-        return FA_BOLD;
-
-    if (style->italic)
-        return FA_ITALIC;
-
-    return FA_NORMAL;
+    return (style->bold << 0 | style->italic << 1 | style->underline << 2 | style->underline << 3);
 }
 
 void SlideElement::elemTextData::Draw(SlideElement* parent)
