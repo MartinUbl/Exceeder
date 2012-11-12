@@ -82,6 +82,38 @@ bool StyleParser::Parse(std::vector<std::wstring> *input)
                 if (tmp->fontId >= 0)
                     tmp->fontId = -2;
             }
+            else if (EqualString(left, L"\\BOLD"))
+            {
+                tmp->bold = true;
+            }
+            else if (EqualString(left, L"\\NOBOLD"))
+            {
+                tmp->bold = false;
+            }
+            else if (EqualString(left, L"\\ITALIC"))
+            {
+                tmp->italic = true;
+            }
+            else if (EqualString(left, L"\\NOITALIC"))
+            {
+                tmp->italic = false;
+            }
+            else if (EqualString(left, L"\\UNDERLINE"))
+            {
+                tmp->underline = true;
+            }
+            else if (EqualString(left, L"\\NOUNDERLINE"))
+            {
+                tmp->underline = false;
+            }
+            else if (EqualString(left, L"\\STRIKE"))
+            {
+                tmp->strikeout = true;
+            }
+            else if (EqualString(left, L"\\NOSTRIKE"))
+            {
+                tmp->strikeout = false;
+            }
             else if (EqualString(left, L"\\DEF_END"))
             {
                 sStorage->AddNewStyle(stylename, tmp);

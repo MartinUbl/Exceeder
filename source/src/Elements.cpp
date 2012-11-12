@@ -54,7 +54,7 @@ void SlideElement::Draw()
 
 uint8 SlideElement::elemTextData::GetFeatureArrayIndexOf(Style* style)
 {
-    return (style->bold << 0 | style->italic << 1 | style->underline << 2 | style->underline << 3);
+    return (style->bold << 0 | style->italic << 1 | style->underline << 2 | style->strikeout << 3);
 }
 
 void SlideElement::elemTextData::Draw(SlideElement* parent)

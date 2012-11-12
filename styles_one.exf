@@ -6,6 +6,9 @@
   \FONT_SIZE 36
   \FONT_COLOR 000088
 
+  \BOLD
+  \UNDERLINE
+
 \DEF_END
 
 \DEF_BEGIN my_test_text
