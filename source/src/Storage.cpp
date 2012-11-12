@@ -121,3 +121,19 @@ void Storage::BuildStyleFonts()
         }
     }
 }
+
+void Storage::PostParseElements()
+{
+    for (std::list<SlideElement*>::iterator itr = m_postParseList.begin(); itr != m_postParseList.end(); ++itr)
+    {
+        (*itr)->typeText.outlist = new StyledTextList;
+        SlideParser::ParseMarkup((*itr)->typeText.text.c_str(), (*itr)->elemStyle.c_str(), (*itr)->typeText.outlist);
+        if ((*itr)->typeText.outlist->empty())
+        {
+            delete (*itr)->typeText.outlist;
+            (*itr)->typeText.outlist = NULL;
+        }
+    }
+
+    m_postParseList.clear();
+}

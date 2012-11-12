@@ -117,6 +117,12 @@ class Storage
             return false;
         }
 
+        void AddPostParseElement(SlideElement* elem)
+        {
+            m_postParseList.push_back(elem);
+        }
+        void PostParseElements();
+
         // Resources.cpp
         uint32 PrepareImageResource(const wchar_t* name, const wchar_t* path);
         void LoadImageResources();
@@ -149,6 +155,8 @@ class Storage
 
         int32 m_defaultFontId;
         std::list<StoredFont> m_fontMap;
+
+        std::list<SlideElement*> m_postParseList;
 };
 
 #define sStorage Singleton<Storage>::instance()

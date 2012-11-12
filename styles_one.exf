@@ -3,11 +3,8 @@
 \DEF_BEGIN my_title
 
   \FONT_FAMILY Arial
-  \FONT_SIZE 36
+  \FONT_SIZE 24
   \FONT_COLOR 000088
-
-  \BOLD
-  \UNDERLINE
 
 \DEF_END
 

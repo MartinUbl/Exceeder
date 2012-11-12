@@ -104,6 +104,9 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
 
             sStorage->AddSlideElement(tmp);
 
+            // Text elements needs to be postparsed due to possibility of marking
+            sStorage->AddPostParseElement(tmp);
+
             tmp = NULL;
             continue;
         }
@@ -258,4 +261,153 @@ uint16 SlideParser::ResolveKey(const wchar_t* input)
     }
 
     return 0;
+}
+
+void SlideParser::ParseMarkup(const wchar_t *input, const wchar_t* stylename, StyledTextList *target)
+{
+    if (!input)
+        return;
+
+    Style* defstyle = NULL;
+    if (stylename)
+        defstyle = sStorage->GetStyle(stylename);
+    else
+    {
+        defstyle = new Style;
+        memset(defstyle, 0, sizeof(Style));
+        defstyle->fontId = sStorage->GetDefaultFontId();
+        defstyle->fontSize = new uint32(/*DEFAULT_FONT_SIZE*/24);
+        defstyle->fontFamily = /*DEFAULT_FONT_FAMILY*/L"Arial";
+    }
+
+    Style* origstyle = defstyle;
+
+    printTextData* tmp = NULL;
+    wchar_t ident = '\0';
+
+    // valid markups: {B}, {I}, {U}, {X}, {S:style_name}
+    uint32 len = wcslen(input);
+
+    uint32 lastTextBegin = 0;
+
+    for (uint32 i = 0; i < len; )
+    {
+        // opening tag (without '/' at second position)
+        if (i < len-2 && input[i] == L'{' && input[i+1] != L'/' && (input[i+2] == L'}' || input[i+2] == L':'))
+        {
+            ident = input[i+1];
+            if (ident == L'B' || ident == L'I' || ident == L'U' || ident == L'X' || (ident == L'S' && input[i+2] == L':'))
+            {
+                if (!target)
+                    target = new StyledTextList;
+
+                tmp = new printTextData;
+
+                tmp->fontId = defstyle->fontId;
+
+                tmp->feature = SlideElement::elemTextData::GetFeatureArrayIndexOf(defstyle);
+                tmp->colorize = !(defstyle->fontColor == NULL);
+                if (tmp->colorize)
+                    tmp->color = (*(defstyle->fontColor));
+
+                tmp->text = new wchar_t[i-lastTextBegin+1];
+                memset(tmp->text, 0, sizeof(wchar_t)*(i-lastTextBegin+1));
+                wcsncpy(tmp->text, &(input[lastTextBegin]), i-lastTextBegin);
+
+                target->push_back(tmp);
+
+                if (ident == L'B')
+                {
+                    defstyle->bold = true;
+                    origstyle->bold = true;
+                }
+                else if (ident == L'I')
+                {
+                    defstyle->italic = true;
+                    origstyle->italic = true;
+                }
+                else if (ident == L'U')
+                {
+                    defstyle->underline = true;
+                    origstyle->underline = true;
+                }
+                else if (ident == L'X')
+                {
+                    defstyle->strikeout = true;
+                    origstyle->strikeout = true;
+                }
+                else if (ident == L'S')
+                {
+                    const wchar_t* stname = LeftSide(&(input[i+3]), L'}');
+                    if (stname)
+                        defstyle = sStorage->GetStyle(stname);
+
+                    i += 3 + 1 + wcslen(stname);
+                }
+
+                if (ident != L'S')
+                    i += 3;
+
+                lastTextBegin = i;
+                continue;
+            }
+            i++;
+            continue;
+        }
+        // closing tag (with '/' at second position)
+        else if (i < len-2 && input[i] == L'{' && input[i+1] == L'/' && input[i+3] == L'}')
+        {
+            ident = input[i+2];
+            if (ident == L'B' || ident == L'I' || ident == L'U' || ident == L'X' || ident == L'S')
+            {
+                if (!target)
+                    target = new StyledTextList;
+
+                tmp = new printTextData;
+
+                tmp->fontId = defstyle->fontId;
+
+                tmp->feature = SlideElement::elemTextData::GetFeatureArrayIndexOf(defstyle);
+                tmp->colorize = !(defstyle->fontColor == NULL);
+                if (tmp->colorize)
+                    tmp->color = (*(defstyle->fontColor));
+
+                tmp->text = new wchar_t[i-lastTextBegin+1];
+                memset(tmp->text, 0, sizeof(wchar_t)*(i-lastTextBegin+1));
+                wcsncpy(tmp->text, &(input[lastTextBegin]), i-lastTextBegin);
+
+                target->push_back(tmp);
+
+                if (ident == L'B')
+                {
+                    defstyle->bold = false;
+                    origstyle->bold = false;
+                }
+                else if (ident == L'I')
+                {
+                    defstyle->italic = false;
+                    origstyle->italic = false;
+                }
+                else if (ident == L'U')
+                {
+                    defstyle->underline = false;
+                    origstyle->underline = false;
+                }
+                else if (ident == L'X')
+                {
+                    defstyle->strikeout = false;
+                    origstyle->strikeout = false;
+                }
+                else if (ident == L'S')
+                    defstyle = origstyle;
+
+                i += 4;
+                lastTextBegin = i;
+                continue;
+            }
+            i++;
+            continue;
+        }
+        i++;
+    }
 }

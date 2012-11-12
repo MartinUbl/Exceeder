@@ -79,6 +79,8 @@ bool PresentationMgr::Init()
     // They have to be rendered and saved after OGL init, because of using some of OGL functions to render
     sStorage->BuildStyleFonts();
 
+    sStorage->PostParseElements();
+
     // Here we have to load all resources
     sStorage->LoadImageResources();
 

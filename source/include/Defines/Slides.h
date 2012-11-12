@@ -60,6 +60,8 @@ struct SlideElement
 
         for (uint32 i = 0; i <= 1; i++)
             position[i] = 0;
+
+        typeText.outlist = NULL;
     }
 
     SlideElementTypes elemType;
@@ -81,8 +83,9 @@ struct SlideElement
 
     struct elemTextData
     {
-        std::wstring text;   // text... text!
-        uint32 depth;       // depth of drawing - for some kind of "layers"
+        std::wstring text;       // text... text!
+        StyledTextList* outlist; // prepared render list for case of marked up input
+        uint32 depth;            // depth of drawing - for some kind of "layers"
         void Draw(SlideElement* parent);
         static uint8 GetFeatureArrayIndexOf(Style* style);
     } typeText;
