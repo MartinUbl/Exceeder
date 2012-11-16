@@ -290,7 +290,8 @@ void SlideParser::ParseMarkup(const wchar_t *input, const wchar_t* stylename, St
 
     uint32 lastTextBegin = 0;
 
-    for (uint32 i = 0; i < len; )
+    uint32 i;
+    for (i = 0; i < len; )
     {
         // opening tag (without '/' at second position)
         if (i < len-2 && input[i] == L'{' && input[i+1] != L'/' && (input[i+2] == L'}' || input[i+2] == L':'))
@@ -409,5 +410,23 @@ void SlideParser::ParseMarkup(const wchar_t *input, const wchar_t* stylename, St
             continue;
         }
         i++;
+    }
+
+    if (lastTextBegin != i)
+    {
+        tmp = new printTextData;
+
+        tmp->fontId = defstyle->fontId;
+
+        tmp->feature = SlideElement::elemTextData::GetFeatureArrayIndexOf(defstyle);
+        tmp->colorize = !(defstyle->fontColor == NULL);
+        if (tmp->colorize)
+            tmp->color = (*(defstyle->fontColor));
+
+        tmp->text = new wchar_t[i-lastTextBegin+1];
+        memset(tmp->text, 0, sizeof(wchar_t)*(i-lastTextBegin+1));
+        wcsncpy(tmp->text, &(input[lastTextBegin]), i-lastTextBegin);
+
+        target->push_back(tmp);
     }
 }

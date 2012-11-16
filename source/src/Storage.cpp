@@ -128,7 +128,7 @@ void Storage::PostParseElements()
     {
         (*itr)->typeText.outlist = new StyledTextList;
         SlideParser::ParseMarkup((*itr)->typeText.text.c_str(), (*itr)->elemStyle.c_str(), (*itr)->typeText.outlist);
-        if ((*itr)->typeText.outlist->empty())
+        if ((*itr)->typeText.outlist->size() < 2)
         {
             delete (*itr)->typeText.outlist;
             (*itr)->typeText.outlist = NULL;
