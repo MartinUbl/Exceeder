@@ -51,29 +51,29 @@ bool EffectParser::Parse(std::vector<std::wstring> *input)
                 tmp = new Effect;
 
             // move type
-            if (EqualString(left, L"\\MOVE"))
+            if (EqualString(left, L"\\MOVE", true))
             {
-                if (EqualString(right, L"linear"))
+                if (EqualString(right, L"linear", true))
                     tmp->moveType = new uint32(MOVE_TYPE_LINEAR);
-                else if (EqualString(right, L"circular"))
+                else if (EqualString(right, L"circular", true))
                     tmp->moveType = new uint32(MOVE_TYPE_CIRCULAR);
-                else if (EqualString(right, L"bezier"))
+                else if (EqualString(right, L"bezier", true))
                     tmp->moveType = new uint32(MOVE_TYPE_BEZIER);
                 else
                     RAISE_ERROR("EffectParser: Unknown move type '%s'", right);
             }
             // move/other offset from
-            else if (EqualString(left, L"\\OFFSET"))
+            else if (EqualString(left, L"\\OFFSET", true))
             {
-                if (EqualString(right, L"absolute"))
+                if (EqualString(right, L"absolute", true))
                     tmp->offsetType = new uint32(OFFSET_TYPE_ABSOLUTE);
-                else if (EqualString(right, L"relative"))
+                else if (EqualString(right, L"relative", true))
                     tmp->offsetType = new uint32(OFFSET_TYPE_RELATIVE);
                 else
                     RAISE_ERROR("EffectParser: Unknown offset type '%s'", right);
             }
             // starting position
-            else if (EqualString(left, L"\\START_POS"))
+            else if (EqualString(left, L"\\START_POS", true))
             {
                 wchar_t* xpos = LeftSide(right, ',');
                 wchar_t* ypos = RightSide(right, ',');
@@ -86,7 +86,7 @@ bool EffectParser::Parse(std::vector<std::wstring> *input)
                 tmp->startPos[1] = ToInt(ypos);
             }
             // end position
-            else if (EqualString(left, L"\\END_POS"))
+            else if (EqualString(left, L"\\END_POS", true))
             {
                 wchar_t* xpos = LeftSide(right, ',');
                 wchar_t* ypos = RightSide(right, ',');
@@ -99,7 +99,7 @@ bool EffectParser::Parse(std::vector<std::wstring> *input)
                 tmp->endPos[1] = ToInt(ypos);
             }
             // time for whole effect
-            else if (EqualString(left, L"\\TIMER"))
+            else if (EqualString(left, L"\\TIMER", true))
             {
                 if (!IsNumeric(right))
                     RAISE_ERROR("EffectParser: Non-numeric value supplied as timer parameter");
@@ -107,23 +107,23 @@ bool EffectParser::Parse(std::vector<std::wstring> *input)
                 tmp->effectTimer = new uint32(ToInt(right));
             }
             // sets effect as blocking
-            else if (EqualString(left, L"\\BLOCKING"))
+            else if (EqualString(left, L"\\BLOCKING", true))
             {
                 tmp->isBlocking = true;
             }
             // sets effect as non blocking (it is, by default, but some global config option can change that)
-            else if (EqualString(left, L"\\NOBLOCKING"))
+            else if (EqualString(left, L"\\NOBLOCKING", true))
             {
                 tmp->isBlocking = false;
             }
-            else if (EqualString(left, L"\\NEXT_EFFECT"))
+            else if (EqualString(left, L"\\NEXT_EFFECT", true))
             {
                 if (tmp->m_effectChain == NULL)
                     tmp->m_effectChain = new std::vector<std::wstring>;
 
                 tmp->m_effectChain->push_back(right);
             }
-            else if (EqualString(left, L"\\DEF_END"))
+            else if (EqualString(left, L"\\DEF_END", true))
             {
                 sStorage->AddNewEffect(effname, tmp);
                 effname = NULL;
@@ -135,18 +135,18 @@ bool EffectParser::Parse(std::vector<std::wstring> *input)
 
         // when not parsing effect definition
         // file version
-        if (EqualString(left, L"\\EXCEEDER_EFFECTS_FILE_VERSION"))
+        if (EqualString(left, L"\\EXCEEDER_EFFECTS_FILE_VERSION", true))
         {
             //
         }
         // start of definition
-        else if (EqualString(left, L"\\DEF_BEGIN"))
+        else if (EqualString(left, L"\\DEF_BEGIN", true))
         {
             effname = right;
             continue;
         }
         // end
-        else if (EqualString(left, L"\\END"))
+        else if (EqualString(left, L"\\END", true))
         {
             return true;
         }

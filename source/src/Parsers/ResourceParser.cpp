@@ -54,47 +54,47 @@ bool ResourceParser::Parse(std::vector<std::wstring> *input)
                 tmp = new ResourceEntry;
 
             // font family
-            if (EqualString(left, L"\\TYPE"))
+            if (EqualString(left, L"\\TYPE", true))
             {
-                if (EqualString(right, L"image"))
+                if (EqualString(right, L"image", true))
                     tmp->type = RESOURCE_IMAGE;
             }
-            else if (EqualString(left, L"\\SOURCE"))
+            else if (EqualString(left, L"\\SOURCE", true))
             {
                 tmp->originalSource = right;
             }
-            else if (EqualString(left, L"\\WIDTH"))
+            else if (EqualString(left, L"\\WIDTH", true))
             {
                 if (IsNumeric(right))
                     tmp->implicitWidth = ToInt(right);
                 else
                     RAISE_ERROR("ResourceParser: non-numeric value '%s' supplied as width for resource '%s'", right, resname);
             }
-            else if (EqualString(left, L"\\HEIGHT"))
+            else if (EqualString(left, L"\\HEIGHT", true))
             {
                 if (IsNumeric(right))
                     tmp->implicitHeight = ToInt(right);
                 else
                     RAISE_ERROR("ResourceParser: non-numeric value '%s' supplied as height for resource '%s'", right, resname);
             }
-            else if (EqualString(left, L"\\COPYRIGHT"))
+            else if (EqualString(left, L"\\COPYRIGHT", true))
             {
                 tmp->copyright = right;
             }
-            else if (EqualString(left, L"\\DESCRIPTION"))
+            else if (EqualString(left, L"\\DESCRIPTION", true))
             {
                 tmp->description = right;
             }
-            else if (EqualString(left, L"\\COLORS"))
+            else if (EqualString(left, L"\\COLORS", true))
             {
-                if (EqualString(right, L"full"))
+                if (EqualString(right, L"full", true))
                     icp = ICP_FULL;
-                else if (EqualString(right, L"grayscale") || EqualString(right, L"greyscale"))
+                else if (EqualString(right, L"grayscale", true) || EqualString(right, L"greyscale", true))
                     icp = ICP_GRAYSCALE;
                 else
                     sLog->ErrorLog("ResourceParser: invalid color palette definition '%s' supplied for resource '%s', using full palette", right, resname);
             }
-            else if (EqualString(left, L"\\DEF_END"))
+            else if (EqualString(left, L"\\DEF_END", true))
             {
                 uint32 resid = 0;
                 if (tmp->type != MAX_RESOURCE)
@@ -118,18 +118,18 @@ bool ResourceParser::Parse(std::vector<std::wstring> *input)
 
         // when not parsing style definition
         // file version
-        if (EqualString(left, L"\\EXCEEDER_RESOURCES_FILE_VERSION"))
+        if (EqualString(left, L"\\EXCEEDER_RESOURCES_FILE_VERSION", true))
         {
             //
         }
         // start of definition
-        else if (EqualString(left, L"\\DEF_BEGIN"))
+        else if (EqualString(left, L"\\DEF_BEGIN", true))
         {
             resname = right;
             continue;
         }
         // end
-        else if (EqualString(left, L"\\END"))
+        else if (EqualString(left, L"\\END", true))
         {
             return true;
         }

@@ -108,14 +108,23 @@ wchar_t* RightSide(const wchar_t* input, const wchar_t delim)
     return NULL;
 }
 
-bool EqualString(const wchar_t* first, const wchar_t* second)
+bool EqualString(const wchar_t* first, const wchar_t* second, bool caseInsensitive)
 {
     if (wcslen(first) != wcslen(second))
         return false;
 
-    for (uint32 i = 0; i < wcslen(first); i++)
-        if (first[i] != second[i])
-            return false;
+    if (caseInsensitive)
+    {
+        for (uint32 i = 0; i < wcslen(first); i++)
+            if (UpperChar(first[i]) != UpperChar(second[i]))
+                return false;
+    }
+    else
+    {
+        for (uint32 i = 0; i < wcslen(first); i++)
+            if (first[i] != second[i])
+                return false;
+    }
 
     return true;
 }
@@ -217,7 +226,7 @@ const wchar_t* GetDefinitionKeyValue(ParsedDefs* input, const wchar_t* key)
 
     for (ParsedDefs::const_iterator itr = input->begin(); itr != input->end(); ++itr)
     {
-        if (EqualString(ToUppercase((*itr).first), upkey))
+        if (EqualString(ToUppercase((*itr).first), upkey, true))
             return (*itr).second.c_str();
     }
 

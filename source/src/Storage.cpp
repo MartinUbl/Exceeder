@@ -98,7 +98,7 @@ void Storage::BuildStyleFonts()
             for (std::list<StoredFont>::const_iterator iter = m_fontMap.begin(); iter != m_fontMap.end(); ++iter)
             {
                 // If yes, assign its ID to style definition and continue to next style
-                if (EqualString(ToUppercase(iter->fontName), ToUppercase(itr->second->fontFamily))
+                if (EqualString(ToUppercase(iter->fontName), ToUppercase(itr->second->fontFamily), true)
                     && iter->fontSize == (*itr->second->fontSize)
                     && iter->bold == itr->second->bold
                     && iter->italic == itr->second->italic

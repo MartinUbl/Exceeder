@@ -92,7 +92,7 @@ ResourceEntry* Storage::GetResource(uint32 id)
 ResourceEntry* Storage::GetResource(const wchar_t* name)
 {
     for (std::vector<ResourceEntry*>::iterator itr = m_resources.begin(); itr != m_resources.end(); ++itr)
-        if ((*itr) && EqualString((*itr)->name.c_str(), name))
+        if ((*itr) && EqualString((*itr)->name.c_str(), name, true))
             return (*itr);
 
     return NULL;

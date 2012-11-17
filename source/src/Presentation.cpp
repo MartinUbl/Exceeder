@@ -154,7 +154,7 @@ SlideElement* PresentationMgr::GetActiveElementById(const wchar_t* id)
         return NULL;
 
     for (SlideList::iterator itr = m_activeElements.begin(); itr != m_activeElements.end(); ++itr)
-        if (EqualString((*itr)->elemId.c_str(), id))
+        if (EqualString((*itr)->elemId.c_str(), id, true))
             return (*itr);
 
     return NULL;

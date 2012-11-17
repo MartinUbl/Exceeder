@@ -94,14 +94,14 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
             resfiles = false;
 
         // file version
-        if (EqualString(left, L"\\EXCEEDER_SUPFILE_VERSION"))
+        if (EqualString(left, L"\\EXCEEDER_SUPFILE_VERSION", true))
         {
             if (right && wcslen(right) >= 1)
             {
                 bool valid = false;
                 for (uint32 i = 0; i < sizeof(SupportedSupfileVersions)/sizeof(const char*); i++)
                 {
-                    if (EqualString(SupportedSupfileVersions[i], right))
+                    if (EqualString(SupportedSupfileVersions[i], right, true))
                     {
                         sStorage->SetSupfileVersion(right);
                         valid = true;
@@ -115,7 +115,7 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
                 RAISE_ERROR("SupfileParser: Unknown version '%s'!", right?ToMultiByteString(right):"none");
         }
         // screen width
-        else if (EqualString(left, L"\\SCREEN_WIDTH"))
+        else if (EqualString(left, L"\\SCREEN_WIDTH", true))
         {
             if (IsNumeric(right))
                 sStorage->SetScreenWidth(ToInt(right));
@@ -123,7 +123,7 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
                 RAISE_ERROR("SupfileParser: Non-numeric value '%s' for screen width", right);
         }
         // screen height
-        else if (EqualString(left, L"\\SCREEN_HEIGHT"))
+        else if (EqualString(left, L"\\SCREEN_HEIGHT", true))
         {
             if (IsNumeric(right))
                 sStorage->SetScreenHeight(ToInt(right));
@@ -131,31 +131,31 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
                 RAISE_ERROR("SupfileParser: Non-numeric value '%s' for screen height", right);
         }
         // slide files
-        else if (EqualString(left, L"\\SLIDES"))
+        else if (EqualString(left, L"\\SLIDES", true))
         {
             slidefiles = true;
             continue;
         }
         // effect files
-        else if (EqualString(left, L"\\EFFECTS"))
+        else if (EqualString(left, L"\\EFFECTS", true))
         {
             effectfiles = true;
             continue;
         }
         // style files
-        else if (EqualString(left, L"\\STYLES"))
+        else if (EqualString(left, L"\\STYLES", true))
         {
             stylefiles = true;
             continue;
         }
         // resource files
-        else if (EqualString(left, L"\\RESOURCES"))
+        else if (EqualString(left, L"\\RESOURCES", true))
         {
             resfiles = true;
             continue;
         }
         // end of all
-        else if (EqualString(left, L"\\END"))
+        else if (EqualString(left, L"\\END", true))
         {
             return true;
         }

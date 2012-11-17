@@ -57,7 +57,7 @@ class Storage
         Style* GetStyle(const wchar_t* name)
         {
             for (StyleMap::iterator itr = m_styleMap.begin(); itr != m_styleMap.end(); ++itr)
-                if (EqualString(itr->first, name))
+                if (EqualString(itr->first, name, true))
                     return itr->second;
             return NULL;
         }
@@ -72,7 +72,7 @@ class Storage
         Effect* GetEffect(const wchar_t* name)
         {
             for (EffectMap::iterator itr = m_effectMap.begin(); itr != m_effectMap.end(); ++itr)
-                if (EqualString(itr->first, name))
+                if (EqualString(itr->first, name, true))
                     return itr->second;
             return NULL;
         }
@@ -103,7 +103,7 @@ class Storage
         const wchar_t* GetMacroValue(std::wstring id)
         {
             for (std::list<MacroPair>::const_iterator itr = m_macros.begin(); itr != m_macros.end(); ++itr)
-                if (EqualString((*itr).first.c_str(), id.c_str()))
+                if (EqualString((*itr).first.c_str(), id.c_str(), true))
                     return (*itr).second.c_str();
 
             return NULL;
@@ -112,7 +112,7 @@ class Storage
         bool IsMacroDefined(std::wstring id)
         {
             for (std::list<MacroPair>::const_iterator itr = m_macros.begin(); itr != m_macros.end(); ++itr)
-                if (EqualString((*itr).first.c_str(), id.c_str()))
+                if (EqualString((*itr).first.c_str(), id.c_str(), true))
                     return true;
 
             return false;

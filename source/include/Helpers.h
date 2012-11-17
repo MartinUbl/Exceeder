@@ -17,10 +17,12 @@ extern void GetPositionDefinitionKeyValue(ParsedDefs* input, const wchar_t* key,
 
 extern wchar_t* RemoveBeginningSpaces(const wchar_t* input);
 
-extern bool EqualString(const wchar_t* first, const wchar_t* second);
+extern bool EqualString(const wchar_t* first, const wchar_t* second, bool caseInsensitive = false);
 extern int ContainsString(const wchar_t* str, const wchar_t* substr);
 extern bool IsNumeric(const wchar_t* inp);
 extern int ToInt(const wchar_t* inp);
+extern wchar_t UpperChar(wchar_t inp);
+extern wchar_t LowerChar(wchar_t inp);
 extern const wchar_t* ToUppercase(const wchar_t* input);
 extern const wchar_t* ToLowercase(const wchar_t* input);
 extern const wchar_t* ToWideString(const char* input);

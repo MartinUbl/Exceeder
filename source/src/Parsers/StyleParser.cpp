@@ -51,7 +51,7 @@ bool StyleParser::Parse(std::vector<std::wstring> *input)
                 tmp = new Style;
 
             // font family
-            if (EqualString(left, L"\\FONT_FAMILY"))
+            if (EqualString(left, L"\\FONT_FAMILY", true))
             {
                 tmp->fontFamily = right;
 
@@ -60,7 +60,7 @@ bool StyleParser::Parse(std::vector<std::wstring> *input)
                     tmp->fontId = -2;
             }
             // font size in pixels
-            else if (EqualString(left, L"\\FONT_SIZE"))
+            else if (EqualString(left, L"\\FONT_SIZE", true))
             {
                 if (IsNumeric(right))
                     tmp->fontSize = new uint32(ToInt(right));
@@ -71,7 +71,7 @@ bool StyleParser::Parse(std::vector<std::wstring> *input)
                     tmp->fontId = -2;
             }
             // font color
-            else if (EqualString(left, L"\\FONT_COLOR"))
+            else if (EqualString(left, L"\\FONT_COLOR", true))
             {
                 uint32 dst = 0;
                 if (ParseColor(right, &dst))
@@ -82,39 +82,39 @@ bool StyleParser::Parse(std::vector<std::wstring> *input)
                 if (tmp->fontId >= 0)
                     tmp->fontId = -2;
             }
-            else if (EqualString(left, L"\\BOLD"))
+            else if (EqualString(left, L"\\BOLD", true))
             {
                 tmp->bold = true;
             }
-            else if (EqualString(left, L"\\NOBOLD"))
+            else if (EqualString(left, L"\\NOBOLD", true))
             {
                 tmp->bold = false;
             }
-            else if (EqualString(left, L"\\ITALIC"))
+            else if (EqualString(left, L"\\ITALIC", true))
             {
                 tmp->italic = true;
             }
-            else if (EqualString(left, L"\\NOITALIC"))
+            else if (EqualString(left, L"\\NOITALIC", true))
             {
                 tmp->italic = false;
             }
-            else if (EqualString(left, L"\\UNDERLINE"))
+            else if (EqualString(left, L"\\UNDERLINE", true))
             {
                 tmp->underline = true;
             }
-            else if (EqualString(left, L"\\NOUNDERLINE"))
+            else if (EqualString(left, L"\\NOUNDERLINE", true))
             {
                 tmp->underline = false;
             }
-            else if (EqualString(left, L"\\STRIKE"))
+            else if (EqualString(left, L"\\STRIKE", true))
             {
                 tmp->strikeout = true;
             }
-            else if (EqualString(left, L"\\NOSTRIKE"))
+            else if (EqualString(left, L"\\NOSTRIKE", true))
             {
                 tmp->strikeout = false;
             }
-            else if (EqualString(left, L"\\DEF_END"))
+            else if (EqualString(left, L"\\DEF_END", true))
             {
                 sStorage->AddNewStyle(stylename, tmp);
                 stylename = NULL;
@@ -126,18 +126,18 @@ bool StyleParser::Parse(std::vector<std::wstring> *input)
 
         // when not parsing style definition
         // file version
-        if (EqualString(left, L"\\EXCEEDER_STYLES_FILE_VERSION"))
+        if (EqualString(left, L"\\EXCEEDER_STYLES_FILE_VERSION", true))
         {
             //
         }
         // start of definition
-        else if (EqualString(left, L"\\DEF_BEGIN"))
+        else if (EqualString(left, L"\\DEF_BEGIN", true))
         {
             stylename = right;
             continue;
         }
         // end
-        else if (EqualString(left, L"\\END"))
+        else if (EqualString(left, L"\\END", true))
         {
             return true;
         }
@@ -158,7 +158,7 @@ bool StyleParser::ParseColor(const wchar_t *input, uint32 *dest)
     // At first, search known colors
     for (uint32 i = 0; i < sizeof(KnownColors)/sizeof(KnownColor); i++)
     {
-        if (EqualString(input, KnownColors[i].name))
+        if (EqualString(input, KnownColors[i].name, true))
         {
             (*dest) = KnownColors[i].color;
             return true;

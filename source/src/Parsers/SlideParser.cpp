@@ -58,12 +58,12 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
         right = RightSide(itr->c_str(), ' ');
 
         // file version
-        if (EqualString(left, L"\\EXCEEDER_SLIDE_FILE_VERSION"))
+        if (EqualString(left, L"\\EXCEEDER_SLIDE_FILE_VERSION", true))
         {
             //
         }
         // background element
-        else if (EqualString(left, L"\\BACKGROUND"))
+        else if (EqualString(left, L"\\BACKGROUND", true))
         {
             tmp = new SlideElement;
             tmp->elemType = SLIDE_ELEM_BACKGROUND;
@@ -81,7 +81,7 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
             continue;
         }
         // text element
-        else if (EqualString(left, L"\\TEXT"))
+        else if (EqualString(left, L"\\TEXT", true))
         {
             tmp = new SlideElement;
             tmp->elemType = SLIDE_ELEM_TEXT;
@@ -115,7 +115,7 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
             continue;
         }
         // loading an external image
-        else if (EqualString(left, L"\\LOAD_IMAGE"))
+        else if (EqualString(left, L"\\LOAD_IMAGE", true))
         {
             std::wstring name, path;
 
@@ -132,7 +132,7 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
             continue;
         }
         // drawing loaded image
-        else if (EqualString(left, L"\\DRAW_IMAGE"))
+        else if (EqualString(left, L"\\DRAW_IMAGE", true))
         {
             tmp = new SlideElement;
             tmp->elemType = SLIDE_ELEM_IMAGE;
@@ -172,12 +172,12 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
             continue;
         }
         // mouse press event element
-        else if (EqualString(left, L"\\MOUSE_LEFT") || EqualString(left, L"\\MOUSE_RIGHT"))
+        else if (EqualString(left, L"\\MOUSE_LEFT", true) || EqualString(left, L"\\MOUSE_RIGHT", true))
         {
             tmp = new SlideElement;
             tmp->elemType = SLIDE_ELEM_MOUSE_EVENT;
 
-            if (EqualString(left, L"\\MOUSE_LEFT"))
+            if (EqualString(left, L"\\MOUSE_LEFT", true))
                 tmp->typeMouseEvent.type = MOUSE_EVENT_LEFT_DOWN;
             else
                 tmp->typeMouseEvent.type = MOUSE_EVENT_RIGHT_DOWN;
@@ -200,7 +200,7 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
             continue;
         }
         // keyboard press event element
-        else if (EqualString(left, L"\\KEY_PRESS") || EqualString(left, L"\\KEY_RELEASE"))
+        else if (EqualString(left, L"\\KEY_PRESS", true) || EqualString(left, L"\\KEY_RELEASE", true))
         {
             uint16 key = 0;
             if (right != NULL)
@@ -213,7 +213,7 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
 
             tmp = new SlideElement;
             tmp->elemType = SLIDE_ELEM_KEYBOARD_EVENT;
-            if (EqualString(left, L"\\KEY_PRESS"))
+            if (EqualString(left, L"\\KEY_PRESS", true))
                 tmp->typeKeyboardEvent.type = KEYBOARD_EVENT_KEY_DOWN;
             else
                 tmp->typeKeyboardEvent.type = KEYBOARD_EVENT_KEY_UP;
@@ -226,7 +226,7 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
             continue;
         }
         // clear everything from screen
-        else if (EqualString(left, L"\\NEW_SLIDE"))
+        else if (EqualString(left, L"\\NEW_SLIDE", true))
         {
             tmp = new SlideElement;
             tmp->elemType = SLIDE_ELEM_NEW_SLIDE;
@@ -236,7 +236,7 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
             tmp = NULL;
             continue;
         }
-        else if (EqualString(left, L"\\PLAY_EFFECT"))
+        else if (EqualString(left, L"\\PLAY_EFFECT", true))
         {
             tmp = new SlideElement;
             tmp->elemType = SLIDE_ELEM_PLAY_EFFECT;
@@ -251,7 +251,7 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
             tmp = NULL;
         }
         // end
-        else if (EqualString(left, L"\\END"))
+        else if (EqualString(left, L"\\END", true))
         {
             return true;
         }
@@ -271,7 +271,7 @@ uint16 SlideParser::ResolveKey(const wchar_t* input)
 
     for (uint32 i = 0; i < sizeof(KnownKeys)/sizeof(KnownKey); i++)
     {
-        if (EqualString(input, KnownKeys[i].name))
+        if (EqualString(input, KnownKeys[i].name, true))
             return KnownKeys[i].code;
     }
 

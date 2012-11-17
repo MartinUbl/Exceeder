@@ -108,7 +108,7 @@ bool Parser::PreParseLine(wchar_t *&line)
         }
     }
 
-    if (EqualString(left, L"\\MACRO"))
+    if (EqualString(left, L"\\MACRO", true))
     {
         if (!right)
             return true;
