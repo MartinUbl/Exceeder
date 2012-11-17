@@ -47,6 +47,8 @@ static const KnownKey KnownKeys[] = {
     {L"SHIFT",     VK_SHIFT}
 };
 
+class EffectHandler;
+
 struct SlideElement
 {
     SlideElement()

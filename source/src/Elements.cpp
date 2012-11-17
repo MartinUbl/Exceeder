@@ -5,6 +5,7 @@
 #include "Defines/Slides.h"
 #include "Defines/Styles.h"
 #include "Defines/Effects.h"
+#include "Handlers/EffectHandler.h"
 
 void SlideElement::CreateEffectIfAny()
 {
@@ -64,7 +65,7 @@ void SlideElement::elemTextData::Draw(SlideElement* parent)
         Style* myStyle = sStorage->GetStyle(parent->elemStyle.c_str());
 
         // Set color if any
-        if (myStyle->fontColor)
+        if (myStyle && myStyle->fontColor)
         {
             uint32 color = (*(myStyle->fontColor));
             glColor3ub(COLOR_R(color),COLOR_G(color),COLOR_B(color));
@@ -84,13 +85,13 @@ void SlideElement::elemTextData::Draw(SlideElement* parent)
         // draw text with own font. If not set, use default font
         if (outlist && outlist->size() > 0)
             sSimplyFlat->Drawing->PrintStyledText(parent->position[0], parent->position[1], wrap, outlist);
-        else if (myStyle->fontId >= 0)
+        else if (myStyle && myStyle->fontId >= 0)
             sSimplyFlat->Drawing->PrintText(myStyle->fontId, parent->position[0], parent->position[1], GetFeatureArrayIndexOf(myStyle), wrap, parent->typeText.text.c_str());
         else
             sSimplyFlat->Drawing->PrintText(sStorage->GetDefaultFontId(), parent->position[0], parent->position[1], FA_NORMAL, wrap, parent->typeText.text.c_str());
 
         // Set color back to white if necessary
-        if (myStyle->fontColor)
+        if (myStyle && myStyle->fontColor)
             glColor3ub(255, 255, 255);
     }
 }

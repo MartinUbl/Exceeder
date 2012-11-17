@@ -4,6 +4,7 @@
 #include "Storage.h"
 #include "Defines/Effects.h"
 #include "Parsers/EffectParser.h"
+#include "Handlers/EffectHandler.h"
 #include "Defines/Slides.h"
 
 EffectHandler::EffectHandler(SlideElement *parent, Effect *elementEffect, bool fromQueue)

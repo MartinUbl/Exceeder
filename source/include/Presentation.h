@@ -8,6 +8,7 @@
 #include "Defines/Slides.h"
 #include "Defines/Styles.h"
 #include "Defines/Effects.h"
+#include "Handlers/EffectHandler.h"
 
 enum InterfaceEventTypes
 {
