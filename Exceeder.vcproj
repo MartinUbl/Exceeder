@@ -208,6 +208,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\source\src\Parsers\ResourceParser.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\source\src\Parsers\SlideParser.cpp"
 					>
 				</File>
@@ -275,6 +279,10 @@
 				</File>
 				<File
 					RelativePath=".\source\include\Parsers\Parser.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\include\Parsers\ResourceParser.h"
 					>
 				</File>
 				<File

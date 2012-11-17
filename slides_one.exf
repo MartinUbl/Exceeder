@@ -21,8 +21,7 @@
 
 \BACKGROUND CCCCCC
 
-\LOAD_IMAGE obrazek, ./ukazka.jpg
-\DRAW_IMAGE{P:400,300}{V:300,200} obrazek
+\DRAW_IMAGE{P:400,300} obrazek
 
 \MOUSE_LEFT
 \TEXT{ID:title_2}{S:my_title}{E:appear_left} Další nadpis

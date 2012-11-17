@@ -41,7 +41,10 @@ bool Parser::PrepareLine(wchar_t *&input)
             comment = true;
 
         if (comment)
+        {
             input[i] = '\0';
+            break;
+        }
     }
 
     // verify that line consists of valid characters - not only from spaces

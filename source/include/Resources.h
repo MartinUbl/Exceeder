@@ -10,10 +10,16 @@ enum ResourceTypes
     MAX_RESOURCE
 };
 
+enum ImageColorPalette
+{
+    ICP_FULL            = 0,
+    ICP_GRAYSCALE       = 1,
+};
+
 struct ImageResourceEntry
 {
     uint32 textureId;
-    std::wstring originalFilename;
+    ImageColorPalette colors;
 };
 
 struct ResourceEntry
@@ -27,6 +33,15 @@ struct ResourceEntry
     std::wstring name;
 
     ResourceTypes type;
+
+    int32 implicitWidth;
+    int32 implicitHeight;
+
+    // filename or other specifications
+    std::wstring originalSource;
+
+    std::wstring copyright;
+    std::wstring description;
 
     // Pointers to various structures specific to valid resource type
     ImageResourceEntry* image;

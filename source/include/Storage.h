@@ -31,6 +31,7 @@ class Storage
         void AddInputStyleFile(const wchar_t* path)   { m_styleFiles.push_back(path); };
         void AddInputEffectsFile(const wchar_t* path) { m_effectsFiles.push_back(path); };
         void AddInputSlideFile(const wchar_t* path)   { m_slideFiles.push_back(path); };
+        void AddInputResourceFile(const wchar_t* path){ m_resourceFiles.push_back(path); };
         bool ParseInputFiles();
 
         void SetScreenWidth(uint32 width) { m_screenWidth = width; };
@@ -124,6 +125,7 @@ class Storage
         void PostParseElements();
 
         // Resources.cpp
+        uint32 PrepareResource(const wchar_t* name, ResourceEntry* res);
         uint32 PrepareImageResource(const wchar_t* name, const wchar_t* path);
         void LoadImageResources();
         ResourceEntry* GetResource(uint32 id);
@@ -137,6 +139,7 @@ class Storage
         std::list<std::wstring> m_styleFiles;
         std::list<std::wstring> m_effectsFiles;
         std::list<std::wstring> m_slideFiles;
+        std::list<std::wstring> m_resourceFiles;
 
         std::vector<ResourceEntry*> m_resources;
 

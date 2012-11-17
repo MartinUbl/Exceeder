@@ -154,6 +154,17 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
             else
                 tmp->typeImage.resourceId = 0;
 
+            if (tmp->typeImage.size[0] == 0 || tmp->typeImage.size[1] == 0)
+            {
+                if (res && res->implicitWidth > 0 && res->implicitHeight > 0)
+                {
+                    tmp->typeImage.size[0] = res->implicitWidth;
+                    tmp->typeImage.size[1] = res->implicitHeight;
+                }
+                else
+                    sLog->ErrorLog("SlideParser: no valid dimensions for resource 's' specified!", right);
+            }
+
             sStorage->AddSlideElement(tmp);
 
             tmp = NULL;

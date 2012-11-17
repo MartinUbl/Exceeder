@@ -12,10 +12,7 @@ ResourceEntry::ResourceEntry()
 void ResourceEntry::Prepare(ResourceTypes type, const wchar_t* name, const wchar_t *path)
 {
     if (type == RESOURCE_IMAGE)
-    {
         image = new ImageResourceEntry;
-        image->originalFilename = path;
-    }
 
     this->type = type;
     this->name = name;
@@ -24,7 +21,37 @@ void ResourceEntry::Prepare(ResourceTypes type, const wchar_t* name, const wchar
 void ResourceEntry::Load()
 {
     if (type == RESOURCE_IMAGE)
-        image->textureId = sSimplyFlat->TextureStorage->LoadTexture(ToMultiByteString(image->originalFilename.c_str()), 0);
+    {
+        uint32 flags = 0;
+
+        if (image->colors == ICP_GRAYSCALE)
+            flags |= IMAGELOAD_GREYSCALE;
+
+        image->textureId = sSimplyFlat->TextureStorage->LoadTexture(ToMultiByteString(originalSource.c_str()), flags);
+    }
+}
+
+uint32 Storage::PrepareResource(const wchar_t* name, ResourceEntry* res)
+{
+    if (!res)
+        return 0;
+
+    if (res->type == MAX_RESOURCE)
+        return 0;
+
+    res->Prepare(res->type, name, res->originalSource.c_str());
+
+    uint32 id = m_resources.size();
+    if (id == 0)
+        id++;
+
+    m_resources.resize(id+1);
+
+    res->internalId = id;
+
+    m_resources[id] = res;
+
+    return id;
 }
 
 uint32 Storage::PrepareImageResource(const wchar_t* name, const wchar_t *path)
@@ -39,6 +66,8 @@ uint32 Storage::PrepareImageResource(const wchar_t* name, const wchar_t *path)
     m_resources.resize(id+1);
 
     tmp->internalId = id;
+
+    tmp->originalSource = path;
 
     m_resources[id] = tmp;
 

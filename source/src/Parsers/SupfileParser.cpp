@@ -11,6 +11,7 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
     bool slidefiles = false;
     bool effectfiles = false;
     bool stylefiles = false;
+    bool resfiles = false;
 
     wchar_t* left = NULL;
     wchar_t* right = NULL;
@@ -66,6 +67,21 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
                 sStorage->AddInputStyleFile(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left));
                 continue;
             }
+
+            if (resfiles)
+            {
+#ifdef _WIN32
+                FILE* f = _wfopen(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left), L"r, ccs=UTF-8");
+#else
+                FILE* f = fopen(ToMultiByteString(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left)), "r, ccs=UTF-8");
+#endif
+                if (!f)
+                    RAISE_ERROR("SupfileParser: Input resource file '%s', hasn't been found!", ToMultiByteString(left));
+                fclose(f);
+
+                sStorage->AddInputResourceFile(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left));
+                continue;
+            }
         }
 
         if (slidefiles)
@@ -74,6 +90,8 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
             effectfiles = false;
         if (stylefiles)
             stylefiles = false;
+        if (resfiles)
+            resfiles = false;
 
         // file version
         if (EqualString(left, L"\\EXCEEDER_SUPFILE_VERSION"))
@@ -128,6 +146,12 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
         else if (EqualString(left, L"\\STYLES"))
         {
             stylefiles = true;
+            continue;
+        }
+        // resource files
+        else if (EqualString(left, L"\\RESOURCES"))
+        {
+            resfiles = true;
             continue;
         }
         // end of all

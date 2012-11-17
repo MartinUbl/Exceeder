@@ -1,0 +1,16 @@
+﻿\EXCEEDER_RESOURCES_FILE_VERSION 1.0
+
+\DEF_BEGIN obrazek
+
+  \TYPE image
+  \WIDTH 300
+  \HEIGHT 200
+  \SOURCE ./ukazka.jpg
+  \COPYRIGHT Pipin, hráč iCe Online
+  \DESCRIPTION Ukázka obrázku, zobrazitelná systémem Exceeder
+
+  \COLORS full
+
+\DEF_END
+
+\END
