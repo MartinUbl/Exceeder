@@ -59,7 +59,10 @@ struct SlideElement
         drawable = false;
 
         for (uint32 i = 0; i <= 1; i++)
+        {
             position[i] = 0;
+            finalPosition[i] = 0;
+        }
 
         typeText.outlist = NULL;
     }
@@ -74,6 +77,7 @@ struct SlideElement
     EffectHandler* myEffect;
 
     int32 position[2]; // element position
+    int32 finalPosition[2]; // final position in case of effects - used for calculating wrapping limits
 
     void CreateEffectIfAny();
     void PlayEffect(const wchar_t* effectId);
@@ -86,6 +90,7 @@ struct SlideElement
         std::wstring text;       // text... text!
         StyledTextList* outlist; // prepared render list for case of marked up input
         uint32 depth;            // depth of drawing - for some kind of "layers"
+        int32 wrapSign;          // sign for wrapping, default prewrapped
         void Draw(SlideElement* parent);
         static uint8 GetFeatureArrayIndexOf(Style* style);
     } typeText;

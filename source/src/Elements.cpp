@@ -70,13 +70,24 @@ void SlideElement::elemTextData::Draw(SlideElement* parent)
             glColor3ub(COLOR_R(color),COLOR_G(color),COLOR_B(color));
         }
 
+        int32 wrap = WW_NO_WRAP;
+        if (parent->typeText.wrapSign == WW_PREWRAP)
+        {
+            if (parent->finalPosition[0] < 0)
+                wrap = WW_WRAP_CANVAS;
+            else
+                wrap = -int32(parent->finalPosition[0]);
+        }
+        else
+            wrap = parent->typeText.wrapSign;
+
         // draw text with own font. If not set, use default font
         if (outlist && outlist->size() > 0)
-            sSimplyFlat->Drawing->PrintStyledText(parent->position[0], parent->position[1], WW_WRAP_CANVAS, outlist);
+            sSimplyFlat->Drawing->PrintStyledText(parent->position[0], parent->position[1], wrap, outlist);
         else if (myStyle->fontId >= 0)
-            sSimplyFlat->Drawing->PrintText(myStyle->fontId, parent->position[0], parent->position[1], GetFeatureArrayIndexOf(myStyle), WW_WRAP_CANVAS, parent->typeText.text.c_str());
+            sSimplyFlat->Drawing->PrintText(myStyle->fontId, parent->position[0], parent->position[1], GetFeatureArrayIndexOf(myStyle), wrap, parent->typeText.text.c_str());
         else
-            sSimplyFlat->Drawing->PrintText(sStorage->GetDefaultFontId(), parent->position[0], parent->position[1], FA_NORMAL, WW_WRAP_CANVAS, parent->typeText.text.c_str());
+            sSimplyFlat->Drawing->PrintText(sStorage->GetDefaultFontId(), parent->position[0], parent->position[1], FA_NORMAL, wrap, parent->typeText.text.c_str());
 
         // Set color back to white if necessary
         if (myStyle->fontColor)

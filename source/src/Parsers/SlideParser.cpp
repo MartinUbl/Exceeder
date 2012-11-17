@@ -96,11 +96,15 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
             tmp->typeText.text = right;
 
             GetPositionDefinitionKeyValue(&defs, L"P", &tmp->position[0], &tmp->position[1]);
+            tmp->finalPosition[0] = tmp->position[0];
+            tmp->finalPosition[1] = tmp->position[1];
 
             tmp->typeText.depth = 0;
             if (const wchar_t* depth = GetDefinitionKeyValue(&defs, L"D"))
                 if (IsNumeric(depth))
                     tmp->typeText.depth = ToInt(depth);
+
+            tmp->typeText.wrapSign = WW_PREWRAP;
 
             sStorage->AddSlideElement(tmp);
 

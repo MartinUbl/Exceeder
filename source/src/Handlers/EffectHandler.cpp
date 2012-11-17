@@ -6,7 +6,7 @@
 #include "Parsers/EffectParser.h"
 #include "Defines/Slides.h"
 
-EffectHandler::EffectHandler(SlideElement *parent, Effect *elementEffect)
+EffectHandler::EffectHandler(SlideElement *parent, Effect *elementEffect, bool fromQueue)
 {
     effectOwner = parent;
     effectProto = elementEffect;
@@ -51,6 +51,27 @@ EffectHandler::EffectHandler(SlideElement *parent, Effect *elementEffect)
 
     expired = false;
     runningQueue = false;
+
+    // set parent final position for this effect (only if we are not listed as queued effect)
+    if (!fromQueue)
+    {
+        for (uint32 i = 0; i <= 1; i++)
+            parent->finalPosition[i] = endPos[i];
+
+        Effect* tmp = NULL;
+        for (std::list<Effect*>::const_reverse_iterator itr = m_effectQueue.rbegin(); itr != m_effectQueue.rend(); ++itr)
+        {
+            tmp = (*itr);
+            if (tmp->offsetType && (*(tmp->offsetType)) == OFFSET_TYPE_RELATIVE)
+            {
+                for (uint32 i = 0; i <= 1; i++)
+                    parent->finalPosition[i] = endPos[i] + tmp->endPos[i];
+            }
+            else
+                for (uint32 i = 0; i <= 1; i++)
+                    parent->finalPosition[i] = tmp->endPos[i];
+        }
+    }
 
     startTime = clock();
 }
@@ -105,7 +126,7 @@ void EffectHandler::Animate()
 
         // If no effect handler defined, create one from last available effect
         if (!m_queuedEffectHandler)
-            m_queuedEffectHandler = new EffectHandler(effectOwner ,(*(--m_effectQueue.end())));
+            m_queuedEffectHandler = new EffectHandler(effectOwner ,(*(--m_effectQueue.end())), true);
 
         if (m_queuedEffectHandler->isExpired())
             QueuedEffectExpired();

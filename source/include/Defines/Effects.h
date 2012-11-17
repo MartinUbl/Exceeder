@@ -42,7 +42,7 @@ struct SlideElement;
 class EffectHandler
 {
     public:
-        EffectHandler(SlideElement* parent, Effect* elementEffect);
+        EffectHandler(SlideElement* parent, Effect* elementEffect, bool fromQueue = false);
         ~EffectHandler();
 
         void Animate();
