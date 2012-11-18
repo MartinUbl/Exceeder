@@ -3,7 +3,7 @@
 
 typedef std::list< std::pair<const wchar_t*, std::wstring> > ParsedDefs;
 
-extern const wchar_t* CharVectorToString(std::vector<wchar_t>* vect);
+extern wchar_t* CharVectorToString(std::vector<wchar_t>* vect);
 extern wchar_t* ExtractFolderFromPath(const wchar_t* input);
 extern wchar_t* ExtractFilenameFromPath(const wchar_t* input);
 extern wchar_t* MakeFilePath(const wchar_t* dir, const wchar_t* filename);

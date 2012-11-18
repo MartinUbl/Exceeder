@@ -13,6 +13,11 @@ class Application
         bool Initialized() { return m_init; };
         void Run();
 
+#ifndef _WIN32
+        int* argc;
+        char** argv;
+#endif
+
     private:
         bool m_init;
 };

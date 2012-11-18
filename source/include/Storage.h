@@ -94,7 +94,7 @@ class Storage
             if (IsMacroDefined(id.c_str()))
                 return false;
 
-            MacroPair tmp = MacroPair::pair(id.c_str(), value.c_str());
+            MacroPair tmp = std::make_pair(id.c_str(), value.c_str());
             m_macros.push_back(tmp);
 
             return true;

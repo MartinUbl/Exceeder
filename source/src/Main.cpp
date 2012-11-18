@@ -10,11 +10,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 int main(int argc, char* argv[])
 #endif
 {
+    setlocale(LC_ALL, "en_US.UTF-8");
 #ifdef _WIN32
     sApplication->Init(ToWideString(lpCmdLine));
 #else
     if (argc < 2)
         return -1;
+
+    sApplication->argc = new int(argc);
+    sApplication->argv = argv;
 
     wchar_t* line = new wchar_t[1024];
     memset(line, 0, sizeof(wchar_t)*1024);
@@ -106,5 +110,7 @@ void Application::Run()
 
 #ifdef _WIN32
     sPresentation->Run();
+#else
+    sSimplyFlat->Run();
 #endif
 }

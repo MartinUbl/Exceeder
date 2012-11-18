@@ -1,4 +1,5 @@
 #include "Presentation.h"
+#include "Application.h"
 #include <ctime>
 
 #ifdef _WIN32
@@ -60,7 +61,7 @@ bool PresentationMgr::Init()
         32, false, 60, &MyWndProc))
         RAISE_ERROR("Could not initialize main window!");
 #else
-    if (!sSimplyFlat->CreateMainWindow("Exceeder Presentation", sStorage->GetScreenWidth(), sStorage->GetScreenHeight(),
+    if (!sSimplyFlat->CreateMainWindow(sApplication->argc, sApplication->argv, "Exceeder Presentation", sStorage->GetScreenWidth(), sStorage->GetScreenHeight(),
         32, false, 60, &presentationRun))
         RAISE_ERROR("Could not initialize main window!");
 #endif

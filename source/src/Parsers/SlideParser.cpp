@@ -257,7 +257,7 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
         }
         else
         {
-            RAISE_ERROR("SlideParser: Unrecognized key '%s'", left);
+            RAISE_ERROR("SlideParser: Line '%S' Unrecognized key '%S'", itr->c_str(), left);
         }
     }
 

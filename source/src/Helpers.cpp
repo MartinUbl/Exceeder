@@ -3,15 +3,19 @@
 
 #include <sstream>
 
-const wchar_t* CharVectorToString(std::vector<wchar_t>* vect)
+wchar_t* CharVectorToString(std::vector<wchar_t>* vect)
 {
     if (!vect)
         return NULL;
 
-    wchar_t* ret = new wchar_t[vect->size()];
-    uint32 i = 0;
-    for (std::vector<wchar_t>::const_iterator itr = vect->begin(); itr != vect->end(); ++itr)
-        ret[i++] = (*itr);
+    wchar_t* ret = new wchar_t[vect->size()+1];
+    uint32 i;
+    std::wstring a;
+    for (i = 0; i < vect->size(); i++)
+        a += (*vect)[i];
+
+    wcsncpy(ret, a.c_str(), a.size());
+    ret[vect->size()] = L'\0';
 
     return ret;
 }
