@@ -15,6 +15,8 @@ PresentationMgr::PresentationMgr()
     m_slideElement = NULL;
     m_blocking = false;
 
+    m_btEnabled = false;
+
     memset(&bgData, 0, sizeof(BackgroundData));
 }
 
@@ -87,6 +89,46 @@ bool PresentationMgr::Init()
 
     srand((unsigned int)(time(NULL)));
 
+    // Initialize bluetooth if requested
+    // still Win32 only
+    if (sStorage->GetBTInterface() != NULL)
+    {
+#ifdef _WIN32
+        m_btHandle = CreateFile(TEXT(ToMultiByteString(sStorage->GetBTInterface())),
+                         GENERIC_READ|GENERIC_WRITE,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
+
+        COMMTIMEOUTS commTimeouts;
+        memset((void*)&commTimeouts, 0, sizeof(commTimeouts));
+        commTimeouts.ReadIntervalTimeout = MAXDWORD;
+        commTimeouts.ReadTotalTimeoutMultiplier = 0;
+        commTimeouts.ReadTotalTimeoutConstant = 0;
+        commTimeouts.WriteTotalTimeoutMultiplier = 0;
+        commTimeouts.WriteTotalTimeoutConstant = 0;
+        SetCommTimeouts(m_btHandle, &commTimeouts);
+
+        if (m_btHandle != INVALID_HANDLE_VALUE)
+        {
+            DCB dcbSerialParams = {0};
+            dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
+            GetCommState(m_btHandle, &dcbSerialParams);
+
+            if (GetCommState(m_btHandle, &dcbSerialParams) != 0)
+            {
+                dcbSerialParams.BaudRate = CBR_9600;
+                dcbSerialParams.ByteSize = 7;
+                dcbSerialParams.StopBits = ONESTOPBIT;
+                dcbSerialParams.Parity = EVENPARITY;
+
+                if (SetCommState(m_btHandle, &dcbSerialParams) != 0)
+                {
+                    // all BT stuff is OK
+                    m_btEnabled = true;
+                }
+            }
+        }
+#endif
+    }
+
     return true;
 }
 
@@ -149,6 +191,22 @@ void PresentationMgr::InterfaceEvent(InterfaceEventTypes type, int32 param1, int
     }
 }
 
+void PresentationMgr::HandleBluetoothMessage(char* msg, uint8 len)
+{
+    // commands from device connected via Bluetooth
+
+    // Next element
+    if (EqualString(msg, "NEXT"))
+    {
+        SetBlocking(false);
+    }
+    // Previous element
+    else if (EqualString(msg, "PREV"))
+    {
+        // TODO: move back
+    }
+}
+
 SlideElement* PresentationMgr::GetActiveElementById(const wchar_t* id)
 {
     if (m_activeElements.empty())
@@ -182,6 +240,28 @@ void PresentationMgr::Run()
                 PRESENTATION_BREAK;
 
             PRESENTATION_CONTINUE;
+        }
+#endif
+
+        // at first, do bluetooth stuff, if enabled
+#ifdef _WIN32
+        if (m_btEnabled)
+        {
+            DWORD bytesRead = 0;
+            char recvdata[256]={0};
+            if (ReadFile(m_btHandle, recvdata, 255, &bytesRead, NULL))
+            {
+                if (bytesRead > 0)
+                {
+                    recvdata[bytesRead + 1] = '\0';
+                    HandleBluetoothMessage(&recvdata[0], (uint8)(bytesRead+1));
+                }
+            }
+            else
+            {
+                m_btEnabled = false;
+                CloseHandle(m_btHandle);
+            }
         }
 #endif
 

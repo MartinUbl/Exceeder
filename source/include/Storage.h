@@ -131,6 +131,15 @@ class Storage
         ResourceEntry* GetResource(uint32 id);
         ResourceEntry* GetResource(const wchar_t* name);
 
+        void SetBTInterface(const wchar_t* iface)
+        {
+            m_btInterface = iface;
+        }
+        const wchar_t* GetBTInterface()
+        {
+            return m_btInterface;
+        }
+
     private:
 
         typedef std::pair<std::wstring, std::wstring> MacroPair;
@@ -144,6 +153,8 @@ class Storage
         std::vector<ResourceEntry*> m_resources;
 
         std::wstring m_supfileVersion;
+
+        const wchar_t* m_btInterface;
 
         uint32 m_screenWidth;
         uint32 m_screenHeight;

@@ -133,6 +133,18 @@ bool EqualString(const wchar_t* first, const wchar_t* second, bool caseInsensiti
     return true;
 }
 
+bool EqualString(const char* first, const char* second)
+{
+    if (strlen(first) != strlen(second))
+        return false;
+
+    for (uint32 i = 0; i < strlen(first); i++)
+        if (first[i] != second[i])
+            return false;
+
+    return true;
+}
+
 int ContainsString(const wchar_t* str, const wchar_t* substr)
 {
     if (!str || !substr)

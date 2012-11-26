@@ -16,6 +16,8 @@ Storage::Storage()
     m_screenHeight = 600;
 
     m_defaultFontId = -1;
+
+    m_btInterface = NULL;
 }
 
 Storage::~Storage()

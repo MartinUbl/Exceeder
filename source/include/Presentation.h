@@ -43,6 +43,7 @@ class PresentationMgr
         void Run();
 
         void InterfaceEvent(InterfaceEventTypes type, int32 param1 = 0, int32 param2 = 0);
+        void HandleBluetoothMessage(char* msg, uint8 len);
 
         void SetBlocking(bool block) { m_blocking = block; };
         bool IsBlocking() { return m_blocking; };
@@ -63,6 +64,11 @@ class PresentationMgr
         } bgData;
 
         bool m_blocking;
+
+        bool m_btEnabled;
+#ifdef _WIN32
+        HANDLE m_btHandle;
+#endif
 };
 
 #define sPresentation Singleton<PresentationMgr>::instance()

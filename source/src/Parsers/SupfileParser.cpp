@@ -130,6 +130,12 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
             else
                 RAISE_ERROR("SupfileParser: Non-numeric value '%s' for screen height", right);
         }
+        // bluetooth interface if needed
+        else if (EqualString(left, L"\\BLUETOOTH_INTERFACE", true))
+        {
+            if (right && wcslen(right) > 0)
+                sStorage->SetBTInterface(right);
+        }
         // slide files
         else if (EqualString(left, L"\\SLIDES", true))
         {
