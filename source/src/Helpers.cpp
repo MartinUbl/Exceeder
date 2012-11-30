@@ -183,8 +183,15 @@ bool IsNumeric(const wchar_t* inp)
         return false;
 
     for (uint32 i = 0; i < wcslen(inp); i++)
-        if ((i == 0 && inp[i] != '-') && (inp[i] < '0' || inp[i] > '9'))
+    {
+        if (inp[i] == L'-')
+        {
+            if (i != 0)
+                return false;
+        }
+        else if (inp[i] < L'0' || inp[i] > L'9')
             return false;
+    }
 
     return true;
 }
