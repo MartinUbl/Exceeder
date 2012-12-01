@@ -1,9 +1,11 @@
 #include "Global.h"
 #include "Log.h"
 #include "Storage.h"
+#include "Presentation.h"
 #include "Parsers/SlideParser.h"
 #include "Parsers/StyleParser.h"
 #include "Defines/Slides.h"
+#include "Parsers/ExpressionParser.h"
 
 bool SlideParser::ParseFile(const wchar_t *path)
 {
@@ -278,7 +280,7 @@ uint16 SlideParser::ResolveKey(const wchar_t* input)
     return 0;
 }
 
-void SlideParser::ParseMarkup(const wchar_t *input, const wchar_t* stylename, StyledTextList *target)
+void SlideParser::ParseMarkup(const wchar_t *input, const wchar_t* stylename, StyledTextList *target, ExprMap* exmap)
 {
     if (!input)
         return;
@@ -308,6 +310,55 @@ void SlideParser::ParseMarkup(const wchar_t *input, const wchar_t* stylename, St
     uint32 i;
     for (i = 0; i < len; )
     {
+        // expression
+        if (i < len-2 && input[i] == L'{' && input[i+1] == L'$')
+        {
+            for (uint32 j = i+2; j < len; j++)
+            {
+                if (input[j] == L'}')
+                {
+                    if (!target)
+                    target = new StyledTextList;
+
+                    tmp = new printTextData;
+
+                    tmp->fontId = defstyle->fontId;
+
+                    tmp->feature = SlideElement::elemTextData::GetFeatureArrayIndexOf(defstyle);
+                    tmp->colorize = !(defstyle->fontColor == NULL);
+                    if (tmp->colorize)
+                        tmp->color = (*(defstyle->fontColor));
+
+                    tmp->text = new wchar_t[i-lastTextBegin+1];
+                    memset(tmp->text, 0, sizeof(wchar_t)*(i-lastTextBegin+1));
+                    wcsncpy(tmp->text, &(input[lastTextBegin]), i-lastTextBegin);
+
+                    target->push_back(tmp);
+
+                    tmp = new printTextData;
+                    tmp->fontId = defstyle->fontId;
+                    tmp->feature = SlideElement::elemTextData::GetFeatureArrayIndexOf(defstyle);
+                    tmp->colorize = !(defstyle->fontColor == NULL);
+                    if (tmp->colorize)
+                        tmp->color = (*(defstyle->fontColor));
+
+                    tmp->text = new wchar_t[j-i-1];
+                    memset(tmp->text, 0, sizeof(wchar_t)*(j-i-1));
+                    wcsncpy(tmp->text, &(input[i+2]), j-i-2);
+
+                    target->push_back(tmp);
+
+                    ExpressionVector* exvec = ExpressionParser::Parse(tmp->text);
+                    ExpressionTreeElement* elmnt = ExpressionParser::BuildTree(exvec, 0, exvec->size());
+                    elmnt->SimplifyChildren();
+                    ((*exmap)[target->size()-1]) = *elmnt;
+
+                    i = j+1;
+                    lastTextBegin = i;
+                    goto outer_continue;
+                }
+            }
+        }
         // opening tag (without '/' at second position)
         if (i < len-2 && input[i] == L'{' && input[i+1] != L'/' && (input[i+2] == L'}' || input[i+2] == L':'))
         {
@@ -425,6 +476,7 @@ void SlideParser::ParseMarkup(const wchar_t *input, const wchar_t* stylename, St
             continue;
         }
         i++;
+outer_continue:;
     }
 
     if (lastTextBegin != i)

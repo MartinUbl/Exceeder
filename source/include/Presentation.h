@@ -53,6 +53,9 @@ class PresentationMgr
 
         SlideElement* GetActiveElementById(const wchar_t* id);
 
+        int64 NumerateExpression(ExpressionTreeElement* expr);
+        int64 GetElementReferenceValue(wchar_t* input);
+
     private:
         uint32 m_slideElementPos;
         SlideElement* m_slideElement;

@@ -1,6 +1,10 @@
 #ifndef EXCDR_SLIDES_H
 #define EXCDR_SLIDES_H
 
+#include "Parsers/ExpressionParser.h"
+
+typedef std::map<uint32, ExpressionTreeElement> ExprMap;
+
 enum SlideElementTypes
 {
     SLIDE_ELEM_NONE             = 0,
@@ -91,6 +95,7 @@ struct SlideElement
     {
         std::wstring text;       // text... text!
         StyledTextList* outlist; // prepared render list for case of marked up input
+        ExprMap outlistExpressions; // map of expressions prepared
         uint32 depth;            // depth of drawing - for some kind of "layers"
         int32 wrapSign;          // sign for wrapping, default prewrapped
         void Draw(SlideElement* parent);

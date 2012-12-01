@@ -88,6 +88,15 @@ class Storage
 
             return m_slideData[pos];
         }
+        SlideElement* GetSlideElementById(std::wstring id)
+        {
+            for (SlideElementVector::iterator itr = m_slideData.begin(); itr != m_slideData.end(); ++itr)
+            {
+                if (EqualString((*itr)->elemId.c_str(), id.c_str()))
+                    return (*itr);
+            }
+            return NULL;
+        }
 
         bool AddMacro(std::wstring id, std::wstring value)
         {

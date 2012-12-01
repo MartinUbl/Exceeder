@@ -6,6 +6,7 @@
 #include "Defines/Styles.h"
 #include "Defines/Effects.h"
 #include "Handlers/EffectHandler.h"
+#include "Presentation.h"
 
 void SlideElement::CreateEffectIfAny()
 {
@@ -84,7 +85,16 @@ void SlideElement::elemTextData::Draw(SlideElement* parent)
 
         // draw text with own font. If not set, use default font
         if (outlist && outlist->size() > 0)
-            sSimplyFlat->Drawing->PrintStyledText(parent->position[0], parent->position[1], wrap, outlist);
+        {
+            StyledTextList *tmp = new StyledTextList(outlist->begin(), outlist->end());
+            for (ExprMap::iterator itr = outlistExpressions.begin(); itr != outlistExpressions.end(); ++itr)
+            {
+                int64 val = sPresentation->NumerateExpression(&(*itr).second);
+                swprintf(((*tmp)[(*itr).first])->text, 255, L"%li", val);
+            }
+
+            sSimplyFlat->Drawing->PrintStyledText(parent->position[0], parent->position[1], wrap, tmp);
+        }
         else if (myStyle && myStyle->fontId >= 0)
             sSimplyFlat->Drawing->PrintText(myStyle->fontId, parent->position[0], parent->position[1], GetFeatureArrayIndexOf(myStyle), wrap, parent->typeText.text.c_str());
         else

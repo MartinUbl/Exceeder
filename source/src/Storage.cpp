@@ -136,7 +136,7 @@ void Storage::PostParseElements()
     for (std::list<SlideElement*>::iterator itr = m_postParseList.begin(); itr != m_postParseList.end(); ++itr)
     {
         (*itr)->typeText.outlist = new StyledTextList;
-        SlideParser::ParseMarkup((*itr)->typeText.text.c_str(), (*itr)->elemStyle.c_str(), (*itr)->typeText.outlist);
+        SlideParser::ParseMarkup((*itr)->typeText.text.c_str(), (*itr)->elemStyle.c_str(), (*itr)->typeText.outlist, &((*itr)->typeText.outlistExpressions));
         if ((*itr)->typeText.outlist->size() < 2)
         {
             delete (*itr)->typeText.outlist;

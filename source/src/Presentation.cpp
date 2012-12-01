@@ -360,3 +360,126 @@ void PresentationMgr::Run()
     }
 #endif
 }
+
+int64 PresentationMgr::NumerateExpression(ExpressionTreeElement* expr)
+{
+    // This function MUSTN'T touch anything in expression tree element supplied as it's a pointer to shared memory
+
+    if (!expr)
+        return 0;
+
+    int64 tmpval = 0;
+
+    // if element value is string, we can only return real value as integer in the same tree element
+    if (expr->valueType == VT_STRING)
+    {
+        tmpval = GetElementReferenceValue(expr->value.asString);
+        return (tmpval*((expr->polarity)?1:(-1)));
+    }
+    else if (expr->valueType == VT_INTEGER)
+        return (expr->value.asLong*((expr->polarity)?1:(-1)));
+    else if (expr->valueType == VT_FLOAT)
+        return ((int64)expr->value.asDouble*((expr->polarity)?1:(-1)));
+
+    if (expr->items.empty())
+        return 0;
+
+    tmpval = NumerateExpression(expr->items[0]);
+
+    for (uint32 i = 1; i < expr->items.size(); i++)
+    {
+        switch (expr->operation)
+        {
+            case OP_ADD:
+            {
+                if (expr->items[i]->valueType == VT_INTEGER)
+                    tmpval += expr->items[i]->value.asLong;
+                else
+                    tmpval += (int64)expr->items[i]->value.asDouble;
+                break;
+            }
+            case OP_MULTIPLY:
+            {
+                if (expr->items[i]->valueType == VT_INTEGER)
+                    tmpval *= expr->items[i]->value.asLong;
+                else
+                    tmpval *= (int64)expr->items[i]->value.asDouble;
+                break;
+            }
+            case OP_DIVIDE:
+            {
+                if (expr->items[i]->valueType == VT_INTEGER)
+                {
+                    if (expr->items[i]->value.asLong != 0)
+                        tmpval /= expr->items[i]->value.asLong;
+                }
+                else
+                {
+                    if (expr->items[i]->value.asDouble != 0)
+                        tmpval /= (int64)expr->items[i]->value.asDouble;
+                }
+                break;
+            }
+            case OP_MODULO:
+            {
+                // modulo is applicable only on integer types
+                // TODO for future: round floating values if modulo is requested, or throw an error
+                if (expr->items[i]->valueType == VT_INTEGER)
+                {
+                    if (expr->items[i]->value.asLong != 0)
+                        tmpval %= expr->items[i]->value.asLong;
+                }
+                break;
+            }
+        }
+    }
+
+    return tmpval;
+}
+
+int64 PresentationMgr::GetElementReferenceValue(wchar_t *input)
+{
+    if (!input || wcslen(input) == 0)
+        return 0;
+
+    wchar_t *left = NULL, *right = NULL;
+    left = LeftSide(input, L'.');
+    right = RightSide(input, L'.');
+
+    if (!left)
+        return 0;
+
+    // parsing non-object value
+    if (!right)
+    {
+        if (EqualString(left, L"width", true))
+            return sStorage->GetScreenWidth();
+        else if (EqualString(left, L"height", true))
+            return sStorage->GetScreenHeight();
+
+        return 0;
+    }
+
+    SlideElement* tmp = NULL;
+    for (SlideList::iterator itr = m_activeElements.begin(); itr != m_activeElements.end(); ++itr)
+    {
+        if (EqualString((*itr)->elemId.c_str(), left))
+        {
+            tmp = (*itr);
+            break;
+        }
+    }
+
+    if (!tmp)
+        tmp = sStorage->GetSlideElementById(left);
+
+    if (tmp)
+    {
+        if (EqualString(right, L"x", true))
+            return (int64)tmp->position[0];
+        else if (EqualString(right, L"y", true))
+            return (int64)tmp->position[1];
+    }
+
+    return 0;
+}
