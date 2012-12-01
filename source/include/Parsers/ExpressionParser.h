@@ -61,6 +61,8 @@ struct ExprTreeElem
                 break;
         }
     }
+    ValueType getEvaluableType();
+    void SimplifyChildren();
 
     bool polarity; // positive (true) / negative (false)
 
