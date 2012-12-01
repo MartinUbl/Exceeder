@@ -10,6 +10,9 @@
 #include "Defines/Effects.h"
 #include "Handlers/EffectHandler.h"
 
+#define DEFAULT_FONT_SIZE 24
+#define DEFAULT_FONT_FAMILY L"Arial"
+
 enum InterfaceEventTypes
 {
     IE_MOUSE_LEFT_DOWN      = 0,

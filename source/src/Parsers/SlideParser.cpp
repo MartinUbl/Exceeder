@@ -291,8 +291,8 @@ void SlideParser::ParseMarkup(const wchar_t *input, const wchar_t* stylename, St
         defstyle = new Style;
         memset(defstyle, 0, sizeof(Style));
         defstyle->fontId = sStorage->GetDefaultFontId();
-        defstyle->fontSize = new uint32(/*DEFAULT_FONT_SIZE*/24);
-        defstyle->fontFamily = /*DEFAULT_FONT_FAMILY*/L"Arial";
+        defstyle->fontSize = new uint32(DEFAULT_FONT_SIZE);
+        defstyle->fontFamily = DEFAULT_FONT_FAMILY;
     }
 
     Style* origstyle = defstyle;
