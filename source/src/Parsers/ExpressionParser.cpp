@@ -346,7 +346,7 @@ void ExprTreeElem::SimplifyChildren()
     bool changed = false;
 
     // Fill initial simplifying base value
-    valueUnion vun = {((operation == OP_ADD)?0:1)};
+    valueUnion vun;
     if (et == VT_INTEGER)
     {
         changed = true;
@@ -360,7 +360,13 @@ void ExprTreeElem::SimplifyChildren()
         items.erase(items.begin());
     }
     else
+    {
         et = VT_INTEGER;
+        if (operation == OP_ADD)
+            vun.asLong = 0;
+        else
+            vun.asLong = 1;
+    }
 
     // Now iterate through all items and attempt to simplify every items - they have to be numerical (integer / float)
     for (uint32 i = 0; i < items.size(); i++)
