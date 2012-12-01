@@ -70,11 +70,20 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
             tmp = new SlideElement;
             tmp->elemType = SLIDE_ELEM_BACKGROUND;
 
-            if (!StyleParser::ParseColor(right, &tmp->typeBackground.color))
-                RAISE_ERROR("SlideParser: Invalid expression '%s' used as background color", (right)?ToMultiByteString(right):"none");
-
+            tmp->typeBackground.color = 0;
             tmp->typeBackground.imageResourceId = 0;
-            // TODO: make resource system work
+
+            if (!StyleParser::ParseColor(right, &tmp->typeBackground.color))
+            {
+                ResourceEntry* res = sStorage->GetResource(right);
+                if (!res)
+                {
+                    // Is this error neccessary? rework it?
+                    RAISE_ERROR("SlideParser: Invalid expression '%s' used as background color / resource identificator", (right)?ToMultiByteString(right):"none");
+                }
+                else
+                    tmp->typeBackground.imageResourceId = res->internalId;
+            }
 
             sStorage->AddSlideElement(tmp);
 

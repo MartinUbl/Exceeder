@@ -269,13 +269,12 @@ void PresentationMgr::Run()
         sSimplyFlat->BeforeDraw();
 
         // At first, draw battleground and stuff
+        sSimplyFlat->Drawing->ClearColor(COLOR_R(bgData.color),COLOR_G(bgData.color),COLOR_B(bgData.color));
         if (bgData.resourceId > 0)
         {
-            // TODO
-        }
-        else
-        {
-            sSimplyFlat->Drawing->ClearColor(COLOR_R(bgData.color),COLOR_G(bgData.color),COLOR_B(bgData.color));
+            ResourceEntry* res = sStorage->GetResource(bgData.resourceId);
+            if (res && res->image)
+                sSimplyFlat->Drawing->DrawRectangle(0,0,sStorage->GetScreenWidth(), sStorage->GetScreenHeight(), 0, res->image->textureId);
         }
 
         // draw active elements which should be drawn
