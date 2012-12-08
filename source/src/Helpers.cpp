@@ -283,6 +283,11 @@ static const wchar_t* patt_upcase  = {L"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
 
 wchar_t UpperChar(wchar_t inp)
 {
+    // check if it's already upcase char
+    // only suitable for non-UTF-8 continual line of chars !!!!!!
+    if (inp >= patt_upcase[0] && inp <= patt_upcase[wcslen(patt_upcase)])
+        return inp;
+
     for (uint32 i = 0; i < wcslen(patt_lowcase); i++)
         if (patt_lowcase[i] == inp)
             return patt_upcase[i];
@@ -292,6 +297,11 @@ wchar_t UpperChar(wchar_t inp)
 
 wchar_t LowerChar(wchar_t inp)
 {
+    // check if it's already lowcase char
+    // only suitable for non-UTF-8 continual line of chars !!!!!!
+    if (inp >= patt_lowcase[0] && inp <= patt_lowcase[wcslen(patt_lowcase)])
+        return inp;
+
     for (uint32 i = 0; i < wcslen(patt_upcase); i++)
         if (patt_upcase[i] == inp)
             return patt_lowcase[i];
