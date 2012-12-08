@@ -37,6 +37,31 @@ enum KeyboardEventTypes
     KEYBOARD_EVENT_MAX
 };
 
+#define SPEC_BASE -INT_MAX
+
+enum PositionSpecial
+{
+    POS_CENTER     = SPEC_BASE+1,
+    POS_LEFT       = SPEC_BASE+2,
+    POS_RIGHT      = SPEC_BASE+3,
+    POS_TOP        = SPEC_BASE+4,
+    POS_BOTTOM     = SPEC_BASE+5
+};
+
+enum Spread
+{
+    SPREAD_NONE   = 0,
+    SPREAD_WIDTH  = 1,
+    SPREAD_HEIGHT = 2,
+    SPREAD_BOTH   = 3
+};
+
+struct GradientData
+{
+    uint32 color;
+    uint32 size;
+};
+
 struct KnownKey
 {
     const wchar_t* name;
@@ -106,8 +131,12 @@ struct SlideElement
 
     struct elemBackgroundData
     {
-        uint32 color;           // in case of background color change
-        uint32 imageResourceId; // NYI
+        uint32 color;               // in case of background color change
+        uint32 imageResourceId;     // internal ID of loaded resource
+        int32 position[2];          // horizontal and vertical position (numbers or enum value from PositionSpecial
+        int32 dimensions[2];        // width and height
+        Spread spread;              // background axis spread
+        GradientData* gradients[4]; // gradient data - each side has its own pointer - the pointers can point to the same piece of memory to share settings
     } typeBackground;
 
     struct elemMouseEventData

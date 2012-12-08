@@ -274,7 +274,7 @@ void PresentationMgr::Run()
         {
             ResourceEntry* res = sStorage->GetResource(bgData.resourceId);
             if (res && res->image)
-                sSimplyFlat->Drawing->DrawRectangle(0,0,sStorage->GetScreenWidth(), sStorage->GetScreenHeight(), 0, res->image->textureId);
+                sSimplyFlat->Drawing->DrawRectangle(bgData.backgroundPosition[0], bgData.backgroundPosition[1], bgData.backgroundDimensions[0], bgData.backgroundDimensions[1], 0, res->image->textureId);
         }
 
         // draw active elements which should be drawn
@@ -323,11 +323,54 @@ void PresentationMgr::Run()
                 break;
             // Background slide element is also neccessary for handling here, we have to set the BG stuff before drawing another else
             case SLIDE_ELEM_BACKGROUND:
+            {
+                bgData.source = m_slideElement;
+
                 if (m_slideElement->typeBackground.imageResourceId > 0)
                     bgData.resourceId = m_slideElement->typeBackground.imageResourceId;
 
                 bgData.color = m_slideElement->typeBackground.color;
+
+                // At first, parse dimensions - they are used as base for position calculation
+                for (uint32 i = 0; i <= 1; i++)
+                {
+                    if (i == 0 && (m_slideElement->typeBackground.spread == SPREAD_BOTH || m_slideElement->typeBackground.spread == SPREAD_WIDTH))
+                        bgData.backgroundDimensions[0] = sStorage->GetScreenWidth();
+                    else if (i == 1 && (m_slideElement->typeBackground.spread == SPREAD_BOTH || m_slideElement->typeBackground.spread == SPREAD_HEIGHT))
+                        bgData.backgroundDimensions[1] = sStorage->GetScreenHeight();
+                    else if (m_slideElement->typeBackground.dimensions[i] > 0)
+                        bgData.backgroundDimensions[i] = m_slideElement->typeBackground.dimensions[i];
+                }
+
+                // Position calculating
+                for (uint32 i = 0; i <= 1; i++)
+                {
+                    if (m_slideElement->typeBackground.position[i] > 0)
+                        bgData.backgroundPosition[i] = m_slideElement->typeBackground.position[i];
+                    else
+                    {
+                        if (m_slideElement->typeBackground.position[i] == POS_LEFT)
+                            bgData.backgroundPosition[i] = 0;
+                        else if (m_slideElement->typeBackground.position[i] == POS_RIGHT)
+                            bgData.backgroundPosition[i] = sStorage->GetScreenWidth()-bgData.backgroundDimensions[i];
+                        else if (m_slideElement->typeBackground.position[i] == POS_TOP)
+                            bgData.backgroundPosition[i] = 0;
+                        else if (m_slideElement->typeBackground.position[i] == POS_BOTTOM)
+                            bgData.backgroundPosition[i] = sStorage->GetScreenHeight()-bgData.backgroundDimensions[i];
+                        else if (m_slideElement->typeBackground.position[i] == POS_CENTER)
+                        {
+                            if (i == 0)
+                                bgData.backgroundPosition[i] = (sStorage->GetScreenWidth()-bgData.backgroundDimensions[i])/2;
+                            else
+                                bgData.backgroundPosition[i] = (sStorage->GetScreenHeight()-bgData.backgroundDimensions[i])/2;
+                        }
+                    }
+                }
+
+                //
+
                 break;
+            }
             // We will also handle playing effects here
             case SLIDE_ELEM_PLAY_EFFECT:
             {

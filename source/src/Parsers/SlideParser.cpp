@@ -73,17 +73,159 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
             tmp->typeBackground.color = 0;
             tmp->typeBackground.imageResourceId = 0;
 
-            if (!StyleParser::ParseColor(right, &tmp->typeBackground.color))
+            tmp->typeBackground.position[0] = POS_CENTER;
+            tmp->typeBackground.position[1] = POS_CENTER;
+
+            tmp->typeBackground.spread = SPREAD_NONE;
+
+            tmp->typeBackground.dimensions[0] = 0;
+            tmp->typeBackground.dimensions[1] = 0;
+
+            wchar_t* el = right;
+            wchar_t* er = NULL;
+
+            wchar_t* inner_id = NULL, *inner_value = NULL;
+
+            do
             {
-                ResourceEntry* res = sStorage->GetResource(right);
-                if (!res)
+                er = RightSide(el, L',');
+                el = LeftSide(el, L',');
+
+                inner_id = LeftSide(el, L'=');
+                inner_value = RightSide(el, L'=');
+
+                if (!inner_value)
+                    RAISE_ERROR("SlideParser: invalid background definition chunk identified by %s", (inner_id != NULL)?ToMultiByteString(inner_id):"none");
+
+                // Background mono-color
+                if (EqualString(inner_id, L"COLOR", true))
                 {
-                    // Is this error neccessary? rework it?
-                    RAISE_ERROR("SlideParser: Invalid expression '%s' used as background color / resource identificator", (right)?ToMultiByteString(right):"none");
+                    if (!StyleParser::ParseColor(inner_value, &tmp->typeBackground.color))
+                        RAISE_ERROR("SlideParser: invalid color name / value used in background definition: %s", ToMultiByteString(inner_value));
+                }
+                // Image as background
+                else if (EqualString(inner_id, L"RESOURCE", true) || EqualString(inner_id, L"IMAGE", true))
+                {
+                    ResourceEntry* res = sStorage->GetResource(inner_value);
+                    if (!res)
+                        RAISE_ERROR("SlideParser: Resource identified by '%s' not found", (inner_value)?ToMultiByteString(inner_value):"none");
+                    if (res->type != RESOURCE_IMAGE)
+                        RAISE_ERROR("SlideParser: Resource identified by '%s' is not an image", (inner_value)?ToMultiByteString(inner_value):"none");
+
+                    tmp->typeBackground.imageResourceId = res->internalId;
+
+                    if (tmp->typeBackground.dimensions[0] == 0)
+                        tmp->typeBackground.dimensions[0] = res->implicitWidth;
+                    if (tmp->typeBackground.dimensions[1] == 0)
+                        tmp->typeBackground.dimensions[1] = res->implicitHeight;
+                }
+                // horizontal position of background
+                else if (EqualString(inner_id, L"POS-X", true))
+                {
+                    if (EqualString(inner_value, L"CENTER", true))
+                        tmp->typeBackground.position[0] = POS_CENTER;
+                    else if (EqualString(inner_value, L"LEFT", true))
+                        tmp->typeBackground.position[0] = POS_LEFT;
+                    else if (EqualString(inner_value, L"RIGHT", true))
+                        tmp->typeBackground.position[0] = POS_RIGHT;
+                    else if (IsNumeric(inner_value))
+                        tmp->typeBackground.position[0] = ToInt(inner_value);
+                    else
+                        RAISE_ERROR("SlideParser: invalid (non-numeric or special) value '%s' used as X position of background", ToMultiByteString(inner_value));
+                }
+                // vertical position of background
+                else if (EqualString(inner_id, L"POS-Y", true))
+                {
+                    if (EqualString(inner_value, L"CENTER", true))
+                        tmp->typeBackground.position[1] = POS_CENTER;
+                    else if (EqualString(inner_value, L"TOP", true))
+                        tmp->typeBackground.position[1] = POS_TOP;
+                    else if (EqualString(inner_value, L"BOTTOM", true))
+                        tmp->typeBackground.position[1] = POS_BOTTOM;
+                    else if (IsNumeric(inner_value))
+                        tmp->typeBackground.position[1] = ToInt(inner_value);
+                    else
+                        RAISE_ERROR("SlideParser: invalid (non-numeric or special) value '%s' used as Y position of background", ToMultiByteString(inner_value));
+                }
+                // horizontal and vertical position of background
+                else if (EqualString(inner_id, L"POS", true))
+                {
+                    if (EqualString(inner_value, L"CENTER", true))
+                    {
+                        tmp->typeBackground.position[0] = POS_CENTER;
+                        tmp->typeBackground.position[1] = POS_CENTER;
+                    }
+                    else if (EqualString(inner_value, L"TOP", true))
+                        tmp->typeBackground.position[1] = POS_TOP;
+                    else if (EqualString(inner_value, L"BOTTOM", true))
+                        tmp->typeBackground.position[1] = POS_BOTTOM;
+                    else if (EqualString(inner_value, L"LEFT", true))
+                        tmp->typeBackground.position[0] = POS_LEFT;
+                    else if (EqualString(inner_value, L"RIGHT", true))
+                        tmp->typeBackground.position[0] = POS_RIGHT;
+                    else if (EqualString(inner_value, L"TOPRIGHT", true))
+                    {
+                        tmp->typeBackground.position[0] = POS_RIGHT;
+                        tmp->typeBackground.position[1] = POS_TOP;
+                    }
+                    else if (EqualString(inner_value, L"TOPLEFT", true))
+                    {
+                        tmp->typeBackground.position[0] = POS_LEFT;
+                        tmp->typeBackground.position[1] = POS_TOP;
+                    }
+                    else if (EqualString(inner_value, L"BOTTOMRIGHT", true))
+                    {
+                        tmp->typeBackground.position[0] = POS_RIGHT;
+                        tmp->typeBackground.position[1] = POS_BOTTOM;
+                    }
+                    else if (EqualString(inner_value, L"BOTTOMLEFT", true))
+                    {
+                        tmp->typeBackground.position[0] = POS_LEFT;
+                        tmp->typeBackground.position[1] = POS_BOTTOM;
+                    }
+                    else
+                        RAISE_ERROR("SlideParser: invalid value '%s' used as X-Y position of background", ToMultiByteString(inner_value));
+                }
+                // image width/height spread
+                else if (EqualString(inner_id, L"SPREAD", true))
+                {
+                    if (EqualString(inner_value, L"NONE", true))
+                        tmp->typeBackground.spread = SPREAD_NONE;
+                    else if (EqualString(inner_value, L"WIDTH", true))
+                        tmp->typeBackground.spread = SPREAD_WIDTH;
+                    else if (EqualString(inner_value, L"HEIGHT", true))
+                        tmp->typeBackground.spread = SPREAD_HEIGHT;
+                    else if (EqualString(inner_value, L"BOTH", true))
+                        tmp->typeBackground.spread = SPREAD_BOTH;
+                    else
+                        RAISE_ERROR("SlideParser: invalid value '%s' used as background spread", ToMultiByteString(inner_value));
+                }
+                // image width dimension
+                else if (EqualString(inner_id, L"WIDTH", true))
+                {
+                    if (EqualString(inner_value, L"FULL", true))
+                        tmp->typeBackground.spread = SPREAD_WIDTH;
+                    else if (IsNumeric(inner_value))
+                        tmp->typeBackground.dimensions[0] = ToInt(inner_value);
+                    else
+                        RAISE_ERROR("SlideParser: invalid (non-numeric or special) value '%s' used as background width", ToMultiByteString(inner_value));
+                }
+                // image height dimension
+                else if (EqualString(inner_id, L"HEIGHT", true))
+                {
+                    if (EqualString(inner_value, L"FULL", true))
+                        tmp->typeBackground.spread = SPREAD_HEIGHT;
+                    else if (IsNumeric(inner_value))
+                        tmp->typeBackground.dimensions[1] = ToInt(inner_value);
+                    else
+                        RAISE_ERROR("SlideParser: invalid (non-numeric or special) value '%s' used as background height", ToMultiByteString(inner_value));
                 }
                 else
-                    tmp->typeBackground.imageResourceId = res->internalId;
-            }
+                    sLog->ErrorLog("SlideParser: unknown key '%s' in background definition", ToMultiByteString(inner_id));
+
+                el = er;
+
+            } while (er != NULL);
 
             sStorage->AddSlideElement(tmp);
 

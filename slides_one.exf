@@ -5,7 +5,7 @@
 \MACRO AbcdMyMacro Test!
 \MACRO SecondMac SE_LEFT
 
-\BACKGROUND 999999
+\BACKGROUND color=999999
 \text{ID:title_1}{S:my_title}{E:appear_left}{P:10,10} Pozice X: {$title_1.x*2+15} Hlavní {B}tučný{/B} a {I}kurzívou{/I} {S:my_test_text}nadpis{/S}
 \text{ID:test_text_1}{S:my_test_text}{P:100,300} Makro vypadá asi takhle: {#AbcdMyMacro}, tak uvidíme :)
 
@@ -14,12 +14,12 @@
 \PLAY_EFFECT{E:left_continue_2}{ID:title_1}
 
 \MOU{#SecondMac}
-\BACKGROUND #555555      // just demonstrates, that color in hexa format _could_ be prefixed with #
+\BACKGROUND color=#555555      // just demonstrates, that color in hexa format _could_ be prefixed with #
 \MOUSE_LEFT
 
 \NEW_SLIDE
 
-\BACKGROUND obrazek
+\background resource=obrazek,color=black,spread=none,pos=topright
 
 \DRAW_IMAGE{P:400,300} obrazek
 

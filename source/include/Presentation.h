@@ -64,9 +64,10 @@ class PresentationMgr
         struct BackgroundData
         {
             uint32 color;
-            uint32 resourceId;             // NYI, ID of image
-            uint32 backgroundPosition[2];  // NYI, position of image
-            // TODO: image positioning and options
+            uint32 resourceId;
+            uint32 backgroundPosition[2];
+            uint32 backgroundDimensions[2];
+            SlideElement* source;         // in case of recalculating sizes (changing of screen resolution 'on demand', and so)
         } bgData;
 
         bool m_blocking;
