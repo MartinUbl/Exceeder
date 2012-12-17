@@ -227,6 +227,10 @@
 					RelativePath=".\source\src\Parsers\SupfileParser.cpp"
 					>
 				</File>
+				<File
+					RelativePath=".\source\src\Parsers\TemplateParser.cpp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="Handlers"
@@ -305,6 +309,10 @@
 					RelativePath=".\source\include\Parsers\SupfileParser.h"
 					>
 				</File>
+				<File
+					RelativePath=".\source\include\Parsers\TemplateParser.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="Handlers"
@@ -327,6 +335,10 @@
 				</File>
 				<File
 					RelativePath=".\source\include\Defines\Styles.h"
+					>
+				</File>
+				<File
+					RelativePath=".\source\include\Defines\Templates.h"
 					>
 				</File>
 			</Filter>

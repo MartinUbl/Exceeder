@@ -6,6 +6,7 @@
 #include "Defines/Styles.h"
 #include "Defines/Effects.h"
 #include "Defines/Slides.h"
+#include "Defines/Templates.h"
 #include "Resources.h"
 
 struct StoredFont
@@ -32,6 +33,7 @@ class Storage
         void AddInputEffectsFile(const wchar_t* path) { m_effectsFiles.push_back(path); };
         void AddInputSlideFile(const wchar_t* path)   { m_slideFiles.push_back(path); };
         void AddInputResourceFile(const wchar_t* path){ m_resourceFiles.push_back(path); };
+        void AddInputTemplateFile(const wchar_t* path){ m_templateFiles.push_back(path); };
         bool ParseInputFiles();
 
         void SetScreenWidth(uint32 width) { m_screenWidth = width; };
@@ -72,6 +74,21 @@ class Storage
         Effect* GetEffect(const wchar_t* name)
         {
             for (EffectMap::iterator itr = m_effectMap.begin(); itr != m_effectMap.end(); ++itr)
+                if (EqualString(itr->first, name, true))
+                    return itr->second;
+            return NULL;
+        }
+
+        void AddNewTemplate(const wchar_t* name, SlideTemplate* st)
+        {
+            if (!name || !st)
+                return;
+
+            m_templateMap[name] = st;
+        }
+        SlideTemplate* GetSlideTemplate(const wchar_t* name)
+        {
+            for (TemplateMap::iterator itr = m_templateMap.begin(); itr != m_templateMap.end(); ++itr)
                 if (EqualString(itr->first, name, true))
                     return itr->second;
             return NULL;
@@ -158,6 +175,7 @@ class Storage
         std::list<std::wstring> m_effectsFiles;
         std::list<std::wstring> m_slideFiles;
         std::list<std::wstring> m_resourceFiles;
+        std::list<std::wstring> m_templateFiles;
 
         std::vector<ResourceEntry*> m_resources;
 
@@ -171,6 +189,7 @@ class Storage
         // content
         StyleMap m_styleMap;
         EffectMap m_effectMap;
+        TemplateMap m_templateMap;
         SlideElementVector m_slideData;
 
         // macros

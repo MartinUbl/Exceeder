@@ -8,6 +8,7 @@
 #include "Parsers/SlideParser.h"
 #include "Parsers/EffectParser.h"
 #include "Parsers/ResourceParser.h"
+#include "Parsers/TemplateParser.h"
 
 Storage::Storage()
 {
@@ -72,6 +73,12 @@ bool Storage::ParseInputFiles()
     for (std::list<std::wstring>::const_iterator itr = m_resourceFiles.begin(); itr != m_resourceFiles.end(); ++itr)
     {
         if (!ResourceParser::ParseFile((*itr).c_str()))
+            return false;
+    }
+
+    for (std::list<std::wstring>::const_iterator itr = m_templateFiles.begin(); itr != m_templateFiles.end(); ++itr)
+    {
+        if (!TemplateParser::ParseFile((*itr).c_str()))
             return false;
     }
 

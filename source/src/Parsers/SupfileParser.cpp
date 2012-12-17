@@ -12,6 +12,7 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
     bool effectfiles = false;
     bool stylefiles = false;
     bool resfiles = false;
+    bool templfiles = false;
 
     wchar_t* left = NULL;
     wchar_t* right = NULL;
@@ -82,6 +83,21 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
                 sStorage->AddInputResourceFile(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left));
                 continue;
             }
+
+            if (templfiles)
+            {
+#ifdef _WIN32
+                FILE* f = _wfopen(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left), L"r, ccs=UTF-8");
+#else
+                FILE* f = fopen(ToMultiByteString(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left)), "r, ccs=UTF-8");
+#endif
+                if (!f)
+                    RAISE_ERROR("SupfileParser: Input template file '%s', hasn't been found!", ToMultiByteString(left));
+                fclose(f);
+
+                sStorage->AddInputTemplateFile(MakeFilePath(ExtractFolderFromPath(sStorage->GetSupfilePath()), left));
+                continue;
+            }
         }
 
         if (slidefiles)
@@ -92,6 +108,8 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
             stylefiles = false;
         if (resfiles)
             resfiles = false;
+        if (templfiles)
+            templfiles = false;
 
         // file version
         if (EqualString(left, L"\\EXCEEDER_SUPFILE_VERSION", true))
@@ -158,6 +176,12 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
         else if (EqualString(left, L"\\RESOURCES", true))
         {
             resfiles = true;
+            continue;
+        }
+        // template files
+        else if (EqualString(left, L"\\TEMPLATES", true))
+        {
+            templfiles = true;
             continue;
         }
         // end of all

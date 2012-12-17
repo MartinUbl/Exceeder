@@ -9,6 +9,12 @@ static const wchar_t* SupportedSlideVersions[] = {
     L"test"
 };
 
+enum SlideElementParseFlag
+{
+    SEPF_NONE         = 0,
+    SEPF_NON_TEMPLATE = 1,
+};
+
 class SlideParser: public Parser
 {
     public:
@@ -16,6 +22,7 @@ class SlideParser: public Parser
         static bool Parse(std::vector<std::wstring>* input);
         static void ParseMarkup(const wchar_t* input, const wchar_t* stylename, StyledTextList* target, ExprMap* exmap);
         static uint16 ResolveKey(const wchar_t* input);
+        static SlideElement* ParseElement(const wchar_t* input, uint8* special = NULL);
 };
 
 #endif
