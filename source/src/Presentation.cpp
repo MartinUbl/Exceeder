@@ -276,6 +276,18 @@ void PresentationMgr::Run()
             if (res && res->image)
                 sSimplyFlat->Drawing->DrawRectangle(bgData.backgroundPosition[0], bgData.backgroundPosition[1], bgData.backgroundDimensions[0], bgData.backgroundDimensions[1], 0, res->image->textureId);
         }
+        if (bgData.source)
+        {
+            GradientData** ptr = &bgData.source->typeBackground.gradients[0];
+            if (ptr[GRAD_TOP])
+                sSimplyFlat->Drawing->DrawRectangleGradient(0,0,sStorage->GetScreenWidth(), ptr[GRAD_TOP]->size, ptr[GRAD_TOP]->color | 0xFF, ptr[GRAD_RIGHT]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_BOTTOM);
+            if (ptr[GRAD_BOTTOM])
+                sSimplyFlat->Drawing->DrawRectangleGradient(0,sStorage->GetScreenHeight()-ptr[GRAD_BOTTOM]->size, sStorage->GetScreenWidth(), ptr[GRAD_BOTTOM]->size, ptr[GRAD_BOTTOM]->color | 0xFF, ptr[GRAD_RIGHT]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_TOP);
+            if (ptr[GRAD_LEFT])
+                sSimplyFlat->Drawing->DrawRectangleGradient(0,0, ptr[GRAD_LEFT]->size, sStorage->GetScreenHeight(), ptr[GRAD_LEFT]->color | 0xFF, ptr[GRAD_RIGHT]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_RIGHT);
+            if (ptr[GRAD_RIGHT])
+                sSimplyFlat->Drawing->DrawRectangleGradient(sStorage->GetScreenWidth()-ptr[GRAD_RIGHT]->size, 0, ptr[GRAD_RIGHT]->size, sStorage->GetScreenHeight(), ptr[GRAD_RIGHT]->color | 0xFF, ptr[GRAD_RIGHT]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_LEFT);
+        }
 
         // draw active elements which should be drawn
         for (SlideList::iterator itr = m_activeElements.begin(); itr != m_activeElements.end(); ++itr)
