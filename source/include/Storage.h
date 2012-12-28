@@ -9,6 +9,9 @@
 #include "Defines/Templates.h"
 #include "Resources.h"
 
+#define DEFAULT_FONT_SIZE 24
+#define DEFAULT_FONT_FAMILY L"Arial"
+
 struct StoredFont
 {
     const wchar_t* fontName;
@@ -63,6 +66,11 @@ class Storage
                     return itr->second;
             return NULL;
         }
+        Style* GetDefaultStyle()
+        {
+            return m_defaultTextStyle;
+        }
+        void SetupDefaultStyle();
 
         void AddNewEffect(const wchar_t* name, Effect* eff)
         {
@@ -197,6 +205,7 @@ class Storage
 
         int32 m_defaultFontId;
         std::list<StoredFont> m_fontMap;
+        Style* m_defaultTextStyle;
 
         std::list<SlideElement*> m_postParseList;
 };

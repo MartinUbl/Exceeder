@@ -3,6 +3,8 @@
 
 #include "Defines/Slides.h"
 
+#define TEMPLATE_ID_DELIMITER L"__--__"
+
 struct SlideTemplate
 {
     SlideTemplate()

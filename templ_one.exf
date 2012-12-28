@@ -2,7 +2,11 @@
 
 \TEMPLATE_BEGIN mytemp
 
+\NEW_SLIDE
+
 \TEXT{P:100,100} Hewwo!
+\TEXT{P:100,200}{ID:podnadpis} Tento text muze byt zmenen!
+\MOUSE_LEFT
 
 \TEMPLATE_END
 

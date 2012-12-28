@@ -61,12 +61,17 @@ uint8 SlideElement::elemTextData::GetFeatureArrayIndexOf(Style* style)
 
 void SlideElement::elemTextData::Draw(SlideElement* parent)
 {
-    if (parent->elemStyle.size() > 0)
-    {
-        Style* myStyle = sStorage->GetStyle(parent->elemStyle.c_str());
+    Style* myStyle = NULL;
 
+    if (parent->elemStyle.size() > 0)
+        myStyle = sStorage->GetStyle(parent->elemStyle.c_str());
+    else
+        myStyle = sStorage->GetDefaultStyle();
+
+    if (myStyle)
+    {
         // Set color if any
-        if (myStyle && myStyle->fontColor)
+        if (myStyle->fontColor)
         {
             uint32 color = (*(myStyle->fontColor));
             glColor3ub(COLOR_R(color),COLOR_G(color),COLOR_B(color));
@@ -95,13 +100,13 @@ void SlideElement::elemTextData::Draw(SlideElement* parent)
 
             sSimplyFlat->Drawing->PrintStyledText(parent->position[0], parent->position[1], wrap, tmp);
         }
-        else if (myStyle && myStyle->fontId >= 0)
+        else if (myStyle->fontId >= 0)
             sSimplyFlat->Drawing->PrintText(myStyle->fontId, parent->position[0], parent->position[1], GetFeatureArrayIndexOf(myStyle), wrap, parent->typeText.text.c_str());
         else
             sSimplyFlat->Drawing->PrintText(sStorage->GetDefaultFontId(), parent->position[0], parent->position[1], FA_NORMAL, wrap, parent->typeText.text.c_str());
 
         // Set color back to white if necessary
-        if (myStyle && myStyle->fontColor)
+        if (myStyle->fontColor)
             glColor3ub(255, 255, 255);
     }
 }

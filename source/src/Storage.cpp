@@ -17,6 +17,7 @@ Storage::Storage()
     m_screenHeight = 600;
 
     m_defaultFontId = -1;
+    m_defaultTextStyle = NULL;
 
     m_btInterface = NULL;
 }
@@ -136,6 +137,16 @@ void Storage::BuildStyleFonts()
             m_fontMap.push_back(fnt);
         }
     }
+}
+
+void Storage::SetupDefaultStyle()
+{
+    m_defaultTextStyle = new Style;
+    memset(m_defaultTextStyle, 0, sizeof(Style));
+    m_defaultTextStyle->fontId = sStorage->GetDefaultFontId();
+    m_defaultTextStyle->fontSize = new uint32(DEFAULT_FONT_SIZE);
+    m_defaultTextStyle->fontFamily = DEFAULT_FONT_FAMILY;
+    m_defaultTextStyle->fontColor = 0;
 }
 
 void Storage::PostParseElements()

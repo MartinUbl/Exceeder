@@ -17,6 +17,10 @@
 \BACKGROUND color=#555555      // just demonstrates, that color in hexa format _could_ be prefixed with #
 \MOUSE_LEFT
 
+\TEMPLATE_CALL mytemp
+\{ID:podnadpis} Přepsání textu {B}tučně{/B}
+\TEMPLATE_END
+
 \NEW_SLIDE
 
 \background resource=obrazek,color=black,spread=none,pos=topright,gradient-left=body white

@@ -40,6 +40,8 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
     wchar_t* right = NULL;
     wchar_t* middle = NULL; // for additional element definitions
 
+    wchar_t* persistent = NULL;
+
     SlideElement* tmp = NULL;
 
     uint32 len = 0;
@@ -50,7 +52,7 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
 
     for (std::vector<std::wstring>::const_iterator itr = input->begin(); itr != input->end(); ++itr)
     {
-        tmp = ParseElement(itr->c_str(), &special);
+        tmp = ParseElement(itr->c_str(), &special, &persistent);
 
         if (tmp != NULL)
         {
@@ -59,9 +61,16 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
             continue;
         }
         // non-template elements are also not available for adding into storage element map
-        else if (special == SEPF_NON_TEMPLATE)
+        else if (special & SEPF_NON_TEMPLATE)
         {
             // do not do anything
+            continue;
+        }
+        // only-template elements are handler by child parser
+        else if (special & SEPF_ONLY_TEMPLATE)
+        {
+            // elements are inserted "all in one" from slide template, and the child parser only takes care of overwriting the values
+            // so.. do not do anything
             continue;
         }
 
@@ -95,10 +104,13 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
     return true;
 }
 
-SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special)
+SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wchar_t** persistentIdentificator)
 {
     if (special)
-        (*special) = SEPF_NONE;
+    {
+        // Clear only output flags, the input ones should stay here for manual removal in parse procedure
+        (*special) &= SEPF_ONLY_TEMPLATE;
+    }
 
     if (!input)
         return NULL;
@@ -121,6 +133,43 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special)
         middle = RightSide(middle, '{');
 
     right = RightSide(input, ' ');
+
+    // Special cases for input flags
+    if ((*special) & SEPF_ONLY_TEMPLATE)
+    {
+        if (EqualString(left, L"\\TEMPLATE_END", true))
+        {
+            (*special) &= ~SEPF_ONLY_TEMPLATE;
+            (*special) |= SEPF_NON_TEMPLATE;
+            persistentIdentificator = NULL;
+            return NULL;
+        }
+        else
+        {
+            ParseInputDefinitions(middle, &defs);
+
+            const wchar_t* idc = GetDefinitionKeyValue(&defs, L"ID");
+
+            if (!idc)
+                RAISE_ERROR("SlideParser: template filling: couldn't parse element replacement line '%S'", input);
+
+            std::wstring idstr = idc;
+            idstr.append(TEMPLATE_ID_DELIMITER);
+            idstr.append((*persistentIdentificator));
+
+            SlideElement* live = sStorage->GetSlideElementById(idstr.c_str());
+
+            if (!live)
+                RAISE_ERROR("SlideParser: template filling: couldn't find element with ID '%S' in template '%S'", idc, persistentIdentificator);
+
+            if (live->elemType == SLIDE_ELEM_TEXT)
+            {
+                live->typeText.text = right;
+            }
+        }
+
+        return NULL;
+    }
 
     // background element
     if (EqualString(left, L"\\BACKGROUND", true))
@@ -570,6 +619,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special)
 
         return tmp;
     }
+    // play effect on specified element
     else if (EqualString(left, L"\\PLAY_EFFECT", true))
     {
         tmp = new SlideElement;
@@ -581,6 +631,38 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special)
         tmp->elemEffect = GetDefinitionKeyValue(&defs, L"E");
 
         return tmp;
+    }
+    // call template
+    else if (EqualString(left, L"\\TEMPLATE_CALL", true))
+    {
+        SlideTemplate* mytmp = sStorage->GetSlideTemplate(right);
+
+        if (!mytmp)
+            RAISE_ERROR("SlideParser: couldn't find template named '%S'!",((right != NULL)?right:L"unknown"));
+
+        (*persistentIdentificator) = new wchar_t[wcslen(right)+1];
+        memset((*persistentIdentificator), 0, sizeof(wchar_t)*(wcslen(right)+1));
+        wcsncpy((*persistentIdentificator), right, wcslen(right));
+
+        SlideElement* ts = NULL;
+        for (SlideElementVector::iterator itr = mytmp->m_elements.begin(); itr != mytmp->m_elements.end(); ++itr)
+        {
+            ts = new SlideElement;
+            memcpy(ts, (*itr), sizeof(SlideElement));
+
+            ts->elemId.append(TEMPLATE_ID_DELIMITER);
+            ts->elemId.append((*persistentIdentificator));
+
+            sStorage->AddSlideElement(ts);
+
+            if (ts->elemType == SLIDE_ELEM_TEXT)
+                sStorage->AddPostParseElement(ts);
+        }
+
+        if (special)
+            (*special) = SEPF_ONLY_TEMPLATE;
+
+        return NULL;
     }
 
     return NULL;
@@ -608,21 +690,16 @@ void SlideParser::ParseMarkup(const wchar_t *input, const wchar_t* stylename, St
     Style* defstyle = NULL;
     if (stylename)
         defstyle = sStorage->GetStyle(stylename);
-    else
-    {
-        defstyle = new Style;
-        memset(defstyle, 0, sizeof(Style));
-        defstyle->fontId = sStorage->GetDefaultFontId();
-        defstyle->fontSize = new uint32(DEFAULT_FONT_SIZE);
-        defstyle->fontFamily = DEFAULT_FONT_FAMILY;
-    }
+
+    if (defstyle == NULL)
+        defstyle = sStorage->GetDefaultStyle();
 
     Style* origstyle = defstyle;
 
     printTextData* tmp = NULL;
     wchar_t ident = '\0';
 
-    // valid markups: {B}, {I}, {U}, {X}, {S:style_name}
+    // valid markups: {B}, {I}, {U}, {X}, {S:style_name}, or {$expression}
     uint32 len = wcslen(input);
 
     uint32 lastTextBegin = 0;
