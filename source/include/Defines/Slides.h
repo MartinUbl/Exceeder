@@ -145,6 +145,7 @@ struct SlideElement
         int32 position[2];          // horizontal and vertical position (numbers or enum value from PositionSpecial
         int32 dimensions[2];        // width and height
         Spread spread;              // background axis spread
+        bool gradientEdges;         // true = gradient on edges, false = gradient inside body
         GradientData* gradients[GRAD_MAX]; // gradient data - each side has its own pointer - the pointers can point to the same piece of memory to share settings
     } typeBackground;
 

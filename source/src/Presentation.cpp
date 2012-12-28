@@ -279,14 +279,31 @@ void PresentationMgr::Run()
         if (bgData.source)
         {
             GradientData** ptr = &bgData.source->typeBackground.gradients[0];
-            if (ptr[GRAD_TOP])
-                sSimplyFlat->Drawing->DrawRectangleGradient(0,0,sStorage->GetScreenWidth(), ptr[GRAD_TOP]->size, ptr[GRAD_TOP]->color | 0xFF, ptr[GRAD_RIGHT]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_BOTTOM);
-            if (ptr[GRAD_BOTTOM])
-                sSimplyFlat->Drawing->DrawRectangleGradient(0,sStorage->GetScreenHeight()-ptr[GRAD_BOTTOM]->size, sStorage->GetScreenWidth(), ptr[GRAD_BOTTOM]->size, ptr[GRAD_BOTTOM]->color | 0xFF, ptr[GRAD_RIGHT]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_TOP);
-            if (ptr[GRAD_LEFT])
-                sSimplyFlat->Drawing->DrawRectangleGradient(0,0, ptr[GRAD_LEFT]->size, sStorage->GetScreenHeight(), ptr[GRAD_LEFT]->color | 0xFF, ptr[GRAD_RIGHT]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_RIGHT);
-            if (ptr[GRAD_RIGHT])
-                sSimplyFlat->Drawing->DrawRectangleGradient(sStorage->GetScreenWidth()-ptr[GRAD_RIGHT]->size, 0, ptr[GRAD_RIGHT]->size, sStorage->GetScreenHeight(), ptr[GRAD_RIGHT]->color | 0xFF, ptr[GRAD_RIGHT]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_LEFT);
+            if (bgData.source->typeBackground.gradientEdges)
+            {
+                if (ptr[GRAD_TOP])
+                    sSimplyFlat->Drawing->DrawRectangleGradient(0,0,sStorage->GetScreenWidth(), ptr[GRAD_TOP]->size, ptr[GRAD_TOP]->color | 0xFF, ptr[GRAD_TOP]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_BOTTOM);
+                if (ptr[GRAD_BOTTOM])
+                    sSimplyFlat->Drawing->DrawRectangleGradient(0,sStorage->GetScreenHeight()-ptr[GRAD_BOTTOM]->size, sStorage->GetScreenWidth(), ptr[GRAD_BOTTOM]->size, ptr[GRAD_BOTTOM]->color | 0xFF, ptr[GRAD_BOTTOM]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_TOP);
+                if (ptr[GRAD_LEFT])
+                    sSimplyFlat->Drawing->DrawRectangleGradient(0,0, ptr[GRAD_LEFT]->size, sStorage->GetScreenHeight(), ptr[GRAD_LEFT]->color | 0xFF, ptr[GRAD_LEFT]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_RIGHT);
+                if (ptr[GRAD_RIGHT])
+                    sSimplyFlat->Drawing->DrawRectangleGradient(sStorage->GetScreenWidth()-ptr[GRAD_RIGHT]->size, 0, ptr[GRAD_RIGHT]->size, sStorage->GetScreenHeight(), ptr[GRAD_RIGHT]->color | 0xFF, ptr[GRAD_RIGHT]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_LEFT);
+            }
+            else
+            {
+                // There should be only one gradient set
+                // if there are more than one gradient set, it's users fault and we are going to draw all of them
+
+                if (ptr[GRAD_TOP])
+                    sSimplyFlat->Drawing->DrawRectangleGradient(0,0,sStorage->GetScreenWidth(), sStorage->GetScreenHeight(), ptr[GRAD_TOP]->color | 0xFF, bgData.color | 0xFF, VERT_BOTTOM);
+                if (ptr[GRAD_BOTTOM])
+                    sSimplyFlat->Drawing->DrawRectangleGradient(0,0,sStorage->GetScreenWidth(), sStorage->GetScreenHeight(), ptr[GRAD_BOTTOM]->color | 0xFF, bgData.color | 0xFF, VERT_TOP);
+                if (ptr[GRAD_LEFT])
+                    sSimplyFlat->Drawing->DrawRectangleGradient(0,0,sStorage->GetScreenWidth(), sStorage->GetScreenHeight(), ptr[GRAD_LEFT]->color | 0xFF, bgData.color | 0xFF, VERT_RIGHT);
+                if (ptr[GRAD_RIGHT])
+                    sSimplyFlat->Drawing->DrawRectangleGradient(0,0,sStorage->GetScreenWidth(), sStorage->GetScreenHeight(), ptr[GRAD_RIGHT]->color | 0xFF, bgData.color | 0xFF, VERT_LEFT);
+            }
         }
 
         // draw active elements which should be drawn
