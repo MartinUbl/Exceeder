@@ -19,7 +19,7 @@
 
 \NEW_SLIDE
 
-\background resource=obrazek,color=black,spread=none,pos=topright
+\background resource=obrazek,color=black,spread=none,pos=topright,gradient=100 white
 
 \DRAW_IMAGE{P:400,300} obrazek
 

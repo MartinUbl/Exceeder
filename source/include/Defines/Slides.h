@@ -62,6 +62,15 @@ struct GradientData
     uint32 size;
 };
 
+enum GradientArray
+{
+    GRAD_TOP    = 0,
+    GRAD_RIGHT  = 1,
+    GRAD_LEFT   = 2,
+    GRAD_BOTTOM = 3,
+    GRAD_MAX
+};
+
 struct KnownKey
 {
     const wchar_t* name;
@@ -136,7 +145,7 @@ struct SlideElement
         int32 position[2];          // horizontal and vertical position (numbers or enum value from PositionSpecial
         int32 dimensions[2];        // width and height
         Spread spread;              // background axis spread
-        GradientData* gradients[4]; // gradient data - each side has its own pointer - the pointers can point to the same piece of memory to share settings
+        GradientData* gradients[GRAD_MAX]; // gradient data - each side has its own pointer - the pointers can point to the same piece of memory to share settings
     } typeBackground;
 
     struct elemMouseEventData

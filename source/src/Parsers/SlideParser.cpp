@@ -139,6 +139,9 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special)
         tmp->typeBackground.dimensions[0] = 0;
         tmp->typeBackground.dimensions[1] = 0;
 
+        for (uint32 i = 0; i < 4; i++)
+            tmp->typeBackground.gradients[i] = NULL;
+
         wchar_t* el = right;
         wchar_t* er = NULL;
 
@@ -153,7 +156,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special)
             inner_value = RightSide(el, L'=');
 
             if (!inner_value)
-                RAISE_ERROR("SlideParser: invalid background definition chunk identified by %s", (inner_id != NULL)?ToMultiByteString(inner_id):"none");
+                RAISE_ERROR("SlideParser: invalid background definition chunk identified by %s", (inner_id != NULL)?ToMultiByteString(inner_id):"nothing");
 
             // Background mono-color
             if (EqualString(inner_id, L"COLOR", true))
@@ -277,6 +280,107 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special)
                     tmp->typeBackground.dimensions[1] = ToInt(inner_value);
                 else
                     RAISE_ERROR("SlideParser: invalid (non-numeric or special) value '%s' used as background height", ToMultiByteString(inner_value));
+            }
+            // gradients
+            else if (EqualString(inner_id, L"GRADIENT", true))
+            {
+                el = LeftSide(inner_value, L' ');
+                wchar_t* col = RightSide(inner_value, L' ');
+                if (!el)
+                    RAISE_ERROR("SlideParser: invalid gradient definition for background - arguments missing");
+                if (!col)
+                    RAISE_ERROR("SlideParser: not enough parameters for gradient background - color argument missing");
+                if (!IsNumeric(el))
+                    RAISE_ERROR("SlideParser: invalid gradient definition for background - invalid size '%s'", ToMultiByteString(el));
+
+                // Is this function neccessary? Do we really need it in percents?
+                //if (el[wcslen(el)-1] == L'%')
+                //    el[wcslen(el)-1] = L'\0';
+
+                GradientData* gd = new GradientData;
+                gd->size  = ToInt(el);
+                if (!StyleParser::ParseColor(col, &gd->color))
+                    RAISE_ERROR("SlideParser: invalid expression '%s' used as color value for background gradient", ToMultiByteString(col));
+
+                // make all gradient data pointers to point to the same piece of memory
+                for (uint32 i = 0; i < GRAD_MAX; i++)
+                    tmp->typeBackground.gradients[i] = gd;
+            }
+            // gradient top
+            else if (EqualString(inner_id, L"GRADIENT-TOP", true))
+            {
+                el = LeftSide(er, L' ');
+                wchar_t* col = RightSide(er, L' ');
+                if (!el)
+                    RAISE_ERROR("SlideParser: invalid top gradient definition for background - arguments missing");
+                if (!col)
+                    RAISE_ERROR("SlideParser: not enough parameters for top gradient background - color argument missing");
+                if (!IsNumeric(el))
+                    RAISE_ERROR("SlideParser: invalid top gradient definition for background - invalid size '%s'", ToMultiByteString(el));
+
+                GradientData* gd = new GradientData;
+                gd->size  = ToInt(el);
+                if (!StyleParser::ParseColor(col, &gd->color))
+                    RAISE_ERROR("SlideParser: invalid expression '%s' used as color value for background top gradient", ToMultiByteString(col));
+
+                tmp->typeBackground.gradients[GRAD_TOP] = gd;
+            }
+            // gradient left
+            else if (EqualString(inner_id, L"GRADIENT-LEFT", true))
+            {
+                el = LeftSide(er, L' ');
+                wchar_t* col = RightSide(er, L' ');
+                if (!el)
+                    RAISE_ERROR("SlideParser: invalid left gradient definition for background - arguments missing");
+                if (!col)
+                    RAISE_ERROR("SlideParser: not enough parameters for left gradient background - color argument missing");
+                if (!IsNumeric(el))
+                    RAISE_ERROR("SlideParser: invalid left gradient definition for background - invalid size '%s'", ToMultiByteString(el));
+
+                GradientData* gd = new GradientData;
+                gd->size  = ToInt(el);
+                if (!StyleParser::ParseColor(col, &gd->color))
+                    RAISE_ERROR("SlideParser: invalid expression '%s' used as color value for background left gradient", ToMultiByteString(col));
+
+                tmp->typeBackground.gradients[GRAD_LEFT] = gd;
+            }
+            // gradient right
+            else if (EqualString(inner_id, L"GRADIENT-RIGHT", true))
+            {
+                el = LeftSide(er, L' ');
+                wchar_t* col = RightSide(er, L' ');
+                if (!el)
+                    RAISE_ERROR("SlideParser: invalid right gradient definition for background - arguments missing");
+                if (!col)
+                    RAISE_ERROR("SlideParser: not enough parameters for right gradient background - color argument missing");
+                if (!IsNumeric(el))
+                    RAISE_ERROR("SlideParser: invalid right gradient definition for background - invalid size '%s'", ToMultiByteString(el));
+
+                GradientData* gd = new GradientData;
+                gd->size  = ToInt(el);
+                if (!StyleParser::ParseColor(col, &gd->color))
+                    RAISE_ERROR("SlideParser: invalid expression '%s' used as color value for background right gradient", ToMultiByteString(col));
+
+                tmp->typeBackground.gradients[GRAD_RIGHT] = gd;
+            }
+            // gradient bottom
+            else if (EqualString(inner_id, L"GRADIENT-BOTTOM", true))
+            {
+                el = LeftSide(er, L' ');
+                wchar_t* col = RightSide(er, L' ');
+                if (!el)
+                    RAISE_ERROR("SlideParser: invalid bottom gradient definition for background - arguments missing");
+                if (!col)
+                    RAISE_ERROR("SlideParser: not enough parameters for bottom gradient background - color argument missing");
+                if (!IsNumeric(el))
+                    RAISE_ERROR("SlideParser: invalid bottom gradient definition for background - invalid size '%s'", ToMultiByteString(el));
+
+                GradientData* gd = new GradientData;
+                gd->size  = ToInt(el);
+                if (!StyleParser::ParseColor(col, &gd->color))
+                    RAISE_ERROR("SlideParser: invalid expression '%s' used as color value for background bottom gradient", ToMultiByteString(col));
+
+                tmp->typeBackground.gradients[GRAD_BOTTOM] = gd;
             }
             else
                 sLog->ErrorLog("SlideParser: unknown key '%s' in background definition", ToMultiByteString(inner_id));
@@ -663,10 +767,10 @@ outer_continue:;
     {
         tmp = new printTextData;
 
-        tmp->fontId = defstyle->fontId;
+        tmp->fontId = (defstyle != NULL) ? defstyle->fontId : sStorage->GetDefaultFontId();
 
-        tmp->feature = SlideElement::elemTextData::GetFeatureArrayIndexOf(defstyle);
-        tmp->colorize = !(defstyle->fontColor == NULL);
+        tmp->feature = (defstyle != NULL) ? SlideElement::elemTextData::GetFeatureArrayIndexOf(defstyle) : 0;
+        tmp->colorize = (defstyle != NULL) ? !(defstyle->fontColor == NULL) : false;
         if (tmp->colorize)
             tmp->color = (*(defstyle->fontColor));
 
