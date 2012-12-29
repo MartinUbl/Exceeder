@@ -156,6 +156,13 @@ void EffectHandler::Animate()
     // Circle movement
     else if (effectProto->moveType && (*effectProto->moveType) == MOVE_TYPE_CIRCULAR)
         AnimateMoveCircular();
+
+    // Synchronize ending position with demanded coordinates
+    if (isExpired() && (effectOwner->position[0] != endPos[0] || effectOwner->position[1] != endPos[1]))
+    {
+        effectOwner->position[0] = endPos[0];
+        effectOwner->position[1] = endPos[1];
+    }
 }
 
 void EffectHandler::AnimateMoveLinear()
