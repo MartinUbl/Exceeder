@@ -55,8 +55,18 @@ bool EffectParser::Parse(std::vector<std::wstring> *input)
             {
                 if (EqualString(right, L"linear", true))
                     tmp->moveType = new uint32(MOVE_TYPE_LINEAR);
-                else if (EqualString(right, L"circular", true))
+                else if (EqualString(right, L"circle", true))
                     tmp->moveType = new uint32(MOVE_TYPE_CIRCULAR);
+                else if (EqualString(right, L"circle+", true))
+                {
+                    tmp->moveType = new uint32(MOVE_TYPE_CIRCULAR);
+                    tmp->circlePlus = true;
+                }
+                else if (EqualString(right, L"circle-", true))
+                {
+                    tmp->moveType = new uint32(MOVE_TYPE_CIRCULAR);
+                    tmp->circlePlus = false;
+                }
                 else if (EqualString(right, L"bezier", true))
                     tmp->moveType = new uint32(MOVE_TYPE_BEZIER);
                 else
@@ -105,6 +115,16 @@ bool EffectParser::Parse(std::vector<std::wstring> *input)
                     RAISE_ERROR("EffectParser: Non-numeric value supplied as timer parameter");
 
                 tmp->effectTimer = new uint32(ToInt(right));
+            }
+            // move direction (in case of circle)
+            if (EqualString(left, L"\\DIRECTION", true))
+            {
+                if (EqualString(right, L"plus", true) || EqualString(right, L"right", true))
+                    tmp->circlePlus = true;
+                else if (EqualString(right, L"minus", true) || EqualString(right, L"left", true))
+                    tmp->circlePlus = false;
+                else
+                    RAISE_ERROR("EffectParser: Unknown move direction '%s'", right);
             }
             // sets effect as blocking
             else if (EqualString(left, L"\\BLOCKING", true))

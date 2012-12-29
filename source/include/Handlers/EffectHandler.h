@@ -19,6 +19,7 @@ class EffectHandler
 
     private:
         void AnimateMoveLinear();
+        void AnimateMoveCircular();
 
         void UnblockPresentationIfNeeded();
         void SetExpired()
@@ -40,6 +41,12 @@ class EffectHandler
         // cached position coords
         int32 startPos[2];
         int32 endPos[2];
+
+        // For circular and bezier movement
+        CVector2 movementVector[2];
+        // For circular movement
+        float phase;
+        float radius;
 
         clock_t startTime;
 

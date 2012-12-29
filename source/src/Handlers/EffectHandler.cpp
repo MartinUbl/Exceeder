@@ -74,6 +74,19 @@ EffectHandler::EffectHandler(SlideElement *parent, Effect *elementEffect, bool f
         }
     }
 
+    if (effectProto->moveType && (*(effectProto->moveType)) == MOVE_TYPE_CIRCULAR)
+    {
+        // phase is constant deviation from the mathematical "zero" angle
+        // ..kind of magic here, yes.
+        phase = acos(  ((startPos[0] - endPos[0])/2)  /  (sqrt(pow(float(startPos[0] - endPos[0]), 2) + pow(float(startPos[1] - endPos[1]), 2)) / 2 ) );
+        // radius is the distance from any end point to center of the line between start and end points
+        radius = sqrt(pow(float(endPos[0] - startPos[0]), 2) + pow(float(endPos[1] - startPos[1]), 2)) / 2;
+
+        // this vector is used as radius vector - when computing coords, we have to move to the center of rotation
+        movementVector[0].x = float(endPos[0] - startPos[0]) / 2.0f;
+        movementVector[0].y = float(endPos[1] - startPos[1]) / 2.0f;
+    }
+
     startTime = clock();
 }
 
@@ -140,6 +153,9 @@ void EffectHandler::Animate()
     // Linear movement
     if (effectProto->moveType && (*effectProto->moveType) == MOVE_TYPE_LINEAR)
         AnimateMoveLinear();
+    // Circle movement
+    else if (effectProto->moveType && (*effectProto->moveType) == MOVE_TYPE_CIRCULAR)
+        AnimateMoveCircular();
 }
 
 void EffectHandler::AnimateMoveLinear()
@@ -160,4 +176,31 @@ void EffectHandler::AnimateMoveLinear()
 
     for (uint32 i = 0; i <= 1; i++)
         effectOwner->position[i] = int32(startPos[i]) + int32(timeCoef * float(int32(endPos[i]) - int32(startPos[i])));
+}
+
+void EffectHandler::AnimateMoveCircular()
+{
+    // Check for required things
+    if (!(effectProto->effectTimer && effectProto->startPos && effectProto->endPos))
+        return;
+
+    // Calculate time coefficient to determine position
+    float timeCoef = (float(clock()-startTime)) / float(*effectProto->effectTimer);
+    if (timeCoef >= 1.0f)
+    {
+        // If the time coefficient is larger than 1, then we passed the end of effect, and finished him
+        // We set the coefficient to 1 to avoid glitches, set effect as expired and if blocking, unblock the presentation
+        timeCoef = 1.0f;
+        SetSelfExpired();
+    }
+
+    float angle = phase;
+
+    if (effectProto->circlePlus)
+        angle -= timeCoef*M_PI;
+    else
+        angle += timeCoef*M_PI;
+
+    effectOwner->position[0] = int32(startPos[0] + movementVector[0].x + cos(angle)*radius);
+    effectOwner->position[1] = int32(startPos[1] + movementVector[0].y + sin(angle)*radius);
 }

@@ -6,7 +6,7 @@
 \MACRO SecondMac SE_LEFT
 
 \BACKGROUND color=999999,gradient-bottom=150 red
-\text{ID:title_1}{S:my_title}{E:appear_left}{P:10,10} Pozice X: {$title_1.x*2+15} Hlavní {B}tučný{/B} a {I}kurzívou{/I} {S:my_test_text}nadpis{/S}
+\text{ID:title_1}{S:my_title}{E:appear_left}{P:10,10} Pozice X: {$title_1.x} Hlavní {B}tučný{/B} a {I}kurzívou{/I} {S:my_test_text}nadpis{/S}
 \text{ID:test_text_1}{S:my_test_text}{P:100,300} Makro vypadá asi takhle: {#AbcdMyMacro}, tak uvidíme :)
 
 \MOUSE_LEFT

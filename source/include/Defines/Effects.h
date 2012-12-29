@@ -1,6 +1,8 @@
 #ifndef EXCDR_EFFECTS_H
 #define EXCDR_EFFECTS_H
 
+#include "Vector.h"
+
 enum MoveType
 {
     MOVE_TYPE_LINEAR     = 0,
@@ -31,6 +33,9 @@ struct Effect
     int32* startPos; // 2 coords
     int32* endPos;   // 2 coords
     uint32* offsetType;
+
+    // movement data specific for each one type
+    bool circlePlus;
 
     std::vector<std::wstring> *m_effectChain;
 };

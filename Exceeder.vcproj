@@ -278,6 +278,10 @@
 				RelativePath=".\source\include\Storage.h"
 				>
 			</File>
+			<File
+				RelativePath=".\source\include\Vector.h"
+				>
+			</File>
 			<Filter
 				Name="Parsers"
 				>

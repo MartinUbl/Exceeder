@@ -16,9 +16,10 @@
 \DEF_BEGIN left_continue
 
   \START_POS 200,200
-  \END_POS 100,100
-  \MOVE linear
-  \TIMER 1000
+  \END_POS 400,200
+  \MOVE circle
+  \DIRECTION minus
+  \TIMER 800
 
 \DEF_END
 
