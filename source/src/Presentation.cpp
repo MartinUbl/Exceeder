@@ -215,7 +215,7 @@ SlideElement* PresentationMgr::GetActiveElementById(const wchar_t* id)
         return NULL;
 
     for (SlideList::iterator itr = m_activeElements.begin(); itr != m_activeElements.end(); ++itr)
-        if (EqualString((*itr)->elemId.c_str(), id, true))
+        if (EqualString((*itr)->elemId, id, true))
             return (*itr);
 
     return NULL;
@@ -405,9 +405,9 @@ void PresentationMgr::Run()
             // We will also handle playing effects here
             case SLIDE_ELEM_PLAY_EFFECT:
             {
-                SlideElement* target = GetActiveElementById(m_slideElement->elemId.c_str());
+                SlideElement* target = GetActiveElementById(m_slideElement->elemId);
                 if (target)
-                    target->PlayEffect(m_slideElement->elemEffect.c_str());
+                    target->PlayEffect(m_slideElement->elemEffect);
                 break;
             }
             // New slide stuff is also needed to be handled there, this clears all drawable elements from screen
@@ -536,7 +536,7 @@ int64 PresentationMgr::GetElementReferenceValue(wchar_t *input)
     SlideElement* tmp = NULL;
     for (SlideList::iterator itr = m_activeElements.begin(); itr != m_activeElements.end(); ++itr)
     {
-        if (EqualString((*itr)->elemId.c_str(), left))
+        if (EqualString((*itr)->elemId, left))
         {
             tmp = (*itr);
             break;

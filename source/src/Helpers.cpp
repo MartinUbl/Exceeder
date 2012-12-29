@@ -240,7 +240,7 @@ void ParseInputDefinitions(wchar_t* input, ParsedDefs* output)
     }
 }
 
-const wchar_t* GetDefinitionKeyValue(ParsedDefs* input, const wchar_t* key)
+wchar_t* GetDefinitionKeyValue(ParsedDefs* input, const wchar_t* key)
 {
     if (!input || !key || wcslen(key) < 1)
         return L"";
@@ -250,7 +250,13 @@ const wchar_t* GetDefinitionKeyValue(ParsedDefs* input, const wchar_t* key)
     for (ParsedDefs::const_iterator itr = input->begin(); itr != input->end(); ++itr)
     {
         if (EqualString(ToUppercase((*itr).first), upkey, true))
-            return (*itr).second.c_str();
+        {
+            wchar_t* ret = new wchar_t[(*itr).second.size()+1];
+            memset(ret, 0, (*itr).second.size()+1);
+            wcsncpy(ret, (*itr).second.c_str(), (*itr).second.size());
+            ret[(*itr).second.size()] = L'\0';
+            return ret;
+        }
     }
 
     return L"";

@@ -110,9 +110,9 @@ struct SlideElement
     SlideElementTypes elemType;
     bool drawable;
 
-    std::wstring elemId;
-    std::wstring elemStyle;
-    std::wstring elemEffect;
+    wchar_t* elemId;
+    wchar_t* elemStyle;
+    wchar_t* elemEffect;
 
     EffectHandler* myEffect;
 
@@ -127,7 +127,7 @@ struct SlideElement
 
     struct elemTextData
     {
-        std::wstring text;       // text... text!
+        wchar_t* text;           // text... text!
         StyledTextList* outlist; // prepared render list for case of marked up input
         ExprMap outlistExpressions; // map of expressions prepared
         uint32 depth;            // depth of drawing - for some kind of "layers"

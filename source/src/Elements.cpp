@@ -12,9 +12,9 @@ void SlideElement::CreateEffectIfAny()
 {
     myEffect = NULL;
 
-    if (elemEffect.size() > 0)
+    if (wcslen(elemEffect) > 0)
     {
-        Effect* tmp = sStorage->GetEffect(elemEffect.c_str());
+        Effect* tmp = sStorage->GetEffect(elemEffect);
         if (tmp)
             myEffect = new EffectHandler(this, tmp);
     }
@@ -63,8 +63,8 @@ void SlideElement::elemTextData::Draw(SlideElement* parent)
 {
     Style* myStyle = NULL;
 
-    if (parent->elemStyle.size() > 0)
-        myStyle = sStorage->GetStyle(parent->elemStyle.c_str());
+    if (wcslen(parent->elemStyle) > 0)
+        myStyle = sStorage->GetStyle(parent->elemStyle);
     else
         myStyle = sStorage->GetDefaultStyle();
 
@@ -101,9 +101,9 @@ void SlideElement::elemTextData::Draw(SlideElement* parent)
             sSimplyFlat->Drawing->PrintStyledText(parent->position[0], parent->position[1], wrap, tmp);
         }
         else if (myStyle->fontId >= 0)
-            sSimplyFlat->Drawing->PrintText(myStyle->fontId, parent->position[0], parent->position[1], GetFeatureArrayIndexOf(myStyle), wrap, parent->typeText.text.c_str());
+            sSimplyFlat->Drawing->PrintText(myStyle->fontId, parent->position[0], parent->position[1], GetFeatureArrayIndexOf(myStyle), wrap, parent->typeText.text);
         else
-            sSimplyFlat->Drawing->PrintText(sStorage->GetDefaultFontId(), parent->position[0], parent->position[1], FA_NORMAL, wrap, parent->typeText.text.c_str());
+            sSimplyFlat->Drawing->PrintText(sStorage->GetDefaultFontId(), parent->position[0], parent->position[1], FA_NORMAL, wrap, parent->typeText.text);
 
         // Set color back to white if necessary
         if (myStyle->fontColor)

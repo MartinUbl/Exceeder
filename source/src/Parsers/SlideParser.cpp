@@ -157,7 +157,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
             idstr.append(TEMPLATE_ID_DELIMITER);
             idstr.append((*persistentIdentificator));
 
-            SlideElement* live = sStorage->GetSlideElementById(idstr.c_str());
+            SlideElement* live = sStorage->GetTemplateSlideElementById(idstr.c_str());
 
             if (!live)
                 RAISE_ERROR("SlideParser: template filling: couldn't find element with ID '%S' in template '%S'", idc, persistentIdentificator);
@@ -645,13 +645,16 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
         wcsncpy((*persistentIdentificator), right, wcslen(right));
 
         SlideElement* ts = NULL;
+        uint32 len = 0;
         for (SlideElementVector::iterator itr = mytmp->m_elements.begin(); itr != mytmp->m_elements.end(); ++itr)
         {
             ts = new SlideElement;
             memcpy(ts, (*itr), sizeof(SlideElement));
 
-            ts->elemId.append(TEMPLATE_ID_DELIMITER);
-            ts->elemId.append((*persistentIdentificator));
+            len = wcslen((*itr)->elemId)+wcslen(TEMPLATE_ID_DELIMITER)+wcslen((*persistentIdentificator))+1;
+            ts->elemId = new wchar_t[len];
+            memset(ts->elemId, 0, len);
+            swprintf(ts->elemId, 256, L"%s%s%s", (*itr)->elemId, TEMPLATE_ID_DELIMITER, (*persistentIdentificator));
 
             sStorage->AddSlideElement(ts);
 

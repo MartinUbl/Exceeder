@@ -117,7 +117,17 @@ class Storage
         {
             for (SlideElementVector::iterator itr = m_slideData.begin(); itr != m_slideData.end(); ++itr)
             {
-                if (EqualString((*itr)->elemId.c_str(), id.c_str()))
+                if (EqualString((*itr)->elemId, id.c_str()))
+                    return (*itr);
+            }
+            return NULL;
+        }
+        SlideElement* GetTemplateSlideElementById(std::wstring id)
+        {
+            // for templates, we need to look up from the bottom, to replace the last inserted element, not first
+            for (SlideElementVector::reverse_iterator itr = m_slideData.rbegin(); itr != m_slideData.rend(); ++itr)
+            {
+                if (EqualString((*itr)->elemId, id.c_str()))
                     return (*itr);
             }
             return NULL;

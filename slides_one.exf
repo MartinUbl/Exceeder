@@ -20,6 +20,9 @@
 \TEMPLATE_CALL mytemp
 \{ID:podnadpis} Přepsání textu {B}tučně{/B}
 \TEMPLATE_END
+\TEMPLATE_CALL mytemp
+\{ID:podnadpis} Druhý slajd stejného ražení
+\TEMPLATE_END
 
 \NEW_SLIDE
 
