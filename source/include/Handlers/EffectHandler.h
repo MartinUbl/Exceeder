@@ -3,6 +3,14 @@
 
 struct SlideElement;
 
+enum EffectProgress
+{
+    // Assuming x is from <0;1>
+    EP_LINEAR    = 0, // y = x
+    EP_SINUS     = 1, // y = sin(x*PI)
+    EP_QUADRATIC = 2, // y = x^2
+};
+
 class EffectHandler
 {
     public:

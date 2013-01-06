@@ -9,6 +9,7 @@
 #include "Defines/Styles.h"
 #include "Defines/Effects.h"
 #include "Handlers/EffectHandler.h"
+#include "Vector.h"
 
 enum InterfaceEventTypes
 {
@@ -66,6 +67,28 @@ class PresentationMgr
             uint32 backgroundDimensions[2];
             SlideElement* source;         // in case of recalculating sizes (changing of screen resolution 'on demand', and so)
         } bgData;
+
+        // These things are used for "hard" canvas effects
+        // this means, that every element on the canvas will be affected, regardless of order
+        struct CanvasLayer
+        {
+            // canvas offset
+            CVector2 hardMove;
+            EffectTime hardMove_time;
+
+            // canvas rotation
+            int32 hardRotateCenter[2];
+            float hardRotateAngle;
+            EffectTime hardRotate_time;
+
+            // canvas scale
+            float hardScale;
+            EffectTime hardScale_time;
+
+            // canvas blur
+            float hardBlur;
+            EffectTime hardBlur_time;
+        } canvas;
 
         bool m_blocking;
 

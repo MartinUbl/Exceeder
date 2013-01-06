@@ -18,6 +18,11 @@ PresentationMgr::PresentationMgr()
     m_btEnabled = false;
 
     memset(&bgData, 0, sizeof(BackgroundData));
+
+    canvas.hardBlur = 0.0f;
+    canvas.hardMove = CVector2(0.0f,0.0f);
+    canvas.hardRotateAngle = 0.0f;
+    canvas.hardScale = 1.0f;
 }
 
 /////

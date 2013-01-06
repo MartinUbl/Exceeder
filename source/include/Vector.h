@@ -85,6 +85,9 @@ struct CVector3
 
 struct CVector2
 {
+    CVector2(): x(0.0f), y(0.0f) { };
+    CVector2(float ax, float ay): x(ax), y(ay) {};
+
     float x, y;
 
     float mySize()

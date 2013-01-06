@@ -15,6 +15,7 @@ enum SlideElementTypes
     SLIDE_ELEM_NEW_SLIDE        = 5,
     SLIDE_ELEM_IMAGE            = 6,
     SLIDE_ELEM_PLAY_EFFECT      = 7,
+    SLIDE_ELEM_CANVAS_EFFECT    = 8,
     SLIDE_ELEM_MAX
 };
 
@@ -69,6 +70,21 @@ enum GradientArray
     GRAD_LEFT   = 2,
     GRAD_BOTTOM = 3,
     GRAD_MAX
+};
+
+enum CanvasEffects
+{
+    CE_MOVE     = 0,
+    CE_ROTATE   = 1,
+    CE_SCALE    = 2,
+    CE_BLUR     = 3,
+    CE_COLORIZE = 4
+};
+
+struct EffectTime
+{
+    clock_t startTime;
+    uint32  deltaTime;
 };
 
 struct KnownKey
@@ -168,6 +184,22 @@ struct SlideElement
         uint32 size[2];            // size of rectangle - width, height
         void Draw(SlideElement* parent);
     } typeImage;
+
+    struct elemCanvasEffect
+    {
+        CanvasEffects effectType;  // type of canvas effect
+        uint32 effectTimer;        // the time for that effect
+        bool hard;                 // determines if it's a hard change (overwrite all) or not (stacks)
+
+        union
+        {
+            float  asFloat;
+            int32  asSigned;
+            uint32 asUnsigned;
+        } amount;                  // amount (in degrees, color value, or so..)
+
+        CVector2 moveVector;       // in case of movement or rotation with relative center
+    };
 };
 
 typedef std::vector<SlideElement*> SlideElementVector;
