@@ -5,6 +5,7 @@
   \START_POS 0,0
   \END_POS 200,200
   \MOVE linear
+  \PROGRESS sinus
   \TIMER 1000
 
   \NEXT_EFFECT left_continue

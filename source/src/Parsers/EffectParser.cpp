@@ -2,6 +2,7 @@
 #include "Log.h"
 #include "Storage.h"
 #include "Parsers/EffectParser.h"
+#include "Handlers/EffectHandler.h"
 #include "Defines/Effects.h"
 
 bool EffectParser::ParseFile(const wchar_t *path)
@@ -81,6 +82,18 @@ bool EffectParser::Parse(std::vector<std::wstring> *input)
                     tmp->offsetType = new uint32(OFFSET_TYPE_RELATIVE);
                 else
                     RAISE_ERROR("EffectParser: Unknown offset type '%s'", right);
+            }
+            // effect progress
+            else if (EqualString(left, L"\\PROGRESS", true))
+            {
+                if (EqualString(right, L"linear", true))
+                    tmp->progressType = new uint32(EP_LINEAR);
+                else if (EqualString(right, L"sinus", true))
+                    tmp->progressType = new uint32(EP_SINUS);
+                else if (EqualString(right, L"quadratic", true))
+                    tmp->progressType = new uint32(EP_QUADRATIC);
+                else
+                    RAISE_ERROR("EffectParser: Unknown progress type '%s'", right);
             }
             // starting position
             else if (EqualString(left, L"\\START_POS", true))

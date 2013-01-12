@@ -181,6 +181,22 @@ void EffectHandler::AnimateMoveLinear()
         SetSelfExpired();
     }
 
+    if (effectProto->progressType)
+    {
+        switch (*effectProto->progressType)
+        {
+            case EP_LINEAR:
+            default:
+                break;
+            case EP_SINUS:
+                timeCoef = sin(timeCoef * M_PI / 2);
+                break;
+            case EP_QUADRATIC:
+                timeCoef = pow(timeCoef, 2);
+                break;
+        }
+    }
+
     for (uint32 i = 0; i <= 1; i++)
         effectOwner->position[i] = int32(startPos[i]) + int32(timeCoef * float(int32(endPos[i]) - int32(startPos[i])));
 }
@@ -199,6 +215,22 @@ void EffectHandler::AnimateMoveCircular()
         // We set the coefficient to 1 to avoid glitches, set effect as expired and if blocking, unblock the presentation
         timeCoef = 1.0f;
         SetSelfExpired();
+    }
+
+    if (effectProto->progressType)
+    {
+        switch (*effectProto->progressType)
+        {
+            case EP_LINEAR:
+            default:
+                break;
+            case EP_SINUS:
+                timeCoef = sin(timeCoef * M_PI / 2);
+                break;
+            case EP_QUADRATIC:
+                timeCoef = pow(timeCoef, 2);
+                break;
+        }
     }
 
     float angle = phase;

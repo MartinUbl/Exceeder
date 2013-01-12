@@ -33,6 +33,7 @@ struct Effect
     int32* startPos; // 2 coords
     int32* endPos;   // 2 coords
     uint32* offsetType;
+    uint32* progressType;
 
     // movement data specific for each one type
     bool circlePlus;
