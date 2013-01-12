@@ -29,6 +29,22 @@ class EffectHandler
         void AnimateMoveLinear();
         void AnimateMoveCircular();
 
+        bool GetTimeCoef(float &target)
+        {
+            // If the time coefficient is equal or larger than 1, then we passed the end of effect
+            // return false if finished, true if not
+
+            target = (float(clock()-startTime)) / float(*effectProto->effectTimer);
+            if (target >= 1.0f)
+            {
+                target = 1.0f;
+                return false;
+            }
+
+            return true;
+        }
+        void CalculateEffectProgress(float &coef);
+
         void UnblockPresentationIfNeeded();
         void SetExpired()
         {

@@ -165,22 +165,8 @@ void EffectHandler::Animate()
     }
 }
 
-void EffectHandler::AnimateMoveLinear()
+void EffectHandler::CalculateEffectProgress(float &coef)
 {
-    // Check for required things
-    if (!(effectProto->effectTimer && effectProto->startPos && effectProto->endPos))
-        return;
-
-    // Calculate time coefficient to determine position
-    float timeCoef = (float(clock()-startTime)) / float(*effectProto->effectTimer);
-    if (timeCoef >= 1.0f)
-    {
-        // If the time coefficient is larger than 1, then we passed the end of effect, and finished him
-        // We set the coefficient to 1 to avoid glitches, set effect as expired and if blocking, unblock the presentation
-        timeCoef = 1.0f;
-        SetSelfExpired();
-    }
-
     if (effectProto->progressType)
     {
         switch (*effectProto->progressType)
@@ -189,13 +175,28 @@ void EffectHandler::AnimateMoveLinear()
             default:
                 break;
             case EP_SINUS:
-                timeCoef = sin(timeCoef * M_PI / 2);
+                coef = sin(coef * M_PI / 2);
                 break;
             case EP_QUADRATIC:
-                timeCoef = pow(timeCoef, 2);
+                coef = pow(coef, 2);
                 break;
         }
     }
+}
+
+void EffectHandler::AnimateMoveLinear()
+{
+    // Check for required things
+    if (!(effectProto->effectTimer && effectProto->startPos && effectProto->endPos))
+        return;
+
+    // Calculate time coefficient to determine position
+    float timeCoef;
+    // if this method returns false, the effect just finished
+    if (!GetTimeCoef(timeCoef))
+        SetSelfExpired();
+
+    CalculateEffectProgress(timeCoef);
 
     for (uint32 i = 0; i <= 1; i++)
         effectOwner->position[i] = int32(startPos[i]) + int32(timeCoef * float(int32(endPos[i]) - int32(startPos[i])));
@@ -208,30 +209,12 @@ void EffectHandler::AnimateMoveCircular()
         return;
 
     // Calculate time coefficient to determine position
-    float timeCoef = (float(clock()-startTime)) / float(*effectProto->effectTimer);
-    if (timeCoef >= 1.0f)
-    {
-        // If the time coefficient is larger than 1, then we passed the end of effect, and finished him
-        // We set the coefficient to 1 to avoid glitches, set effect as expired and if blocking, unblock the presentation
-        timeCoef = 1.0f;
+    float timeCoef;
+    // if this method returns false, the effect just finished
+    if (!GetTimeCoef(timeCoef))
         SetSelfExpired();
-    }
 
-    if (effectProto->progressType)
-    {
-        switch (*effectProto->progressType)
-        {
-            case EP_LINEAR:
-            default:
-                break;
-            case EP_SINUS:
-                timeCoef = sin(timeCoef * M_PI / 2);
-                break;
-            case EP_QUADRATIC:
-                timeCoef = pow(timeCoef, 2);
-                break;
-        }
-    }
+    CalculateEffectProgress(timeCoef);
 
     float angle = phase;
 
