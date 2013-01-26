@@ -165,23 +165,26 @@ void EffectHandler::Animate()
     }
 }
 
+void EffectHandler::CalculateEffectProgress(float &coef, uint8 progressType)
+{
+    switch (progressType)
+    {
+        case EP_LINEAR:
+        default:
+            break;
+        case EP_SINUS:
+            coef = sin(coef * M_PI / 2);
+            break;
+        case EP_QUADRATIC:
+            coef = pow(coef, 2);
+            break;
+    }
+}
+
 void EffectHandler::CalculateEffectProgress(float &coef)
 {
     if (effectProto->progressType)
-    {
-        switch (*effectProto->progressType)
-        {
-            case EP_LINEAR:
-            default:
-                break;
-            case EP_SINUS:
-                coef = sin(coef * M_PI / 2);
-                break;
-            case EP_QUADRATIC:
-                coef = pow(coef, 2);
-                break;
-        }
-    }
+        CalculateEffectProgress(coef, *effectProto->progressType);
 }
 
 void EffectHandler::AnimateMoveLinear()

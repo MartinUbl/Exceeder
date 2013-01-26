@@ -632,6 +632,127 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
 
         return tmp;
     }
+    // play canvas effect - move, rotate, scale
+    else if (EqualString(left, L"\\CANVAS_MOVE", true) || EqualString(left, L"\\CANVAS_ROTATE", true) || EqualString(left, L"\\CANVAS_SCALE", true) || EqualString(left, L"\\CANVAS_RESET", true))
+    {
+        tmp = new SlideElement;
+        tmp->elemType = SLIDE_ELEM_CANVAS_EFFECT;
+
+        tmp->typeCanvasEffect.hard = false;
+        tmp->typeCanvasEffect.effectTimer = 0;
+        tmp->typeCanvasEffect.effProgress = EP_LINEAR;
+
+        if (EqualString(left, L"\\CANVAS_MOVE", true))
+        {
+            tmp->typeCanvasEffect.effectType = CE_MOVE;
+
+            // parameter sequence:
+            // 1. move vector [px] (i.e. 50,10)
+            // 2. effect timer [ms] (i.e. 1000)
+            // 3. any other definitions in any order
+
+            // at least move vector is required
+
+            left = LeftSide(right, L' ');
+
+            float* movevect = ParseVector2(left, L',');
+            if (!movevect)
+                RAISE_ERROR("SlideParser: invalid movement vector '%S' in canvas move definition", left?ToMultiByteString(left):"");
+
+            tmp->typeCanvasEffect.moveVector.x = movevect[0];
+            tmp->typeCanvasEffect.moveVector.y = movevect[1];
+        }
+        else if (EqualString(left, L"\\CANVAS_ROTATE", true))
+        {
+            tmp->typeCanvasEffect.effectType = CE_ROTATE;
+
+            // parameter sequence:
+            // 1. rotate angle [degrees] (i.e. 180)
+            // 2. effect timer [ms]
+            // 3. any other definitions in any order
+
+            left = LeftSide(right, L' ');
+
+            if (!IsNumeric(left))
+                RAISE_ERROR("SlideParser: invalid angle value '%S' in canvas rotate definition", left?ToMultiByteString(left):"");
+
+            tmp->typeCanvasEffect.amount.asFloat = (float)ToInt(left);
+
+            // implicit rotation center is in the middle of the screen
+            tmp->typeCanvasEffect.moveVector = CVector2(sStorage->GetScreenWidth() / 2.0f, sStorage->GetScreenHeight() / 2.0f);
+        }
+        else if (EqualString(left, L"\\CANVAS_SCALE", true))
+        {
+            tmp->typeCanvasEffect.effectType = CE_SCALE;
+
+            // parameter sequence:
+            // 1. scale [%] (i.e. 200)
+            // 2. effect timer [ms]
+            // 3. any other definitions in any order
+
+            left = LeftSide(right, L' ');
+
+            if (!IsNumeric(left))
+                RAISE_ERROR("SlideParser: invalid scale value '%S' in canvas scale definition", left?ToMultiByteString(left):"");
+
+            tmp->typeCanvasEffect.amount.asFloat = (float)ToInt(left);
+        }
+        else if (EqualString(left, L"\\CANVAS_RESET", true))
+        {
+            tmp->typeCanvasEffect.effectType = CE_RESET;
+        }
+
+        if (tmp->typeCanvasEffect.effectType != CE_RESET)
+            right = RightSide(right, L' ');
+
+        if (right)
+        {
+            left = LeftSide(right, L' ');
+            if (!IsNumeric(left))
+                RAISE_ERROR("SlideParser: invalid value '%s' used as timer for canvas move effect", left?ToMultiByteString(left):"");
+
+            tmp->typeCanvasEffect.effectTimer = ToInt(left);
+
+            right = RightSide(right, L' ');
+            do
+            {
+                left = LeftSide(right, L' ');
+                if (left)
+                {
+                    if (EqualString(left, L"hard", true))
+                        tmp->typeCanvasEffect.hard = true;
+                    else if (EqualString(left, L"linear", true))
+                        tmp->typeCanvasEffect.effProgress = EP_LINEAR;
+                    else if (EqualString(left, L"sinus", true))
+                        tmp->typeCanvasEffect.effProgress = EP_SINUS;
+                    else if (EqualString(left, L"quadratic", true))
+                        tmp->typeCanvasEffect.effProgress = EP_QUADRATIC;
+                    else
+                    {
+                        float* vec = ParseVector2(left, L',');
+                        if (vec)
+                        {
+                            // relative rotation center
+
+                            if (tmp->typeCanvasEffect.effectType == CE_ROTATE)
+                            {
+                                tmp->typeCanvasEffect.moveVector.x = vec[0];
+                                tmp->typeCanvasEffect.moveVector.y = vec[1];
+                            }
+                        }
+                        else
+                            RAISE_ERROR("SlideParser: unknown definition '%s' as canvas move parameter", left?ToMultiByteString(left):"");
+                    }
+                }
+            } while ((right = RightSide(right, L' ')) != NULL);
+        }
+
+        // we don't need to draw hard canvas effects - they are copied to global variables
+        if (!tmp->typeCanvasEffect.hard)
+            tmp->drawable = true;
+
+        return tmp;
+    }
     // call template
     else if (EqualString(left, L"\\TEMPLATE_CALL", true))
     {

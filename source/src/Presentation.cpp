@@ -19,10 +19,14 @@ PresentationMgr::PresentationMgr()
 
     memset(&bgData, 0, sizeof(BackgroundData));
 
+    canvas.baseCoord = CVector2(0.0f, 0.0f);
+    canvas.baseAngle = 0.0f;
+    canvas.baseScale = 100.0f;
+
     canvas.hardBlur = 0.0f;
     canvas.hardMove = CVector2(0.0f,0.0f);
     canvas.hardRotateAngle = 0.0f;
-    canvas.hardScale = 1.0f;
+    canvas.hardScale = 100.0f;
 }
 
 /////
@@ -313,6 +317,9 @@ void PresentationMgr::Run()
             }
         }
 
+        // Perform canvas effects like movement and rotation
+        AnimateCanvas();
+
         // draw active elements which should be drawn
         for (SlideList::iterator itr = m_activeElements.begin(); itr != m_activeElements.end(); ++itr)
         {
@@ -426,6 +433,84 @@ void PresentationMgr::Run()
                     else
                         ++itr;
                 }
+                break;
+            }
+            case SLIDE_ELEM_CANVAS_EFFECT:
+            {
+                switch (m_slideElement->typeCanvasEffect.effectType)
+                {
+                    case CE_RESET:
+                        if (m_slideElement->typeCanvasEffect.hard || m_slideElement->typeCanvasEffect.effectTimer == 0)
+                        {
+                            canvas.baseCoord = CVector2(0.0f, 0.0f);
+                            canvas.baseAngle = 0.0f;
+                            canvas.baseScale = 0.0f;
+
+                            canvas.hardMove = CVector2(0.0f, 0.0f);
+                            canvas.hardRotateAngle = 0.0f;
+                            canvas.hardScale = 100.0f;
+                            break;
+                        }
+
+                        canvas.baseCoord  = canvas.baseCoord + canvas.hardMove;
+                        canvas.baseAngle += canvas.hardRotateAngle;
+                        canvas.baseScale  = canvas.hardScale;
+
+                        canvas.hardMove = -canvas.baseCoord;
+                        canvas.hardRotateAngle = -canvas.baseAngle;
+                        canvas.hardScale = 100.0f;
+
+                        canvas.hardMove_time.startTime = clock();
+                        canvas.hardMove_time.deltaTime = m_slideElement->typeCanvasEffect.effectTimer;
+                        canvas.hardMove_time.progressType = m_slideElement->typeCanvasEffect.effProgress;
+                        canvas.hardRotate_time.startTime = clock();
+                        canvas.hardRotate_time.deltaTime = m_slideElement->typeCanvasEffect.effectTimer;
+                        canvas.hardRotate_time.progressType = m_slideElement->typeCanvasEffect.effProgress;
+                        canvas.hardScale_time.startTime = clock();
+                        canvas.hardScale_time.deltaTime = m_slideElement->typeCanvasEffect.effectTimer;
+                        canvas.hardScale_time.progressType = m_slideElement->typeCanvasEffect.effProgress;
+                        break;
+                    case CE_MOVE:
+                        if (!m_slideElement->typeCanvasEffect.hard)
+                            canvas.baseCoord = canvas.hardMove;
+                        else
+                            canvas.baseCoord = CVector2(0.0f, 0.0f);
+
+                        canvas.hardMove = m_slideElement->typeCanvasEffect.moveVector;
+                        canvas.hardMove_time.startTime = clock();
+                        canvas.hardMove_time.deltaTime = m_slideElement->typeCanvasEffect.effectTimer;
+                        canvas.hardMove_time.progressType = m_slideElement->typeCanvasEffect.effProgress;
+                        break;
+                    case CE_ROTATE:
+                        if (!m_slideElement->typeCanvasEffect.hard)
+                            canvas.baseAngle = canvas.hardRotateAngle;
+                        else
+                            canvas.baseAngle = 0.0f;
+
+                        canvas.hardRotateAngle = m_slideElement->typeCanvasEffect.amount.asFloat;
+                        canvas.hardRotate_time.startTime = clock();
+                        canvas.hardRotate_time.deltaTime = m_slideElement->typeCanvasEffect.effectTimer;
+                        canvas.hardRotate_time.progressType = m_slideElement->typeCanvasEffect.effProgress;
+
+                        canvas.hardRotateCenter[0] = (int32)m_slideElement->typeCanvasEffect.moveVector.x;
+                        canvas.hardRotateCenter[1] = (int32)m_slideElement->typeCanvasEffect.moveVector.y;
+                        break;
+                    case CE_SCALE:
+                        if (!m_slideElement->typeCanvasEffect.hard)
+                            canvas.baseScale = canvas.hardScale;
+                        else
+                            canvas.baseScale = 100.0f;
+
+                        canvas.hardScale = m_slideElement->typeCanvasEffect.amount.asFloat;
+                        canvas.hardScale_time.startTime = clock();
+                        canvas.hardScale_time.deltaTime = m_slideElement->typeCanvasEffect.effectTimer;
+                        canvas.hardScale_time.progressType = m_slideElement->typeCanvasEffect.effProgress;
+                        break;
+                    // others are NYI
+                    default:
+                        break;
+                }
+
                 break;
             }
             default:
@@ -560,4 +645,65 @@ int64 PresentationMgr::GetElementReferenceValue(wchar_t *input)
     }
 
     return 0;
+}
+
+void PresentationMgr::AnimateCanvas()
+{
+    float timeCoef = 1.0f;
+
+    // canvas movement
+    if (!(canvas.hardMove.x == 0 && canvas.hardMove.y == 0))
+    {
+        if (canvas.hardMove_time.deltaTime == 0)
+            timeCoef = 1.0f;
+        else
+            timeCoef = float(clock() - canvas.hardMove_time.startTime) / float(canvas.hardMove_time.deltaTime);
+
+        if (timeCoef > 1.0f)
+            timeCoef = 1.0f;
+        else if (timeCoef < 0.0f)
+            timeCoef = 0.0f;
+
+        EffectHandler::CalculateEffectProgress(timeCoef, canvas.hardMove_time.progressType);
+
+        glTranslatef(canvas.baseCoord.x + canvas.hardMove.x * timeCoef, canvas.baseCoord.y + canvas.hardMove.y * timeCoef, 0);
+    }
+
+    // canvas rotate
+    if (canvas.hardRotateAngle != 0)
+    {
+        if (canvas.hardRotate_time.deltaTime == 0)
+            timeCoef = 1.0f;
+        else
+            timeCoef = float(clock() - canvas.hardRotate_time.startTime) / float(canvas.hardRotate_time.deltaTime);
+
+        if (timeCoef > 1.0f)
+            timeCoef = 1.0f;
+        else if (timeCoef < 0.0f)
+            timeCoef = 0.0f;
+
+        EffectHandler::CalculateEffectProgress(timeCoef, canvas.hardRotate_time.progressType);
+
+        glTranslatef((float)canvas.hardRotateCenter[0], (float)canvas.hardRotateCenter[1], 0.0f);
+        glRotatef(canvas.baseAngle + (canvas.hardRotateAngle)*timeCoef, 0.0f, 0.0f, 1.0f);
+        glTranslatef(-(float)canvas.hardRotateCenter[0], -(float)canvas.hardRotateCenter[1], 0.0f);
+    }
+
+    // canvas scale
+    if (canvas.hardScale != 0.0f)
+    {
+        if (canvas.hardScale_time.deltaTime == 0)
+            timeCoef = 1.0f;
+        else
+            timeCoef = float(clock() - canvas.hardScale_time.startTime) / float(canvas.hardScale_time.deltaTime);
+
+        if (timeCoef > 1.0f)
+            timeCoef = 1.0f;
+        else if (timeCoef < 0.0f)
+            timeCoef = 0.0f;
+
+        EffectHandler::CalculateEffectProgress(timeCoef, canvas.hardScale_time.progressType);
+
+        glScalef((canvas.baseScale/100.0f) + ((canvas.hardScale-canvas.baseScale)/100.0f) * timeCoef, (canvas.baseScale/100.0f) + ((canvas.hardScale-canvas.baseScale)/100.0f) * timeCoef, 0.0f);
+    }
 }

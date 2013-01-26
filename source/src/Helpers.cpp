@@ -284,6 +284,23 @@ void GetPositionDefinitionKeyValue(ParsedDefs* input, const wchar_t* key, int32*
     }
 }
 
+float* ParseVector2(wchar_t* input, wchar_t delim)
+{
+    float* vec = NULL;
+
+    wchar_t* ls = LeftSide(input, delim);
+    wchar_t* rs = RightSide(input, delim);
+
+    if (ls && rs && IsNumeric(ls) && IsNumeric(rs))
+    {
+        vec = new float[2];
+        vec[0] = ToInt(ls);
+        vec[1] = ToInt(rs);
+    }
+
+    return vec;
+}
+
 static const wchar_t* patt_lowcase = {L"abcdefghijklmnopqrstuvwxyz"};
 static const wchar_t* patt_upcase  = {L"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
 

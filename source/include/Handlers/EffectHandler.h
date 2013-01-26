@@ -25,6 +25,8 @@ class EffectHandler
 
         Effect* getEffectProto() { return effectProto; };
 
+        static void CalculateEffectProgress(float &coef, uint8 progressType);
+
     private:
         void AnimateMoveLinear();
         void AnimateMoveCircular();

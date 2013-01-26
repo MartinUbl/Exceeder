@@ -74,17 +74,19 @@ enum GradientArray
 
 enum CanvasEffects
 {
-    CE_MOVE     = 0,
-    CE_ROTATE   = 1,
-    CE_SCALE    = 2,
-    CE_BLUR     = 3,
-    CE_COLORIZE = 4
+    CE_RESET    = 0,
+    CE_MOVE     = 1,
+    CE_ROTATE   = 2,
+    CE_SCALE    = 3,
+    CE_BLUR     = 4,
+    CE_COLORIZE = 5
 };
 
 struct EffectTime
 {
     clock_t startTime;
     uint32  deltaTime;
+    uint8   progressType;
 };
 
 struct KnownKey
@@ -199,7 +201,8 @@ struct SlideElement
         } amount;                  // amount (in degrees, color value, or so..)
 
         CVector2 moveVector;       // in case of movement or rotation with relative center
-    };
+        uint8 effProgress;         // for storing effect progress type
+    } typeCanvasEffect;
 };
 
 typedef std::vector<SlideElement*> SlideElementVector;

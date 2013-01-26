@@ -59,6 +59,8 @@ class PresentationMgr
         SlideElement* m_slideElement;
         SlideList m_activeElements;
 
+        void AnimateCanvas();
+
         struct BackgroundData
         {
             uint32 color;
@@ -72,6 +74,10 @@ class PresentationMgr
         // this means, that every element on the canvas will be affected, regardless of order
         struct CanvasLayer
         {
+            CVector2 baseCoord;
+            float baseAngle;
+            float baseScale;
+
             // canvas offset
             CVector2 hardMove;
             EffectTime hardMove_time;
@@ -82,6 +88,7 @@ class PresentationMgr
             EffectTime hardRotate_time;
 
             // canvas scale
+            // in percents!
             float hardScale;
             EffectTime hardScale_time;
 

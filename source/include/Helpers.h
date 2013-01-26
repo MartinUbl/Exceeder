@@ -14,6 +14,7 @@ extern wchar_t* RightSide(const wchar_t* input, const wchar_t delim);
 extern void ParseInputDefinitions(wchar_t* input, ParsedDefs* output);
 extern wchar_t* GetDefinitionKeyValue(ParsedDefs* input, const wchar_t* key);
 extern void GetPositionDefinitionKeyValue(ParsedDefs* input, const wchar_t* key, int32* destX, int32* destY);
+extern float* ParseVector2(wchar_t* input, wchar_t delim);
 
 extern wchar_t* RemoveBeginningSpaces(const wchar_t* input);
 

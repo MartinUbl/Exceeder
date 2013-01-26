@@ -85,7 +85,7 @@ struct CVector3
 
 struct CVector2
 {
-    CVector2(): x(0.0f), y(0.0f) { };
+    CVector2() { x = 0.0f; y = 0.0f; };
     CVector2(float ax, float ay): x(ax), y(ay) {};
 
     float x, y;
@@ -114,6 +114,25 @@ struct CVector2
     float operator*(const CVector2 &sec)
     {
         return numBounds((x*sec.x)+(y*sec.y));
+    }
+
+    CVector2 operator=(const CVector2 &sec)
+    {
+        x = sec.x;
+        y = sec.y;
+        return (*this);
+    }
+
+    CVector2 operator+(const CVector2 &sec)
+    {
+        x += sec.x;
+        y += sec.y;
+        return (*this);
+    }
+
+    CVector2 operator-()
+    {
+        return CVector2(-x, -y);
     }
 };
 

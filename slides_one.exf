@@ -11,7 +11,25 @@
 
 \MOUSE_LEFT
 
+\CANVAS_MOVE -100,0 1000 sinus
+
+\MOUSE_LEFT
+
+\CANVAS_ROTATE 20 500 quadratic
 \PLAY_EFFECT{E:left_continue_2}{ID:title_1}
+
+\MOUSE_LEFT
+\CANVAS_SCALE 150 1000 sinus
+\MOUSE_LEFT
+\CANVAS_SCALE 100 1000 sinus
+
+\MOUSE_LEFT
+
+\CANVAS_MOVE 100,100 1000 quadratic
+
+\MOUSE_LEFT
+
+\CANVAS_RESET
 
 \MOU{#SecondMac}
 \BACKGROUND color=#555555      // just demonstrates, that color in hexa format _could_ be prefixed with #
