@@ -633,7 +633,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
         return tmp;
     }
     // play canvas effect - move, rotate, scale
-    else if (EqualString(left, L"\\CANVAS_MOVE", true) || EqualString(left, L"\\CANVAS_ROTATE", true) || EqualString(left, L"\\CANVAS_SCALE", true) || EqualString(left, L"\\CANVAS_RESET", true))
+    else if (EqualString(left, L"\\CANVAS_MOVE", true) || EqualString(left, L"\\CANVAS_ROTATE", true) || EqualString(left, L"\\CANVAS_SCALE", true) || EqualString(left, L"\\CANVAS_RESET", true) || EqualString(left, L"\\CANVAS_COLORIZE", true))
     {
         tmp = new SlideElement;
         tmp->elemType = SLIDE_ELEM_CANVAS_EFFECT;
@@ -697,6 +697,25 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
 
             tmp->typeCanvasEffect.amount.asFloat = (float)ToInt(left);
         }
+        else if (EqualString(left, L"\\CANVAS_COLORIZE", true))
+        {
+            tmp->typeCanvasEffect.effectType = CE_COLORIZE;
+
+            // parameter sequence:
+            // 1. color
+            // 2. effect timer [ms]
+            // 3. any other definitions in any order
+
+            left = LeftSide(right, L' ');
+
+            if (!StyleParser::ParseColor(left, &tmp->typeCanvasEffect.amount.asUnsigned))
+                RAISE_ERROR("SlideParser: unrecognized know value or invalid color value '%S' in canvas rotate definition", left?ToMultiByteString(left):"");
+
+            // remove alpha byte
+            tmp->typeCanvasEffect.amount.asUnsigned &= 0xFFFFFF00;
+            // and put there our implicit value
+            tmp->typeCanvasEffect.amount.asUnsigned |= 0x40;
+        }
         else if (EqualString(left, L"\\CANVAS_RESET", true))
         {
             tmp->typeCanvasEffect.effectType = CE_RESET;
@@ -727,6 +746,19 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                         tmp->typeCanvasEffect.effProgress = EP_SINUS;
                     else if (EqualString(left, L"quadratic", true))
                         tmp->typeCanvasEffect.effProgress = EP_QUADRATIC;
+                    else if (IsNumeric(left))
+                    {
+                        if (tmp->typeCanvasEffect.effectType == CE_COLORIZE)
+                        {
+                            // clear alpha byte
+                            tmp->typeCanvasEffect.amount.asUnsigned &= 0xFFFFFF00;
+                            // and put there user defined value, also ensure, that it is from 0 to 100 percent, so we can convert it to 0 to 255 safely
+                            uint32 value = ToInt(left);
+                            if (value > 100)
+                                value = 100;
+                            tmp->typeCanvasEffect.amount.asUnsigned |= uint8((0xFF)*(float(value)/100.0f));
+                        }
+                    }
                     else
                     {
                         float* vec = ParseVector2(left, L',');

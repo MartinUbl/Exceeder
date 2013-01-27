@@ -12,6 +12,7 @@
 \MOUSE_LEFT
 
 \CANVAS_MOVE -100,0 1000 sinus
+\CANVAS_COLORIZE GREEN 1000 15
 
 \MOUSE_LEFT
 
@@ -29,7 +30,7 @@
 
 \MOUSE_LEFT
 
-\CANVAS_RESET
+\CANVAS_RESET 2000
 
 \MOU{#SecondMac}
 \BACKGROUND color=#555555      // just demonstrates, that color in hexa format _could_ be prefixed with #

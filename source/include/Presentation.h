@@ -59,7 +59,7 @@ class PresentationMgr
         SlideElement* m_slideElement;
         SlideList m_activeElements;
 
-        void AnimateCanvas();
+        void AnimateCanvas(bool before);
 
         struct BackgroundData
         {
@@ -77,6 +77,7 @@ class PresentationMgr
             CVector2 baseCoord;
             float baseAngle;
             float baseScale;
+            uint32 baseColor;
 
             // canvas offset
             CVector2 hardMove;
@@ -95,6 +96,10 @@ class PresentationMgr
             // canvas blur
             float hardBlur;
             EffectTime hardBlur_time;
+
+            // canvas colorize
+            uint32 hardColorizeColor;
+            EffectTime hardColorize_time;
         } canvas;
 
         bool m_blocking;

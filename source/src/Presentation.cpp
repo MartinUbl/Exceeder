@@ -22,11 +22,13 @@ PresentationMgr::PresentationMgr()
     canvas.baseCoord = CVector2(0.0f, 0.0f);
     canvas.baseAngle = 0.0f;
     canvas.baseScale = 100.0f;
+    canvas.baseColor = MAKE_COLOR_RGBA(255, 255, 255, 0);
 
     canvas.hardBlur = 0.0f;
     canvas.hardMove = CVector2(0.0f,0.0f);
     canvas.hardRotateAngle = 0.0f;
     canvas.hardScale = 100.0f;
+    canvas.hardColorizeColor = MAKE_COLOR_RGBA(255, 255, 255, 0);
 }
 
 /////
@@ -318,7 +320,7 @@ void PresentationMgr::Run()
         }
 
         // Perform canvas effects like movement and rotation
-        AnimateCanvas();
+        AnimateCanvas(true);
 
         // draw active elements which should be drawn
         for (SlideList::iterator itr = m_activeElements.begin(); itr != m_activeElements.end(); ++itr)
@@ -327,6 +329,9 @@ void PresentationMgr::Run()
             if ((*itr)->drawable)
                 (*itr)->Draw();
         }
+
+        // Perform canvas effects after drawing like colorize and blur
+        AnimateCanvas(false);
 
         // SF after draw events
         sSimplyFlat->AfterDraw();
@@ -445,20 +450,24 @@ void PresentationMgr::Run()
                             canvas.baseCoord = CVector2(0.0f, 0.0f);
                             canvas.baseAngle = 0.0f;
                             canvas.baseScale = 0.0f;
+                            canvas.baseColor = MAKE_COLOR_RGBA(255, 255, 255, 255);
 
                             canvas.hardMove = CVector2(0.0f, 0.0f);
                             canvas.hardRotateAngle = 0.0f;
                             canvas.hardScale = 100.0f;
+                            canvas.hardColorizeColor = MAKE_COLOR_RGBA(255, 255, 255, 255);
                             break;
                         }
 
                         canvas.baseCoord  = canvas.baseCoord + canvas.hardMove;
                         canvas.baseAngle += canvas.hardRotateAngle;
                         canvas.baseScale  = canvas.hardScale;
+                        canvas.baseColor  = canvas.hardColorizeColor;
 
                         canvas.hardMove = -canvas.baseCoord;
                         canvas.hardRotateAngle = -canvas.baseAngle;
                         canvas.hardScale = 100.0f;
+                        canvas.hardColorizeColor = MAKE_COLOR_RGBA(255, 255, 255, 0);
 
                         canvas.hardMove_time.startTime = clock();
                         canvas.hardMove_time.deltaTime = m_slideElement->typeCanvasEffect.effectTimer;
@@ -469,6 +478,9 @@ void PresentationMgr::Run()
                         canvas.hardScale_time.startTime = clock();
                         canvas.hardScale_time.deltaTime = m_slideElement->typeCanvasEffect.effectTimer;
                         canvas.hardScale_time.progressType = m_slideElement->typeCanvasEffect.effProgress;
+                        canvas.hardColorize_time.startTime = clock();
+                        canvas.hardColorize_time.deltaTime = m_slideElement->typeCanvasEffect.effectTimer;
+                        canvas.hardColorize_time.progressType = m_slideElement->typeCanvasEffect.effProgress;
                         break;
                     case CE_MOVE:
                         if (!m_slideElement->typeCanvasEffect.hard)
@@ -505,6 +517,17 @@ void PresentationMgr::Run()
                         canvas.hardScale_time.startTime = clock();
                         canvas.hardScale_time.deltaTime = m_slideElement->typeCanvasEffect.effectTimer;
                         canvas.hardScale_time.progressType = m_slideElement->typeCanvasEffect.effProgress;
+                        break;
+                    case CE_COLORIZE:
+                        if (!m_slideElement->typeCanvasEffect.hard)
+                            canvas.baseColor = canvas.hardColorizeColor;
+                        else
+                            canvas.baseColor = MAKE_COLOR_RGBA(255, 255, 255, 255);
+
+                        canvas.hardColorizeColor = m_slideElement->typeCanvasEffect.amount.asUnsigned;
+                        canvas.hardColorize_time.startTime = clock();
+                        canvas.hardColorize_time.deltaTime = m_slideElement->typeCanvasEffect.effectTimer;
+                        canvas.hardColorize_time.progressType = m_slideElement->typeCanvasEffect.effProgress;
                         break;
                     // others are NYI
                     default:
@@ -647,63 +670,103 @@ int64 PresentationMgr::GetElementReferenceValue(wchar_t *input)
     return 0;
 }
 
-void PresentationMgr::AnimateCanvas()
+void PresentationMgr::AnimateCanvas(bool before)
 {
     float timeCoef = 1.0f;
 
-    // canvas movement
-    if (!(canvas.hardMove.x == 0 && canvas.hardMove.y == 0))
+    // before main drawing
+    if (before)
     {
-        if (canvas.hardMove_time.deltaTime == 0)
-            timeCoef = 1.0f;
-        else
-            timeCoef = float(clock() - canvas.hardMove_time.startTime) / float(canvas.hardMove_time.deltaTime);
+        // canvas movement
+        if (!(canvas.hardMove.x == 0 && canvas.hardMove.y == 0))
+        {
+            if (canvas.hardMove_time.deltaTime == 0)
+                timeCoef = 1.0f;
+            else
+                timeCoef = float(clock() - canvas.hardMove_time.startTime) / float(canvas.hardMove_time.deltaTime);
 
-        if (timeCoef > 1.0f)
-            timeCoef = 1.0f;
-        else if (timeCoef < 0.0f)
-            timeCoef = 0.0f;
+            if (timeCoef > 1.0f)
+                timeCoef = 1.0f;
+            else if (timeCoef < 0.0f)
+                timeCoef = 0.0f;
 
-        EffectHandler::CalculateEffectProgress(timeCoef, canvas.hardMove_time.progressType);
+            EffectHandler::CalculateEffectProgress(timeCoef, canvas.hardMove_time.progressType);
 
-        glTranslatef(canvas.baseCoord.x + canvas.hardMove.x * timeCoef, canvas.baseCoord.y + canvas.hardMove.y * timeCoef, 0);
+            glTranslatef(canvas.baseCoord.x + canvas.hardMove.x * timeCoef, canvas.baseCoord.y + canvas.hardMove.y * timeCoef, 0);
+        }
+
+        // canvas rotate
+        if (canvas.hardRotateAngle != 0)
+        {
+            if (canvas.hardRotate_time.deltaTime == 0)
+                timeCoef = 1.0f;
+            else
+                timeCoef = float(clock() - canvas.hardRotate_time.startTime) / float(canvas.hardRotate_time.deltaTime);
+
+            if (timeCoef > 1.0f)
+                timeCoef = 1.0f;
+            else if (timeCoef < 0.0f)
+                timeCoef = 0.0f;
+
+            EffectHandler::CalculateEffectProgress(timeCoef, canvas.hardRotate_time.progressType);
+
+            glTranslatef((float)canvas.hardRotateCenter[0], (float)canvas.hardRotateCenter[1], 0.0f);
+            glRotatef(canvas.baseAngle + (canvas.hardRotateAngle)*timeCoef, 0.0f, 0.0f, 1.0f);
+            glTranslatef(-(float)canvas.hardRotateCenter[0], -(float)canvas.hardRotateCenter[1], 0.0f);
+        }
+
+        // canvas scale
+        if (canvas.hardScale != 0.0f)
+        {
+            if (canvas.hardScale_time.deltaTime == 0)
+                timeCoef = 1.0f;
+            else
+                timeCoef = float(clock() - canvas.hardScale_time.startTime) / float(canvas.hardScale_time.deltaTime);
+
+            if (timeCoef > 1.0f)
+                timeCoef = 1.0f;
+            else if (timeCoef < 0.0f)
+                timeCoef = 0.0f;
+
+            EffectHandler::CalculateEffectProgress(timeCoef, canvas.hardScale_time.progressType);
+
+            glScalef((canvas.baseScale/100.0f) + ((canvas.hardScale-canvas.baseScale)/100.0f) * timeCoef, (canvas.baseScale/100.0f) + ((canvas.hardScale-canvas.baseScale)/100.0f) * timeCoef, 0.0f);
+        }
     }
-
-    // canvas rotate
-    if (canvas.hardRotateAngle != 0)
+    else // after main drawing
     {
-        if (canvas.hardRotate_time.deltaTime == 0)
-            timeCoef = 1.0f;
-        else
-            timeCoef = float(clock() - canvas.hardRotate_time.startTime) / float(canvas.hardRotate_time.deltaTime);
+        glLoadIdentity();
 
-        if (timeCoef > 1.0f)
-            timeCoef = 1.0f;
-        else if (timeCoef < 0.0f)
-            timeCoef = 0.0f;
+        if (COLOR_A(canvas.hardColorizeColor) != 0 || COLOR_A(canvas.hardColorizeColor) != COLOR_A(canvas.baseColor))
+        {
+            if (canvas.hardColorize_time.deltaTime == 0)
+                timeCoef = 1.0f;
+            else
+                timeCoef = float(clock() - canvas.hardColorize_time.startTime) / float(canvas.hardColorize_time.deltaTime);
 
-        EffectHandler::CalculateEffectProgress(timeCoef, canvas.hardRotate_time.progressType);
+            if (timeCoef > 1.0f)
+                timeCoef = 1.0f;
+            else if (timeCoef < 0.0f)
+                timeCoef = 0.0f;
 
-        glTranslatef((float)canvas.hardRotateCenter[0], (float)canvas.hardRotateCenter[1], 0.0f);
-        glRotatef(canvas.baseAngle + (canvas.hardRotateAngle)*timeCoef, 0.0f, 0.0f, 1.0f);
-        glTranslatef(-(float)canvas.hardRotateCenter[0], -(float)canvas.hardRotateCenter[1], 0.0f);
-    }
+            glDisable(GL_TEXTURE_2D);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // canvas scale
-    if (canvas.hardScale != 0.0f)
-    {
-        if (canvas.hardScale_time.deltaTime == 0)
-            timeCoef = 1.0f;
-        else
-            timeCoef = float(clock() - canvas.hardScale_time.startTime) / float(canvas.hardScale_time.deltaTime);
+            glColor4ub(uint8(255 - (COLOR_R(canvas.baseColor) - COLOR_R(canvas.hardColorizeColor))*timeCoef),
+                       uint8(255 - (COLOR_G(canvas.baseColor) - COLOR_G(canvas.hardColorizeColor))*timeCoef),
+                       uint8(255 - (COLOR_B(canvas.baseColor) - COLOR_B(canvas.hardColorizeColor))*timeCoef),
+                       uint8(COLOR_A(canvas.baseColor) + (COLOR_A(canvas.hardColorizeColor) - COLOR_A(canvas.baseColor))*timeCoef));
 
-        if (timeCoef > 1.0f)
-            timeCoef = 1.0f;
-        else if (timeCoef < 0.0f)
-            timeCoef = 0.0f;
+            glBegin(GL_QUADS);
+                glTexCoord2f(0.0f, 0.0f); glVertex2d(0, 0);
+                glTexCoord2f(1.0f, 0.0f); glVertex2d(sStorage->GetScreenWidth(), 0);
+                glTexCoord2f(1.0f, 1.0f); glVertex2d(sStorage->GetScreenWidth(), sStorage->GetScreenHeight());
+                glTexCoord2f(0.0f, 1.0f); glVertex2d(0, sStorage->GetScreenHeight());
+            glEnd();
 
-        EffectHandler::CalculateEffectProgress(timeCoef, canvas.hardScale_time.progressType);
-
-        glScalef((canvas.baseScale/100.0f) + ((canvas.hardScale-canvas.baseScale)/100.0f) * timeCoef, (canvas.baseScale/100.0f) + ((canvas.hardScale-canvas.baseScale)/100.0f) * timeCoef, 0.0f);
+            glDisable(GL_BLEND);
+            glColor4ub(255, 255, 255, 255);
+        }
     }
 }
