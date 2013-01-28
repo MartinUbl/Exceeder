@@ -113,10 +113,24 @@ void SlideElement::elemTextData::Draw(SlideElement* parent)
 
 void SlideElement::elemImageData::Draw(SlideElement* parent)
 {
+    Style* myStyle = NULL;
+
+    if (wcslen(parent->elemStyle) > 0)
+        myStyle = sStorage->GetStyle(parent->elemStyle);
+    else
+        myStyle = sStorage->GetDefaultStyle();
+
     if (parent->typeImage.resourceId > 0)
     {
         ResourceEntry* res = sStorage->GetResource(parent->typeImage.resourceId);
+
+        uint32 color = 0;
+        if (myStyle->overlayColor)
+            color = (*(myStyle->overlayColor));
+
         if (res && res->image)
             sSimplyFlat->Drawing->DrawRectangle(parent->position[0], parent->position[1], parent->typeImage.size[0], parent->typeImage.size[1], 0, res->image->textureId);
+
+        sSimplyFlat->Drawing->DrawRectangle(parent->position[0], parent->position[1], parent->typeImage.size[0], parent->typeImage.size[1], color, 0);
     }
 }

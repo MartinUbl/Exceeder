@@ -51,6 +51,8 @@ struct Style
     bool        underline;
     bool        strikeout;
 
+    uint32*     overlayColor;
+
     int32       fontId;                  // built font id - created after style definition (DEF_END)
 
     TextPosition* textPosition;

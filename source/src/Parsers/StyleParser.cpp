@@ -82,6 +82,34 @@ bool StyleParser::Parse(std::vector<std::wstring> *input)
                 if (tmp->fontId >= 0)
                     tmp->fontId = -2;
             }
+            // color overlay
+            else if (EqualString(left, L"\\COLOR_OVERLAY", true))
+            {
+                left = LeftSide(right, L' ');
+                right = RightSide(right, L' ');
+
+                uint32 dst = 0;
+                if (ParseColor(left, &dst))
+                    tmp->overlayColor = new uint32(dst);
+                else
+                    RAISE_ERROR("StyleParser: Invalid expression '%s' used as overlay color", (left)?ToMultiByteString(left):"none");
+
+                if (right)
+                {
+                    if (IsNumeric(right))
+                    {
+                        uint32 per = ToInt(right);
+                        if (per > 100)
+                            per = 100;
+                        else if (per < 0)
+                            per = 0;
+
+                        (*tmp->overlayColor) |= (uint8)((0xFF)*(float)(per)/100.0f);
+                    }
+                    else
+                        RAISE_ERROR("StyleParser: Invalid value '%S' used as color overlay opacity", right);
+                }
+            }
             else if (EqualString(left, L"\\BOLD", true))
             {
                 tmp->bold = true;

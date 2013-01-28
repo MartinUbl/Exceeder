@@ -47,7 +47,7 @@
 
 \background resource=obrazek,color=black,spread=none,pos=topright,gradient-left=body white
 
-\DRAW_IMAGE{P:400,300} obrazek
+\DRAW_IMAGE{P:400,300}{S:my_test_text} obrazek
 
 \MOUSE_LEFT
 \TEXT{ID:title_2}{S:my_title}{E:appear_left} Další nadpis
