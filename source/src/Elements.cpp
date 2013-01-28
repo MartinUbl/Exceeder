@@ -71,9 +71,21 @@ void SlideElement::elemTextData::Draw(SlideElement* parent)
     if (myStyle)
     {
         // Set color if any
+        uint32 color = 0;
         if (myStyle->fontColor)
         {
-            uint32 color = (*(myStyle->fontColor));
+            color = (*(myStyle->fontColor));
+
+            if (!myStyle->overlayColor)
+                glColor3ub(COLOR_R(color),COLOR_G(color),COLOR_B(color));
+            else
+                glColor3ub(uint8(COLOR_R(color)+(1-(float)COLOR_A((*myStyle->overlayColor))/255.0f)*(COLOR_R(color)-COLOR_R((*myStyle->overlayColor)))),
+                           uint8(COLOR_G(color)+(1-(float)COLOR_A((*myStyle->overlayColor))/255.0f)*(COLOR_G(color)-COLOR_G((*myStyle->overlayColor)))),
+                           uint8(COLOR_B(color)+(1-(float)COLOR_A((*myStyle->overlayColor))/255.0f)*(COLOR_B(color)-COLOR_B((*myStyle->overlayColor)))));
+        }
+        else if (myStyle->overlayColor)
+        {
+            color = (*(myStyle->overlayColor));
             glColor3ub(COLOR_R(color),COLOR_G(color),COLOR_B(color));
         }
 
@@ -106,7 +118,7 @@ void SlideElement::elemTextData::Draw(SlideElement* parent)
             sSimplyFlat->Drawing->PrintText(sStorage->GetDefaultFontId(), parent->position[0], parent->position[1], FA_NORMAL, wrap, parent->typeText.text);
 
         // Set color back to white if necessary
-        if (myStyle->fontColor)
+        if (myStyle->fontColor || myStyle->overlayColor)
             glColor3ub(255, 255, 255);
     }
 }

@@ -14,7 +14,7 @@
   \FONT_SIZE 14
   \FONT_COLOR GREEN
 
-  \color_overlay RED 20
+  \color_overlay RED 50
 
 \DEF_END
 
