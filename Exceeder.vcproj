@@ -263,6 +263,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\include\Position.h"
+				>
+			</File>
+			<File
 				RelativePath=".\source\include\Presentation.h"
 				>
 			</File>

@@ -27,10 +27,13 @@
 \DEF_BEGIN left_continue_2
 
   \START_POS 0,0
-  \END_POS -100,-100
+  \END_POS 100,0
   \OFFSET relative
-  \MOVE linear
-  \TIMER 500
+  \MOVE bezier
+  \TIMER 2000
+
+  \START_VECTOR 270 200
+  \END_VECTOR 90 280
 
 \DEF_END
 

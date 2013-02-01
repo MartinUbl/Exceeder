@@ -30,6 +30,7 @@ class EffectHandler
     private:
         void AnimateMoveLinear();
         void AnimateMoveCircular();
+        void AnimateMoveBezier();
 
         bool GetTimeCoef(float &target)
         {

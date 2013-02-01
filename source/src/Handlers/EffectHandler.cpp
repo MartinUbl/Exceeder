@@ -6,6 +6,8 @@
 #include "Parsers/EffectParser.h"
 #include "Handlers/EffectHandler.h"
 #include "Defines/Slides.h"
+#include "Vector.h"
+#include "Position.h"
 
 EffectHandler::EffectHandler(SlideElement *parent, Effect *elementEffect, bool fromQueue)
 {
@@ -156,6 +158,9 @@ void EffectHandler::Animate()
     // Circle movement
     else if (effectProto->moveType && (*effectProto->moveType) == MOVE_TYPE_CIRCULAR)
         AnimateMoveCircular();
+    // Bezier movement (cubic)
+    else if (effectProto->moveType && (*effectProto->moveType) == MOVE_TYPE_BEZIER)
+        AnimateMoveBezier();
 
     // Synchronize ending position with demanded coordinates
     if (isExpired() && (effectOwner->position[0] != endPos[0] || effectOwner->position[1] != endPos[1]))
@@ -228,4 +233,44 @@ void EffectHandler::AnimateMoveCircular()
 
     effectOwner->position[0] = int32(startPos[0] + movementVector[0].x + cos(angle)*radius);
     effectOwner->position[1] = int32(startPos[1] + movementVector[0].y + sin(angle)*radius);
+}
+
+void EffectHandler::AnimateMoveBezier()
+{
+    // Check for required things
+    if (!(effectProto->effectTimer && effectProto->startPos && effectProto->endPos && effectProto->bezierVector))
+        return;
+
+    // Calculate time coefficient to determine position
+    float timeCoef;
+    // if this method returns false, the effect just finished
+    if (!GetTimeCoef(timeCoef))
+        SetSelfExpired();
+
+    CalculateEffectProgress(timeCoef);
+
+    CVector2 AC = effectProto->bezierVector[0];
+    CVector2 BD = effectProto->bezierVector[1];
+
+    Position2 A(startPos);
+    Position2 B(endPos);
+    Position2 C = A + AC;
+    Position2 D = B + BD;
+
+    CVector2 CD = Position2::makeVector(C,D);
+
+    Position2 M = A + AC * timeCoef;
+    Position2 N = B + BD * (1 - timeCoef);
+    Position2 P = C + CD * timeCoef;
+
+    CVector2 MP = Position2::makeVector(M,P);
+    CVector2 NP = Position2::makeVector(N,P);
+
+    Position2 Q = M + MP * timeCoef;
+    Position2 R = N + NP * (1 - timeCoef);
+
+    CVector2 QR = Position2::makeVector(Q,R);
+
+    effectOwner->position[0] = Q.x + QR.x * timeCoef;
+    effectOwner->position[1] = Q.y + QR.y * timeCoef;
 }

@@ -115,6 +115,11 @@ struct CVector2
     {
         return numBounds((x*sec.x)+(y*sec.y));
     }
+    CVector2 operator*(const float &mod)
+    {
+        multiply(mod);
+        return (*this);
+    }
 
     CVector2 operator=(const CVector2 &sec)
     {

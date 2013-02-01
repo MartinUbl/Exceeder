@@ -121,6 +121,65 @@ bool EffectParser::Parse(std::vector<std::wstring> *input)
                 tmp->endPos[0] = ToInt(xpos);
                 tmp->endPos[1] = ToInt(ypos);
             }
+            // in case of bezier movement, start vector is needed
+            else if (EqualString(left, L"\\START_VECTOR", true))
+            {
+                wchar_t* ang = LeftSide(right, ' ');
+                wchar_t* mag = RightSide(right, ' ');
+
+                if (ang && !mag)
+                {
+                    float* vec = ParseVector2(ang, L',');
+                    if (vec)
+                    {
+                        if (!tmp->bezierVector)
+                            tmp->bezierVector = new CVector2[2];
+                        tmp->bezierVector[0] = CVector2(vec[0], vec[1]);
+                    }
+                }
+                else if (ang && IsNumeric(ang) && IsNumeric(mag))
+                {
+                    float angle = (float)ToInt(ang);
+                    float magnitude = (float)ToInt(mag);
+
+                    if (!tmp->bezierVector)
+                        tmp->bezierVector = new CVector2[2];
+
+                    tmp->bezierVector[0] = CVector2(magnitude*cos(angle*M_PI/180.0f), magnitude*sin(angle*M_PI/180.0f));
+                }
+                else
+                    RAISE_ERROR("EffectParser: invalid start vector coordinates/parameters '%S' used", right);
+            }
+            // end vector
+            else if (EqualString(left, L"\\END_VECTOR", true))
+            {
+                wchar_t* ang = LeftSide(right, ' ');
+                wchar_t* mag = RightSide(right, ' ');
+
+                if (ang && !mag)
+                {
+                    float* vec = ParseVector2(ang, L',');
+                    if (vec)
+                    {
+                        if (!tmp->bezierVector)
+                            tmp->bezierVector = new CVector2[2];
+
+                        tmp->bezierVector[1] = CVector2(vec[0], vec[1]);
+                    }
+                }
+                else if (ang && IsNumeric(ang) && IsNumeric(mag))
+                {
+                    float angle = (float)ToInt(ang);
+                    float magnitude = (float)ToInt(mag);
+
+                    if (!tmp->bezierVector)
+                        tmp->bezierVector = new CVector2[2];
+
+                    tmp->bezierVector[1] = CVector2(magnitude*cos(angle*M_PI/180.0f), magnitude*sin(angle*M_PI/180.0f));
+                }
+                else
+                    RAISE_ERROR("EffectParser: invalid end vector coordinates/parameters '%S' used", right);
+            }
             // time for whole effect
             else if (EqualString(left, L"\\TIMER", true))
             {

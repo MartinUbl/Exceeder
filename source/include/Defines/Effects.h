@@ -37,6 +37,7 @@ struct Effect
 
     // movement data specific for each one type
     bool circlePlus;
+    CVector2* bezierVector; // 2 vectors !
 
     std::vector<std::wstring> *m_effectChain;
 };
