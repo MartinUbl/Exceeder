@@ -294,8 +294,8 @@ float* ParseVector2(wchar_t* input, wchar_t delim)
     if (ls && rs && IsNumeric(ls) && IsNumeric(rs))
     {
         vec = new float[2];
-        vec[0] = ToInt(ls);
-        vec[1] = ToInt(rs);
+        vec[0] = (float)ToInt(ls);
+        vec[1] = (float)ToInt(rs);
     }
 
     return vec;

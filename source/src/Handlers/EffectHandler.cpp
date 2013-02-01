@@ -271,6 +271,6 @@ void EffectHandler::AnimateMoveBezier()
 
     CVector2 QR = Position2::makeVector(Q,R);
 
-    effectOwner->position[0] = Q.x + QR.x * timeCoef;
-    effectOwner->position[1] = Q.y + QR.y * timeCoef;
+    effectOwner->position[0] = int32(Q.x + QR.x * timeCoef);
+    effectOwner->position[1] = int32(Q.y + QR.y * timeCoef);
 }
