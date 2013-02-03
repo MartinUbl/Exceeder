@@ -36,7 +36,7 @@ struct Effect
     uint32* progressType;
 
     // movement data specific for each one type
-    bool circlePlus;
+    bool* circlePlus;
     CVector2* bezierVector; // 2 vectors !
 
     std::vector<std::wstring> *m_effectChain;
