@@ -2,6 +2,7 @@
 #include "Log.h"
 #include "Storage.h"
 #include "Parsers/ResourceParser.h"
+#include "Parsers/StyleParser.h"
 #include "Resources.h"
 
 bool ResourceParser::ParseFile(const wchar_t *path)
@@ -41,6 +42,7 @@ bool ResourceParser::Parse(std::vector<std::wstring> *input)
 
     // parameters which needs to be added after insertion to Storage fields
     ImageColorPalette icp = ICP_FULL;
+    uint32 overcolor = 0;
 
     for (std::vector<std::wstring>::const_iterator itr = input->begin(); itr != input->end(); ++itr)
     {
@@ -94,6 +96,29 @@ bool ResourceParser::Parse(std::vector<std::wstring> *input)
                 else
                     sLog->ErrorLog("ResourceParser: invalid color palette definition '%s' supplied for resource '%s', using full palette", right, resname);
             }
+            else if (EqualString(left, L"\\COLOR_OVERLAY", true))
+            {
+                left = LeftSide(right, L' ');
+                right = RightSide(right, L' ');
+
+                if (!StyleParser::ParseColor(left, &overcolor))
+                    sLog->ErrorLog("ResourceParser: invalid color definition '%S' used as overlay color, using no overlay", left);
+
+                if (right)
+                {
+                    if (IsNumeric(right))
+                    {
+                        uint32 opacity = ToInt(right);
+                        if (opacity > 100)
+                            opacity = 100;
+                        else if (opacity < 0)
+                            opacity = 0;
+
+                        overcolor &= 0xFFFFFF00;
+                        overcolor |= uint8((0xFF)*((float)(opacity)/100.0f));
+                    }
+                }
+            }
             else if (EqualString(left, L"\\DEF_END", true))
             {
                 uint32 resid = 0;
@@ -106,7 +131,10 @@ bool ResourceParser::Parse(std::vector<std::wstring> *input)
                 if (resid > 0)
                 {
                     if (tmp->type == RESOURCE_IMAGE)
+                    {
                         tmp->image->colors = icp;
+                        tmp->image->colorOverlay = overcolor;
+                    }
                 }
 
                 resname = NULL;
@@ -126,6 +154,8 @@ bool ResourceParser::Parse(std::vector<std::wstring> *input)
         else if (EqualString(left, L"\\DEF_BEGIN", true))
         {
             resname = right;
+            icp = ICP_FULL;
+            overcolor = 0;
             continue;
         }
         // end

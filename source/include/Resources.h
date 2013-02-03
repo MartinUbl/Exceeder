@@ -20,6 +20,7 @@ struct ImageResourceEntry
 {
     uint32 textureId;
     ImageColorPalette colors;
+    uint32 colorOverlay;
 };
 
 struct ResourceEntry

@@ -1,4 +1,4 @@
-\EXCEEDER_RESOURCES_FILE_VERSION 1.0
+﻿\EXCEEDER_RESOURCES_FILE_VERSION 1.0
 
 \DEF_BEGIN obrazek
 
@@ -10,6 +10,8 @@
   \DESCRIPTION Ukázka obrázku, zobrazitelná systémem Exceeder
 
   \COLORS full
+
+  \color_overlay green 30
 
 \DEF_END
 

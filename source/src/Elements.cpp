@@ -137,7 +137,9 @@ void SlideElement::elemImageData::Draw(SlideElement* parent)
         ResourceEntry* res = sStorage->GetResource(parent->typeImage.resourceId);
 
         uint32 color = 0;
-        if (myStyle->overlayColor)
+        if (res->image->colorOverlay)
+            color = res->image->colorOverlay;
+        else if (myStyle->overlayColor)
             color = (*(myStyle->overlayColor));
 
         if (res && res->image)
