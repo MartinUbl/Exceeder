@@ -18,8 +18,7 @@
 
   \START_POS 200,200
   \END_POS 400,200
-  \MOVE circle
-  \DIRECTION minus
+  \MOVE circle+
   \TIMER 800
 
 \DEF_END

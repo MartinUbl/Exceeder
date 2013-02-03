@@ -226,7 +226,7 @@ void EffectHandler::AnimateMoveCircular()
 
     float angle = phase;
 
-    if (effectProto->circlePlus)
+    if (effectProto->circlePlus && (*effectProto->circlePlus))
         angle -= timeCoef*M_PI;
     else
         angle += timeCoef*M_PI;
