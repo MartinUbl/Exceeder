@@ -507,6 +507,23 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
 
         return tmp;
     }
+    // blocking the run of presentation for specified time or to any interface event
+    else if (EqualString(left, L"\\BLOCK", true))
+    {
+        tmp = new SlideElement;
+        tmp->elemType = SLIDE_ELEM_BLOCK;
+        tmp->typeBlock.time = 0;
+
+        if (right)
+        {
+            if (IsNumeric(right))
+                tmp->typeBlock.time = ToInt(right);
+            else
+                RAISE_ERROR("SlideParser: invalid timer value '%S' used for blocking event", right);
+        }
+
+        return tmp;
+    }
     // loading an external image
     else if (EqualString(left, L"\\LOAD_IMAGE", true))
     {

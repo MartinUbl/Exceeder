@@ -16,6 +16,7 @@ enum SlideElementTypes
     SLIDE_ELEM_IMAGE            = 6,
     SLIDE_ELEM_PLAY_EFFECT      = 7,
     SLIDE_ELEM_CANVAS_EFFECT    = 8,
+    SLIDE_ELEM_BLOCK            = 9,
     SLIDE_ELEM_MAX
 };
 
@@ -203,6 +204,12 @@ struct SlideElement
         CVector2 moveVector;       // in case of movement or rotation with relative center
         uint8 effProgress;         // for storing effect progress type
     } typeCanvasEffect;
+
+    struct elemBlock
+    {
+        uint32 time;               // 0 for interface event, other positive value for timer
+        clock_t startTime;         // dynamic value stored at element creation - since memory is copied, it's safe
+    } typeBlock;
 };
 
 typedef std::vector<SlideElement*> SlideElementVector;

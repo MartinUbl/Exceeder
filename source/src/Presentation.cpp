@@ -147,6 +147,20 @@ bool PresentationMgr::Init()
 
 void PresentationMgr::InterfaceEvent(InterfaceEventTypes type, int32 param1, int32 param2)
 {
+    // general blocking element {without timer ? TODO: decide!} set is unblocked with every interface event
+    // TODO: may conflict with future implementation of PgDn / PgUp slide "movement"
+    if (m_slideElement && m_slideElement->elemType == SLIDE_ELEM_BLOCK/* && m_slideElement->typeBlock.time == 0*/)
+    {
+        switch (type)
+        {
+            case IE_MOUSE_LEFT_DOWN:
+            case IE_MOUSE_RIGHT_DOWN:
+            case IE_KEYBOARD_PRESS:
+                SetBlocking(false);
+                break;
+        }
+    }
+
     switch (type)
     {
         // Event for pressing key
@@ -338,7 +352,13 @@ void PresentationMgr::Run()
 
         // If something blocked our presentation, let's wait for some event to unblock it. It should be unblocked in PresentationMgr::InterfaceEvent
         if (m_blocking)
+        {
+            // timer block
+            if (m_slideElement && m_slideElement->elemType == SLIDE_ELEM_BLOCK && m_slideElement->typeBlock.time != 0 && m_slideElement->typeBlock.startTime + m_slideElement->typeBlock.time <= clock())
+                SetBlocking(false);
+
             PRESENTATION_CONTINUE;
+        }
 
         // We are ready to move on
         tmp = sStorage->GetSlideElement(m_slideElementPos);
@@ -354,7 +374,8 @@ void PresentationMgr::Run()
         // Effect creation
         // If effect is blocking, then block presentation from any other actions until effect ends
         m_slideElement->CreateEffectIfAny();
-        if (m_slideElement->myEffect && m_slideElement->myEffect->getEffectProto()->isBlocking)
+        if ((m_slideElement->myEffect && m_slideElement->myEffect->getEffectProto()->isBlocking)
+            || (m_slideElement->elemType == SLIDE_ELEM_BLOCK))
             m_blocking = true;
 
         // And again - if element is drawable (or have some other reason for being stored for future handling), then we have to store it
@@ -368,6 +389,10 @@ void PresentationMgr::Run()
             case SLIDE_ELEM_MOUSE_EVENT:
             case SLIDE_ELEM_KEYBOARD_EVENT:
                 m_blocking = true;
+                break;
+            // General blocking element should also set time
+            case SLIDE_ELEM_BLOCK:
+                m_slideElement->typeBlock.startTime = clock();
                 break;
             // Background slide element is also neccessary for handling here, we have to set the BG stuff before drawing another else
             case SLIDE_ELEM_BACKGROUND:
