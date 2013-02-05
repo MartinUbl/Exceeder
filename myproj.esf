@@ -20,4 +20,6 @@
 \TEMPLATES
  templ_one.exf
 
+\default_style my_test_text
+
 \END

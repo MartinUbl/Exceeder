@@ -154,6 +154,12 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
             if (right && wcslen(right) > 0)
                 sStorage->SetBTInterface(right);
         }
+        // default style setting
+        else if (EqualString(left, L"\\DEFAULT_STYLE", true))
+        {
+            if (right && wcslen(right) > 0)
+                sStorage->SetDefaultStyleName(right);
+        }
         // slide files
         else if (EqualString(left, L"\\SLIDES", true))
         {

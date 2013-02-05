@@ -18,6 +18,7 @@ Storage::Storage()
 
     m_defaultFontId = -1;
     m_defaultTextStyle = NULL;
+    m_defaultStyleName = L"";
 
     m_btInterface = NULL;
 }
@@ -141,12 +142,36 @@ void Storage::BuildStyleFonts()
 
 void Storage::SetupDefaultStyle()
 {
+    if (m_defaultTextStyle)
+        delete m_defaultTextStyle;
+
     m_defaultTextStyle = new Style;
     memset(m_defaultTextStyle, 0, sizeof(Style));
-    m_defaultTextStyle->fontId = sStorage->GetDefaultFontId();
-    m_defaultTextStyle->fontSize = new uint32(DEFAULT_FONT_SIZE);
-    m_defaultTextStyle->fontFamily = DEFAULT_FONT_FAMILY;
-    m_defaultTextStyle->fontColor = 0;
+
+    if (m_defaultStyleName.size() > 0)
+    {
+        Style* st = sStorage->GetStyle(m_defaultStyleName.c_str());
+        if (!st)
+        {
+            delete m_defaultTextStyle;
+            m_defaultTextStyle = NULL;
+        }
+        else
+            memcpy(m_defaultTextStyle, st, sizeof(Style));
+    }
+
+    if (!m_defaultTextStyle)
+    {
+        m_defaultTextStyle->fontId = sStorage->GetDefaultFontId();
+        m_defaultTextStyle->fontSize = new uint32(DEFAULT_FONT_SIZE);
+        m_defaultTextStyle->fontFamily = DEFAULT_FONT_FAMILY;
+        m_defaultTextStyle->fontColor = 0;
+    }
+}
+
+void Storage::SetDefaultStyleName(const wchar_t* name)
+{
+    m_defaultStyleName = name;
 }
 
 void Storage::PostParseElements()

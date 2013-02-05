@@ -71,6 +71,7 @@ class Storage
             return m_defaultTextStyle;
         }
         void SetupDefaultStyle();
+        void SetDefaultStyleName(const wchar_t* name);
 
         void AddNewEffect(const wchar_t* name, Effect* eff)
         {
@@ -216,6 +217,7 @@ class Storage
         int32 m_defaultFontId;
         std::list<StoredFont> m_fontMap;
         Style* m_defaultTextStyle;
+        std::wstring m_defaultStyleName;
 
         std::list<SlideElement*> m_postParseList;
 };

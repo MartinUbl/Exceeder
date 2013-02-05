@@ -89,11 +89,11 @@ bool PresentationMgr::Init()
     if (sStorage->GetDefaultFontId() < 0)
         RAISE_ERROR("Could not initialize default font!");
 
-    sStorage->SetupDefaultStyle();
-
     // Here we initialize fonts which come with styles
     // They have to be rendered and saved after OGL init, because of using some of OGL functions to render
     sStorage->BuildStyleFonts();
+
+    sStorage->SetupDefaultStyle();
 
     sStorage->PostParseElements();
 
