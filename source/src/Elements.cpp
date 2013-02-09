@@ -18,8 +18,6 @@ void SlideElement::CreateEffectIfAny()
         if (tmp)
         {
             if (elemType != SLIDE_ELEM_PLAY_EFFECT)
-                /*myEffect = new EffectHandler(sStorage->GetSlideElementById(elemId), tmp);
-            else*/
                 myEffect = new EffectHandler(this, tmp);
         }
     }
@@ -143,8 +141,12 @@ void SlideElement::elemImageData::Draw(SlideElement* parent)
         else if (myStyle->overlayColor)
             color = (*(myStyle->overlayColor));
 
+        uint8 newOpacity = uint8( float(COLOR_A(color)) * ((float)parent->opacity)/255.0f );
+
+        color = (color & 0xFFFFFF00) | newOpacity;
+
         if (res && res->image)
-            sSimplyFlat->Drawing->DrawRectangle(parent->position[0], parent->position[1], parent->typeImage.size[0], parent->typeImage.size[1], 0, res->image->textureId);
+            sSimplyFlat->Drawing->DrawRectangle(parent->position[0], parent->position[1], parent->typeImage.size[0], parent->typeImage.size[1], MAKE_COLOR_RGBA(255,255,255,parent->opacity), res->image->textureId);
 
         sSimplyFlat->Drawing->DrawRectangle(parent->position[0], parent->position[1], parent->typeImage.size[0], parent->typeImage.size[1], color, 0);
     }
