@@ -320,6 +320,99 @@ void PresentationMgr::MoveBack(bool hard)
         {
             switch ((*oldLast)->typeCanvasEffect.effectType)
             {
+                case CE_RESET:
+                {
+                    canvas.baseCoord = CVector2(0,0);
+                    canvas.hardMove = CVector2(0,0);
+                    canvas.baseAngle = 0.0f;
+                    canvas.hardRotateAngle = 0.0f;
+                    canvas.baseScale = 100.0f;
+                    canvas.hardScale = 100.0f;
+                    canvas.baseColor = MAKE_COLOR_RGBA(255,255,255,0);
+                    canvas.hardColorizeColor = canvas.baseColor;
+
+                    bool move = false, rotate = false, scale = false, colorize = false;
+                    SlideList::iterator it = oldLast;
+                    --it;
+                    CVector2 modVector(0,0);
+                    float modRotate = 0.0f, frst = 0.0f;
+                    for ( ; it != m_activeElements.begin(); --it)
+                    {
+                        if ((*it)->elemType != SLIDE_ELEM_CANVAS_EFFECT)
+                            continue;
+
+                        if (!move && (*it)->typeCanvasEffect.effectType == CE_MOVE)
+                        {
+                            if ((*it)->typeCanvasEffect.hard)
+                            {
+                                canvas.baseCoord = CVector2(0,0);
+                                canvas.hardMove = modVector + (*it)->typeCanvasEffect.moveVector;
+                                move = true;
+                                continue;
+                            }
+                            else
+                                modVector = modVector + (*it)->typeCanvasEffect.moveVector;
+                        }
+
+                        if (!rotate && (*it)->typeCanvasEffect.effectType == CE_ROTATE)
+                        {
+                            if ((*it)->typeCanvasEffect.hard)
+                            {
+                                if (frst == 0)
+                                {
+                                    canvas.baseAngle = 0.0f;
+                                    canvas.hardRotateAngle = (*it)->typeCanvasEffect.amount.asFloat;
+                                }
+                                else
+                                {
+                                    canvas.baseAngle = modRotate + (*it)->typeCanvasEffect.amount.asFloat;
+                                    canvas.hardRotateAngle = frst;
+                                }
+                                rotate = true;
+                                continue;
+                            }
+                            else
+                            {
+                                if (frst == 0)
+                                    frst = (*it)->typeCanvasEffect.amount.asFloat;
+                                else
+                                    modRotate += (*it)->typeCanvasEffect.amount.asFloat;
+                            }
+                        }
+
+                        if (!scale && (*it)->typeCanvasEffect.effectType == CE_SCALE)
+                        {
+                            canvas.baseScale = (*it)->typeCanvasEffect.amount.asFloat;
+                            canvas.hardScale = (*it)->typeCanvasEffect.amount.asFloat;
+                            scale = true;
+                            continue;
+                        }
+
+                        if (!colorize && (*it)->typeCanvasEffect.effectType == CE_COLORIZE)
+                        {
+                            //canvas.baseColor = (*it)->typeCanvasEffect.amount.asUnsigned;
+                            canvas.hardColorizeColor = (*it)->typeCanvasEffect.amount.asUnsigned;
+                            colorize = true;
+                            continue;
+                        }
+
+                        if (move && rotate && scale && colorize)
+                            break;
+                    }
+
+                    if (!move)
+                    {
+                        canvas.baseCoord = CVector2(0,0);
+                        canvas.hardMove = modVector;
+                    }
+                    if (!rotate)
+                    {
+                        canvas.baseAngle = modRotate;
+                        canvas.hardRotateAngle = frst;
+                    }
+
+                    break;
+                }
                 case CE_MOVE:
                 {
                     if ((*oldLast)->typeCanvasEffect.hard)
