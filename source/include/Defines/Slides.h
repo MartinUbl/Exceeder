@@ -123,6 +123,8 @@ struct SlideElement
             finalPosition[i] = 0;
         }
 
+        opacity = 255;
+
         typeText.outlist = NULL;
     }
 
@@ -137,6 +139,8 @@ struct SlideElement
 
     int32 position[2]; // element position
     int32 finalPosition[2]; // final position in case of effects - used for calculating wrapping limits
+
+    uint8 opacity;
 
     void CreateEffectIfAny();
     void PlayEffect(const wchar_t* effectId);

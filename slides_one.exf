@@ -5,7 +5,7 @@
 \MACRO AbcdMyMacro Test!
 \MACRO SecondMac SE_LEFT
 
-\text{ID:test}{P:20,20} Ahoj
+\text{ID:test}{E:fade_test}{P:20,20} Ahoj
 
 \BACKGROUND color=999999,gradient-bottom=150 red
 \text{ID:title_1}{S:my_title}{E:appear_left}{P:10,10} Pozice X: {$title_1.x} Hlavní {B}tučný{/B} a {I}kurzívou{/I} {S:my_test_text}nadpis{/S}

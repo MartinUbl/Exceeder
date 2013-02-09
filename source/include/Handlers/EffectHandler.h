@@ -31,6 +31,8 @@ class EffectHandler
         void AnimateMoveLinear();
         void AnimateMoveCircular();
         void AnimateMoveBezier();
+        void AnimateFadeIn();
+        void AnimateFadeOut();
 
         bool GetTimeCoef(float &target)
         {
@@ -68,6 +70,9 @@ class EffectHandler
         // cached position coords
         int32 startPos[2];
         int32 endPos[2];
+
+        // cached opacity
+        uint8 startOpacity;
 
         // For circular and bezier movement
         CVector2 movementVector[2];

@@ -11,6 +11,13 @@ enum MoveType
     MAX_MOVE_TYPE
 };
 
+enum FadeType
+{
+    FADE_TYPE_IN         = 0,
+    FADE_TYPE_OUT        = 1,
+    MAX_FADE_TYPE
+};
+
 enum OffsetType
 {
     OFFSET_TYPE_ABSOLUTE = 0,
@@ -34,6 +41,11 @@ struct Effect
     int32* endPos;   // 2 coords
     uint32* offsetType;
     uint32* progressType;
+
+    // fade data
+    uint32* fadeType;
+    uint8* srcOpacity;
+    uint8* destOpacity;
 
     // movement data specific for each one type
     bool* circlePlus;

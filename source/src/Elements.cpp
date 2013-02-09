@@ -77,16 +77,17 @@ void SlideElement::elemTextData::Draw(SlideElement* parent)
             color = (*(myStyle->fontColor));
 
             if (!myStyle->overlayColor)
-                glColor3ub(COLOR_R(color),COLOR_G(color),COLOR_B(color));
+                glColor4ub(COLOR_R(color),COLOR_G(color),COLOR_B(color), parent->opacity);
             else
-                glColor3ub(uint8(COLOR_R(color)+(1-(float)COLOR_A((*myStyle->overlayColor))/255.0f)*(COLOR_R(color)-COLOR_R((*myStyle->overlayColor)))),
+                glColor4ub(uint8(COLOR_R(color)+(1-(float)COLOR_A((*myStyle->overlayColor))/255.0f)*(COLOR_R(color)-COLOR_R((*myStyle->overlayColor)))),
                            uint8(COLOR_G(color)+(1-(float)COLOR_A((*myStyle->overlayColor))/255.0f)*(COLOR_G(color)-COLOR_G((*myStyle->overlayColor)))),
-                           uint8(COLOR_B(color)+(1-(float)COLOR_A((*myStyle->overlayColor))/255.0f)*(COLOR_B(color)-COLOR_B((*myStyle->overlayColor)))));
+                           uint8(COLOR_B(color)+(1-(float)COLOR_A((*myStyle->overlayColor))/255.0f)*(COLOR_B(color)-COLOR_B((*myStyle->overlayColor)))),
+                           parent->opacity);
         }
         else if (myStyle->overlayColor)
         {
             color = (*(myStyle->overlayColor));
-            glColor3ub(COLOR_R(color),COLOR_G(color),COLOR_B(color));
+            glColor4ub(COLOR_R(color),COLOR_G(color),COLOR_B(color), parent->opacity);
         }
 
         int32 wrap = WW_NO_WRAP;
@@ -119,7 +120,7 @@ void SlideElement::elemTextData::Draw(SlideElement* parent)
 
         // Set color back to white if necessary
         if (myStyle->fontColor || myStyle->overlayColor)
-            glColor3ub(255, 255, 255);
+            glColor4ub(255, 255, 255, 255);
     }
 }
 

@@ -36,4 +36,20 @@
 
 \DEF_END
 
+\def_begin fade_test
+  \fade in
+  \timer 1000
+  \start_opacity 0
+  \opacity 100
+
+  \next_effect fade_test_2
+\def_end
+
+\def_begin fade_test_2
+  \fade out
+  \timer 1000
+
+  \opacity 0
+\def_end
+
 \END

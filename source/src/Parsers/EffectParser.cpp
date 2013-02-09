@@ -180,6 +180,51 @@ bool EffectParser::Parse(std::vector<std::wstring> *input)
                 else
                     RAISE_ERROR("EffectParser: invalid end vector coordinates/parameters '%S' used", right);
             }
+            // fade in/out
+            else if (EqualString(left, L"\\FADE", true))
+            {
+                if (!right)
+                    RAISE_ERROR("EffectParser: no parameters defined for fade effect '%S'", effname);
+
+                if (EqualString(right, L"IN", true))
+                    tmp->fadeType = new uint32(FADE_TYPE_IN);
+                else if (EqualString(right, L"OUT", true))
+                    tmp->fadeType = new uint32(FADE_TYPE_OUT);
+                else
+                    RAISE_ERROR("EffectParser: unknown fade type '%S' for effect '%S'", right, effname);
+            }
+            // fade start opacity
+            else if (EqualString(left, L"\\START_OPACITY", true))
+            {
+                if (!right)
+                    RAISE_ERROR("EffectParser: no parameters defined for start opacity in effect '%S'", effname);
+
+                if (!IsNumeric(right))
+                    RAISE_ERROR("EffectParser: non-numeric value supplied as start opacity parameter for effect '%S'", effname);
+
+                uint32 val = ToInt(right);
+
+                if (val > 100)
+                    val = 100;
+
+                tmp->srcOpacity = new uint8( uint8(255.0f*(float)val/100.0f) );
+            }
+            // fade opacity
+            else if (EqualString(left, L"\\OPACITY", true))
+            {
+                if (!right)
+                    RAISE_ERROR("EffectParser: no parameters defined for opacity in effect '%S'", effname);
+
+                if (!IsNumeric(right))
+                    RAISE_ERROR("EffectParser: non-numeric value supplied as opacity parameter for effect '%S'", effname);
+
+                uint32 val = ToInt(right);
+
+                if (val > 100)
+                    val = 100;
+
+                tmp->destOpacity = new uint8( uint8(255.0f*(float)val/100.0f) );
+            }
             // time for whole effect
             else if (EqualString(left, L"\\TIMER", true))
             {

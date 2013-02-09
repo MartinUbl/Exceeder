@@ -65,14 +65,17 @@ EffectHandler::EffectHandler(SlideElement *parent, Effect *elementEffect, bool f
         for (std::list<Effect*>::const_reverse_iterator itr = m_effectQueue.rbegin(); itr != m_effectQueue.rend(); ++itr)
         {
             tmp = (*itr);
-            if (tmp->offsetType && (*(tmp->offsetType)) == OFFSET_TYPE_RELATIVE)
+            if (tmp->moveType)
             {
-                for (uint32 i = 0; i <= 1; i++)
-                    parent->finalPosition[i] = endPos[i] + tmp->endPos[i];
+                if (tmp->offsetType && (*(tmp->offsetType)) == OFFSET_TYPE_RELATIVE)
+                {
+                    for (uint32 i = 0; i <= 1; i++)
+                        parent->finalPosition[i] = endPos[i] + tmp->endPos[i];
+                }
+                else
+                    for (uint32 i = 0; i <= 1; i++)
+                        parent->finalPosition[i] = tmp->endPos[i];
             }
-            else
-                for (uint32 i = 0; i <= 1; i++)
-                    parent->finalPosition[i] = tmp->endPos[i];
         }
     }
 
@@ -88,6 +91,12 @@ EffectHandler::EffectHandler(SlideElement *parent, Effect *elementEffect, bool f
         movementVector[0].x = float(endPos[0] - startPos[0]) / 2.0f;
         movementVector[0].y = float(endPos[1] - startPos[1]) / 2.0f;
     }
+
+    if (effectProto->srcOpacity)
+        effectOwner->opacity = (*effectProto->srcOpacity);
+
+    // save starting opacity for later calculation
+    startOpacity = effectOwner->opacity;
 
     startTime = clock();
 }
@@ -162,12 +171,22 @@ void EffectHandler::Animate()
     else if (effectProto->moveType && (*effectProto->moveType) == MOVE_TYPE_BEZIER)
         AnimateMoveBezier();
 
+    // Fade in
+    if (effectProto->fadeType && (*effectProto->fadeType) == FADE_TYPE_IN)
+        AnimateFadeIn();
+    else if (effectProto->fadeType && (*effectProto->fadeType) == FADE_TYPE_OUT)
+        AnimateFadeOut();
+
     // Synchronize ending position with demanded coordinates
-    if (isExpired() && (effectOwner->position[0] != endPos[0] || effectOwner->position[1] != endPos[1]))
+    if (isExpired() && effectProto->moveType && (effectOwner->position[0] != endPos[0] || effectOwner->position[1] != endPos[1]))
     {
         effectOwner->position[0] = endPos[0];
         effectOwner->position[1] = endPos[1];
     }
+
+    // Synchronize also opacity
+    if (isExpired() && effectProto->fadeType && effectProto->destOpacity && effectOwner->opacity != (*effectProto->destOpacity))
+        effectOwner->opacity = (*effectProto->destOpacity);
 }
 
 void EffectHandler::CalculateEffectProgress(float &coef, uint8 progressType)
@@ -273,4 +292,38 @@ void EffectHandler::AnimateMoveBezier()
 
     effectOwner->position[0] = int32(Q.x + QR.x * timeCoef);
     effectOwner->position[1] = int32(Q.y + QR.y * timeCoef);
+}
+
+void EffectHandler::AnimateFadeIn()
+{
+    // Check for required things
+    if (!(effectProto->effectTimer) || !(effectProto->destOpacity))
+        return;
+
+    // Calculate time coefficient to determine position
+    float timeCoef;
+    // if this method returns false, the effect just finished
+    if (!GetTimeCoef(timeCoef))
+        SetSelfExpired();
+
+    CalculateEffectProgress(timeCoef);
+
+    effectOwner->opacity = uint8(startOpacity + float((*effectProto->destOpacity) - startOpacity)*timeCoef);
+}
+
+void EffectHandler::AnimateFadeOut()
+{
+    // Check for required things
+    if (!(effectProto->effectTimer) || !(effectProto->destOpacity))
+        return;
+
+    // Calculate time coefficient to determine position
+    float timeCoef;
+    // if this method returns false, the effect just finished
+    if (!GetTimeCoef(timeCoef))
+        SetSelfExpired();
+
+    CalculateEffectProgress(timeCoef);
+
+    effectOwner->opacity = uint8(startOpacity - float(startOpacity - (*effectProto->destOpacity))*timeCoef);
 }
