@@ -272,7 +272,7 @@ void PresentationMgr::MoveBack(bool hard)
 
                 for ( ; ; ittr--)
                 {
-                    if (ittr != m_activeElements.begin() && ittr != m_activeElements.end())
+                    if (ittr == m_activeElements.begin() || ittr == m_activeElements.end())
                     {
                         firstActual = m_activeElements.begin();
                         break;
