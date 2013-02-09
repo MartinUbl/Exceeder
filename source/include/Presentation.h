@@ -43,7 +43,7 @@ class PresentationMgr
         void Run();
 
         void InterfaceEvent(InterfaceEventTypes type, int32 param1 = 0, int32 param2 = 0);
-        void HandleBluetoothMessage(char* msg, uint8 len);
+        void HandleExternalMessage(char* msg, uint8 len);
 
         void SetBlocking(bool block);
         bool IsBlocking() { return m_blocking; };
@@ -52,6 +52,10 @@ class PresentationMgr
 
         int64 NumerateExpression(ExpressionTreeElement* expr);
         int64 GetElementReferenceValue(wchar_t* input);
+
+        // Network access stuff
+        void InitNetwork();
+        void UpdateNetwork();
 
     private:
         uint32 m_slideElementPos;
@@ -112,6 +116,9 @@ class PresentationMgr
 #ifdef _WIN32
         HANDLE m_btHandle;
 #endif
+        SOCK m_socket;
+        SOCK m_client;
+        sockaddr_in m_clientAddr;
 };
 
 #define sPresentation Singleton<PresentationMgr>::instance()

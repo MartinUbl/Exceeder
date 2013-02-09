@@ -16,6 +16,8 @@ PresentationMgr::PresentationMgr()
     SetBlocking(false);
 
     m_btEnabled = false;
+    m_socket = 0;
+    m_client = 0;
 
     memset(&bgData, 0, sizeof(BackgroundData));
 
@@ -142,6 +144,10 @@ bool PresentationMgr::Init()
 #endif
     }
 
+    // Initialize network input
+    if (sStorage->IsNetworkEnabled())
+        InitNetwork();
+
     firstActual = m_activeElements.begin();
     lastActual  = m_activeElements.begin();
 
@@ -237,7 +243,7 @@ void PresentationMgr::InterfaceEvent(InterfaceEventTypes type, int32 param1, int
     }
 }
 
-void PresentationMgr::HandleBluetoothMessage(char* msg, uint8 len)
+void PresentationMgr::HandleExternalMessage(char* msg, uint8 len)
 {
     // commands from device connected via Bluetooth
 
@@ -250,6 +256,11 @@ void PresentationMgr::HandleBluetoothMessage(char* msg, uint8 len)
     else if (EqualString(msg, "PREV"))
     {
         MoveBack(false);
+    }
+    // Previous slide
+    else if (EqualString(msg, "PREVHARD"))
+    {
+        MoveBack(true);
     }
 }
 
@@ -646,7 +657,7 @@ void PresentationMgr::Run()
                 if (bytesRead > 0)
                 {
                     recvdata[bytesRead + 1] = '\0';
-                    HandleBluetoothMessage(&recvdata[0], (uint8)(bytesRead+1));
+                    HandleExternalMessage(&recvdata[0], (uint8)(bytesRead+1));
                 }
             }
             else
@@ -656,6 +667,9 @@ void PresentationMgr::Run()
             }
         }
 #endif
+
+        if (sStorage->IsNetworkEnabled())
+            UpdateNetwork();
 
         suppressPostAction = false;
         suppressPostBlocking = false;

@@ -12,6 +12,8 @@
 #define DEFAULT_FONT_SIZE 24
 #define DEFAULT_FONT_FAMILY L"Arial"
 
+#define DEFAULT_NETWORK_PORT 3693
+
 struct StoredFont
 {
     const wchar_t* fontName;
@@ -187,6 +189,19 @@ class Storage
             return m_btInterface;
         }
 
+        void SetNetworkPort(uint32 port)
+        {
+            m_networkPort = port;
+        }
+        uint32 GetNetworkPort()
+        {
+            return m_networkPort;
+        }
+        bool IsNetworkEnabled()
+        {
+            return (m_networkPort > 0);
+        }
+
     private:
 
         typedef std::pair<std::wstring, std::wstring> MacroPair;
@@ -203,6 +218,7 @@ class Storage
         std::wstring m_supfileVersion;
 
         const wchar_t* m_btInterface;
+        uint32 m_networkPort;
 
         uint32 m_screenWidth;
         uint32 m_screenHeight;

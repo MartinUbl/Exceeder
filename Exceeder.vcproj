@@ -58,7 +58,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="opengl32.lib glu32.lib freetype.lib SimplyFlat.lib"
+				AdditionalDependencies="opengl32.lib glu32.lib freetype.lib SimplyFlat.lib wsock32.lib"
 				AdditionalLibraryDirectories="..\SimplyFlat\Debug\;..\..\SimplyFlat\Debug\"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
@@ -129,7 +129,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="opengl32.lib glu32.lib freetype.lib SimplyFlat.lib"
+				AdditionalDependencies="opengl32.lib glu32.lib freetype.lib SimplyFlat.lib wsock32.lib"
 				AdditionalLibraryDirectories="..\SimplyFlat\Release\;..\..\SimplyFlat\Release\"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -237,6 +237,10 @@
 				>
 				<File
 					RelativePath=".\source\src\Handlers\EffectHandler.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\source\src\Handlers\NetworkHandler.cpp"
 					>
 				</File>
 			</Filter>

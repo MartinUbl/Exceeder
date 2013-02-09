@@ -154,6 +154,19 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
             if (right && wcslen(right) > 0)
                 sStorage->SetBTInterface(right);
         }
+        // general network access
+        else if (EqualString(left, L"\\NETWORK_CONTROL", true))
+        {
+            if (right && IsNumeric(right))
+                sStorage->SetNetworkPort(ToInt(right));
+            else if (right)
+            {
+                sLog->ErrorLog("SupfileParser: Non-numeric value '%S' used as network port. Using default (%u).", right, DEFAULT_NETWORK_PORT);
+                sStorage->SetNetworkPort(DEFAULT_NETWORK_PORT);
+            }
+            else
+                sStorage->SetNetworkPort(DEFAULT_NETWORK_PORT);
+        }
         // default style setting
         else if (EqualString(left, L"\\DEFAULT_STYLE", true))
         {

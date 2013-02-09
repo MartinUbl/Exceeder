@@ -4,6 +4,7 @@
 \SCREEN_HEIGHT 600
 
 \BLUETOOTH_INTERFACE COM9
+\network_control 3693
 
 \SLIDES
  slides_one.exf

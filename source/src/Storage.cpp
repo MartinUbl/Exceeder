@@ -21,6 +21,7 @@ Storage::Storage()
     m_defaultStyleName = L"";
 
     m_btInterface = NULL;
+    m_networkPort = 0;
 }
 
 Storage::~Storage()
