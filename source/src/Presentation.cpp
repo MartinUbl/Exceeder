@@ -308,8 +308,26 @@ void PresentationMgr::MoveBack(bool hard)
         if (!(*oldLast))
             continue;
 
+        // roll back background
+        if ((*oldLast)->elemType == SLIDE_ELEM_BACKGROUND)
+        {
+            bgData.color = 0;
+            bgData.resourceId = 0;
+            bgData.source = NULL;
+            for (uint32 i = 0; i <= 1; i++)
+            {
+                bgData.backgroundDimensions[i] = 0;
+                bgData.backgroundPosition[i] = 0;
+            }
+
+            for (SlideList::iterator it = m_activeElements.begin(); it != m_activeElements.end() && it != oldLast; ++it)
+            {
+                if ((*it)->elemType == SLIDE_ELEM_BACKGROUND)
+                    ApplyBackgroundElement(*it);
+            }
+        }
         // roll back effect queue on slide elements
-        if ((*oldLast)->elemType == SLIDE_ELEM_PLAY_EFFECT)
+        else if ((*oldLast)->elemType == SLIDE_ELEM_PLAY_EFFECT)
         {
             for (SlideList::iterator it = m_activeElements.begin(); it != m_activeElements.end(); ++it)
                 if (EqualString((*it)->elemId, (*oldLast)->elemId) && (*it)->myEffect)
@@ -740,48 +758,7 @@ void PresentationMgr::Run()
             // Background slide element is also neccessary for handling here, we have to set the BG stuff before drawing another else
             case SLIDE_ELEM_BACKGROUND:
             {
-                bgData.source = m_slideElement;
-
-                if (m_slideElement->typeBackground.imageResourceId > 0)
-                    bgData.resourceId = m_slideElement->typeBackground.imageResourceId;
-
-                bgData.color = m_slideElement->typeBackground.color;
-
-                // At first, parse dimensions - they are used as base for position calculation
-                for (uint32 i = 0; i <= 1; i++)
-                {
-                    if (i == 0 && (m_slideElement->typeBackground.spread == SPREAD_BOTH || m_slideElement->typeBackground.spread == SPREAD_WIDTH))
-                        bgData.backgroundDimensions[0] = sStorage->GetScreenWidth();
-                    else if (i == 1 && (m_slideElement->typeBackground.spread == SPREAD_BOTH || m_slideElement->typeBackground.spread == SPREAD_HEIGHT))
-                        bgData.backgroundDimensions[1] = sStorage->GetScreenHeight();
-                    else if (m_slideElement->typeBackground.dimensions[i] > 0)
-                        bgData.backgroundDimensions[i] = m_slideElement->typeBackground.dimensions[i];
-                }
-
-                // Position calculating
-                for (uint32 i = 0; i <= 1; i++)
-                {
-                    if (m_slideElement->typeBackground.position[i] > 0)
-                        bgData.backgroundPosition[i] = m_slideElement->typeBackground.position[i];
-                    else
-                    {
-                        if (m_slideElement->typeBackground.position[i] == POS_LEFT)
-                            bgData.backgroundPosition[i] = 0;
-                        else if (m_slideElement->typeBackground.position[i] == POS_RIGHT)
-                            bgData.backgroundPosition[i] = sStorage->GetScreenWidth()-bgData.backgroundDimensions[i];
-                        else if (m_slideElement->typeBackground.position[i] == POS_TOP)
-                            bgData.backgroundPosition[i] = 0;
-                        else if (m_slideElement->typeBackground.position[i] == POS_BOTTOM)
-                            bgData.backgroundPosition[i] = sStorage->GetScreenHeight()-bgData.backgroundDimensions[i];
-                        else if (m_slideElement->typeBackground.position[i] == POS_CENTER)
-                        {
-                            if (i == 0)
-                                bgData.backgroundPosition[i] = (sStorage->GetScreenWidth()-bgData.backgroundDimensions[i])/2;
-                            else
-                                bgData.backgroundPosition[i] = (sStorage->GetScreenHeight()-bgData.backgroundDimensions[i])/2;
-                        }
-                    }
-                }
+                ApplyBackgroundElement(m_slideElement);
                 break;
             }
             // We will also handle playing effects here
@@ -907,6 +884,55 @@ void PresentationMgr::Run()
 #ifdef _WIN32
     }
 #endif
+}
+
+void PresentationMgr::ApplyBackgroundElement(SlideElement* elem)
+{
+    if (!elem || elem->elemType != SLIDE_ELEM_BACKGROUND)
+        return;
+
+    bgData.source = elem;
+
+    if (elem->typeBackground.imageResourceId > 0)
+        bgData.resourceId = elem->typeBackground.imageResourceId;
+
+    bgData.color = elem->typeBackground.color;
+
+    // At first, parse dimensions - they are used as base for position calculation
+    for (uint32 i = 0; i <= 1; i++)
+    {
+        if (i == 0 && (elem->typeBackground.spread == SPREAD_BOTH || elem->typeBackground.spread == SPREAD_WIDTH))
+            bgData.backgroundDimensions[0] = sStorage->GetScreenWidth();
+        else if (i == 1 && (elem->typeBackground.spread == SPREAD_BOTH || elem->typeBackground.spread == SPREAD_HEIGHT))
+            bgData.backgroundDimensions[1] = sStorage->GetScreenHeight();
+        else if (elem->typeBackground.dimensions[i] > 0)
+            bgData.backgroundDimensions[i] = elem->typeBackground.dimensions[i];
+    }
+
+    // Position calculating
+    for (uint32 i = 0; i <= 1; i++)
+    {
+        if (elem->typeBackground.position[i] > 0)
+            bgData.backgroundPosition[i] = elem->typeBackground.position[i];
+        else
+        {
+            if (elem->typeBackground.position[i] == POS_LEFT)
+                bgData.backgroundPosition[i] = 0;
+            else if (elem->typeBackground.position[i] == POS_RIGHT)
+                bgData.backgroundPosition[i] = sStorage->GetScreenWidth()-bgData.backgroundDimensions[i];
+            else if (elem->typeBackground.position[i] == POS_TOP)
+                bgData.backgroundPosition[i] = 0;
+            else if (elem->typeBackground.position[i] == POS_BOTTOM)
+                bgData.backgroundPosition[i] = sStorage->GetScreenHeight()-bgData.backgroundDimensions[i];
+            else if (elem->typeBackground.position[i] == POS_CENTER)
+            {
+                if (i == 0)
+                    bgData.backgroundPosition[i] = (sStorage->GetScreenWidth()-bgData.backgroundDimensions[i])/2;
+                else
+                    bgData.backgroundPosition[i] = (sStorage->GetScreenHeight()-bgData.backgroundDimensions[i])/2;
+            }
+        }
+    }
 }
 
 int64 PresentationMgr::NumerateExpression(ExpressionTreeElement* expr)

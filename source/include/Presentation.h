@@ -61,6 +61,8 @@ class PresentationMgr
         void AnimateCanvas(bool before);
         void MoveBack(bool hard);
 
+        void ApplyBackgroundElement(SlideElement* elem);
+
         SlideList::iterator firstActual, lastActual;
 
         struct BackgroundData
