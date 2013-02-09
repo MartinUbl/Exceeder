@@ -135,6 +135,11 @@ struct CVector2
         return (*this);
     }
 
+    CVector2 operator-(const CVector2 &sec)
+    {
+        return CVector2(x - sec.x, y - sec.y);
+    }
+
     CVector2 operator-()
     {
         return CVector2(-x, -y);

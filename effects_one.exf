@@ -8,7 +8,7 @@
   \PROGRESS sinus
   \TIMER 1000
 
-  \NEXT_EFFECT left_continue
+  \next_effect left_continue
 
   \BLOCKING          // this parameter blocks all other actions - they are unblocked after effect end
 

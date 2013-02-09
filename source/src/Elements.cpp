@@ -16,7 +16,12 @@ void SlideElement::CreateEffectIfAny()
     {
         Effect* tmp = sStorage->GetEffect(elemEffect);
         if (tmp)
-            myEffect = new EffectHandler(this, tmp);
+        {
+            if (elemType != SLIDE_ELEM_PLAY_EFFECT)
+                /*myEffect = new EffectHandler(sStorage->GetSlideElementById(elemId), tmp);
+            else*/
+                myEffect = new EffectHandler(this, tmp);
+        }
     }
 }
 
@@ -26,15 +31,10 @@ void SlideElement::PlayEffect(const wchar_t* effectId)
     if (!tmp)
         return;
 
-    if (myEffect && !myEffect->isExpired())
+    if (myEffect)
         myEffect->QueueEffect(tmp);
     else
-    {
-        if (myEffect)
-            delete myEffect;
-
         myEffect = new EffectHandler(this, tmp);
-    }
 }
 
 void SlideElement::Draw()

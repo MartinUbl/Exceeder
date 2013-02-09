@@ -14,6 +14,8 @@ EffectHandler::EffectHandler(SlideElement *parent, Effect *elementEffect, bool f
     effectOwner = parent;
     effectProto = elementEffect;
 
+    m_queuePos = 0;
+
     int32 relativeOffset[2] = {0, 0};
     if (effectProto->offsetType)
     {
@@ -22,6 +24,13 @@ EffectHandler::EffectHandler(SlideElement *parent, Effect *elementEffect, bool f
             for (uint32 i = 0; i <= 1; i++)
                 relativeOffset[i] = int32(parent->position[i]);
         }
+    }
+
+    // reset start and end position
+    for (uint32 i = 0; i <= 1; i++)
+    {
+        startPos[i] = parent->position[i];
+        endPos[i] = parent->position[i];
     }
 
     // cache start and end positions to make us able to handle them indepentently of parent effect
@@ -47,7 +56,10 @@ EffectHandler::EffectHandler(SlideElement *parent, Effect *elementEffect, bool f
             const wchar_t* name = (*itr).c_str();
             tmp = sStorage->GetEffect(itr->c_str());
             if (tmp)
+            {
                 m_effectQueue.push_back(tmp);
+                m_queuePos++;
+            }
         }
     }
     m_queuedEffectHandler = NULL;
@@ -105,12 +117,78 @@ EffectHandler::~EffectHandler()
 {
 }
 
+void EffectHandler::RollBack()
+{
+    if (effectOwner)
+    {
+        for (uint32 i = 0; i <= 1; i++)
+            effectOwner->position[i] = startPos[i];
+    }
+
+    startTime = clock();
+    SetExpired(false);
+    runningQueue = false;
+
+    for (std::list<Effect*>::iterator itr = m_effectQueue.begin(); itr != m_effectQueue.end(); )
+    {
+        if (!(*itr))
+        {
+            itr = m_effectQueue.erase(itr);
+            continue;
+        }
+
+        if (m_effectQueueFlags.find(*itr) != m_effectQueueFlags.end())
+        {
+            itr = m_effectQueue.erase(itr);
+            continue;
+        }
+
+        itr++;
+    }
+
+    m_queuePos = m_effectQueue.size();
+}
+
+void EffectHandler::RollBackLastQueued()
+{
+    if (m_queuePos == m_effectQueue.size())
+        return;
+
+    uint32 i;
+    std::list<EffectHandler*>::iterator itr = m_effectQueueHandlers.end();
+    --itr;
+    for (i = 1; i < m_queuePos; i++)
+        if (itr != m_effectQueueHandlers.begin())
+            --itr;
+
+    for (i = 0; i <= 1; i++)
+        effectOwner->position[i] = (*itr)->startPos[i];
+
+    if (m_queuePos != 0)
+        m_queuePos--;
+}
+
 void EffectHandler::QueueEffect(Effect* eff)
 {
     if (isExpired())
-        return;
+        SetExpired(false);
 
-    m_effectQueue.push_front(eff);
+    m_effectQueue.push_back(eff);
+    m_queuePos++; // due to moving every single element by one
+
+    m_effectQueueFlags[eff] = EFFECT_QF_ADDED_LATER;
+
+    if (eff->moveType)
+    {
+        if (eff->offsetType && (*(eff->offsetType)) == OFFSET_TYPE_RELATIVE)
+        {
+            for (uint32 i = 0; i <= 1; i++)
+                effectOwner->finalPosition[i] = endPos[i] + eff->endPos[i];
+        }
+        else
+            for (uint32 i = 0; i <= 1; i++)
+                effectOwner->finalPosition[i] = eff->endPos[i];
+    }
 }
 
 void EffectHandler::QueuedEffectExpired()
@@ -122,11 +200,12 @@ void EffectHandler::QueuedEffectExpired()
     }
 
     // remove last effect from queue
-    m_effectQueue.erase(--m_effectQueue.end());
-    delete m_queuedEffectHandler;
+    //m_effectQueue.erase(--m_effectQueue.end());
+    m_queuePos--;
+    //delete m_queuedEffectHandler;
     m_queuedEffectHandler = NULL;
 
-    if (m_effectQueue.empty())
+    if (m_queuePos == 0)
         SetExpired();
 }
 
@@ -143,7 +222,7 @@ void EffectHandler::Animate()
 
     if (isRunningQueue())
     {
-        if (m_effectQueue.empty())
+        if (m_queuePos == 0)
         {
             SetSelfExpired();
             return;
@@ -151,7 +230,14 @@ void EffectHandler::Animate()
 
         // If no effect handler defined, create one from last available effect
         if (!m_queuedEffectHandler)
-            m_queuedEffectHandler = new EffectHandler(effectOwner ,(*(--m_effectQueue.end())), true);
+        {
+            std::list<Effect*>::iterator it = m_effectQueue.end();
+            for (uint32 i = 0; i < m_queuePos; i++)
+                it--;
+
+            m_queuedEffectHandler = new EffectHandler(effectOwner ,(*it), true);
+            m_effectQueueHandlers.push_back(m_queuedEffectHandler);
+        }
 
         if (m_queuedEffectHandler->isExpired())
             QueuedEffectExpired();

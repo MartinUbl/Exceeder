@@ -45,7 +45,7 @@ class PresentationMgr
         void InterfaceEvent(InterfaceEventTypes type, int32 param1 = 0, int32 param2 = 0);
         void HandleBluetoothMessage(char* msg, uint8 len);
 
-        void SetBlocking(bool block) { m_blocking = block; };
+        void SetBlocking(bool block);
         bool IsBlocking() { return m_blocking; };
 
         SlideElement* GetActiveElementById(const wchar_t* id);
@@ -59,6 +59,9 @@ class PresentationMgr
         SlideList m_activeElements;
 
         void AnimateCanvas(bool before);
+        void MoveBack(bool hard);
+
+        SlideList::iterator firstActual, lastActual;
 
         struct BackgroundData
         {

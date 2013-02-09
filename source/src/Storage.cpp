@@ -97,6 +97,26 @@ bool Storage::ParseInputFiles()
     return true;
 }
 
+bool Storage::IsSlideElementBlocking(SlideElement* src, bool staticOnly)
+{
+    if (!src)
+        return false;
+
+    // certain slide element types are blocking by default
+    if (src->elemType == SLIDE_ELEM_MOUSE_EVENT || src->elemType == SLIDE_ELEM_KEYBOARD_EVENT || src->elemType == SLIDE_ELEM_BLOCK)
+        return true;
+
+    // and some elements have only blocking effect on them
+    if (!staticOnly && src->elemEffect && wcslen(src->elemEffect) > 0)
+    {
+        Effect* eff = GetEffect(src->elemEffect);
+        if (eff && eff->isBlocking)
+            return true;
+    }
+
+    return false;
+}
+
 void Storage::BuildStyleFonts()
 {
     bool fontMatch = false;

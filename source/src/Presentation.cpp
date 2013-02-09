@@ -13,7 +13,7 @@ PresentationMgr::PresentationMgr()
 {
     m_slideElementPos = 0;
     m_slideElement = NULL;
-    m_blocking = false;
+    SetBlocking(false);
 
     m_btEnabled = false;
 
@@ -142,11 +142,20 @@ bool PresentationMgr::Init()
 #endif
     }
 
+    firstActual = m_activeElements.begin();
+    lastActual  = m_activeElements.begin();
+
     return true;
 }
 
 void PresentationMgr::InterfaceEvent(InterfaceEventTypes type, int32 param1, int32 param2)
 {
+    if (param1 == 37 && type == IE_KEYBOARD_PRESS)
+    {
+        MoveBack(false);
+        return;
+    }
+
     // general blocking element {without timer ? TODO: decide!} set is unblocked with every interface event
     // TODO: may conflict with future implementation of PgDn / PgUp slide "movement"
     if (m_slideElement && m_slideElement->elemType == SLIDE_ELEM_BLOCK/* && m_slideElement->typeBlock.time == 0*/)
@@ -230,8 +239,206 @@ void PresentationMgr::HandleBluetoothMessage(char* msg, uint8 len)
     // Previous element
     else if (EqualString(msg, "PREV"))
     {
-        // TODO: move back
+        MoveBack(false);
     }
+}
+
+void PresentationMgr::MoveBack(bool hard)
+{
+    SlideList::iterator itr = lastActual, oldLast = lastActual;
+
+    if (itr != m_activeElements.begin() && itr != m_activeElements.end())
+        itr--;
+
+    uint32 posDelta = 0;
+
+    for ( ; ; itr--)
+    {
+        if (itr == m_activeElements.begin() || itr == m_activeElements.end())
+        {
+            firstActual = m_activeElements.begin();
+            lastActual = m_activeElements.begin();
+            posDelta++;
+            break;
+        }
+
+        // if we reached first actual slide element, we need to find previous checkpoint
+        if (itr == firstActual)
+        {
+            SlideList::iterator ittr = firstActual;
+            if (ittr != m_activeElements.begin() && ittr != m_activeElements.end())
+            {
+                ittr--;
+
+                for ( ; ; ittr--)
+                {
+                    if (ittr != m_activeElements.begin() && ittr != m_activeElements.end())
+                    {
+                        firstActual = m_activeElements.begin();
+                        break;
+                    }
+
+                    if ((*ittr)->elemType == SLIDE_ELEM_NEW_SLIDE)
+                    {
+                        firstActual = ittr;
+                        break;
+                    }
+                }
+            }
+
+            // is this necessary?
+            continue; // yes, it is
+        }
+
+        if (sStorage->IsSlideElementBlocking(*itr, true))
+        {
+            lastActual = itr;
+            posDelta++;
+            break;
+        }
+
+        posDelta++;
+    }
+
+    m_slideElementPos -= posDelta;
+    m_slideElement = (*lastActual);
+
+    for ( ; oldLast != lastActual && oldLast != m_activeElements.end() &&  oldLast != m_activeElements.begin(); oldLast--)
+    {
+        if (!(*oldLast))
+            continue;
+
+        // roll back effect queue on slide elements
+        if ((*oldLast)->elemType == SLIDE_ELEM_PLAY_EFFECT)
+        {
+            for (SlideList::iterator it = m_activeElements.begin(); it != m_activeElements.end(); ++it)
+                if (EqualString((*it)->elemId, (*oldLast)->elemId) && (*it)->myEffect)
+                    (*it)->myEffect->RollBackLastQueued();
+        }
+        // roll back canvas effects
+        else if ((*oldLast)->elemType == SLIDE_ELEM_CANVAS_EFFECT)
+        {
+            switch ((*oldLast)->typeCanvasEffect.effectType)
+            {
+                case CE_MOVE:
+                {
+                    if ((*oldLast)->typeCanvasEffect.hard)
+                    {
+                        SlideList::iterator it = oldLast;
+                        --it;
+                        CVector2 modVector(0,0);
+                        for ( ; it != m_activeElements.begin(); --it)
+                        {
+                            if ((*it)->elemType == SLIDE_ELEM_CANVAS_EFFECT && (*it)->typeCanvasEffect.effectType == CE_MOVE)
+                            {
+                                if ((*it)->typeCanvasEffect.hard)
+                                {
+                                    modVector = modVector + (*it)->typeCanvasEffect.moveVector;
+                                    break;
+                                }
+                                else
+                                    modVector = modVector + (*it)->typeCanvasEffect.moveVector;
+                            }
+                        }
+                        canvas.baseCoord = CVector2(0,0);
+                        canvas.hardMove  = modVector;
+                    }
+                    else
+                    {
+                        canvas.baseCoord = CVector2(0,0);
+                        canvas.hardMove  = canvas.hardMove - (*oldLast)->typeCanvasEffect.moveVector;
+                    }
+                    break;
+                }
+                case CE_ROTATE:
+                {
+                    SlideList::iterator it = oldLast;
+                    --it;
+                    float mod = 0.0f, frst = 0.0f;
+                    bool foundCheckpoint = false, foundSecond = false;
+                    for ( ; it != m_activeElements.begin(); --it)
+                    {
+                        if ((*it)->elemType == SLIDE_ELEM_CANVAS_EFFECT && (*it)->typeCanvasEffect.effectType == CE_ROTATE)
+                        {
+                            if ((*it)->typeCanvasEffect.hard)
+                            {
+                                mod += (*it)->typeCanvasEffect.amount.asFloat;
+                                break;
+                            }
+                            else
+                            {
+                                if (!(*oldLast)->typeCanvasEffect.hard)
+                                {
+                                    canvas.baseAngle -= (*it)->typeCanvasEffect.amount.asFloat;
+                                    canvas.hardRotateAngle = (*it)->typeCanvasEffect.amount.asFloat;
+                                    foundCheckpoint = true;
+                                }
+                                else
+                                {
+                                    if (frst == 0)
+                                        frst = (*it)->typeCanvasEffect.amount.asFloat;
+                                    else
+                                        mod += (*it)->typeCanvasEffect.amount.asFloat;
+                                }
+                            }
+                        }
+                    }
+                    // mod is 0 only when reached hard effect
+                    if ((*oldLast)->typeCanvasEffect.hard || mod != 0.0f)
+                    {
+                        canvas.baseAngle = mod;
+                        canvas.hardRotateAngle = frst;
+                    }
+                    if (!(*oldLast)->typeCanvasEffect.hard && !foundCheckpoint)
+                    {
+                        canvas.baseAngle = 0.0f;
+                        canvas.hardRotateAngle = 0.0f;
+                    }
+                    break;
+                }
+                case CE_SCALE:
+                {
+                    // doesn't matter if it's hard change or not
+
+                    canvas.baseScale = 100.0f;
+                    canvas.hardScale = 100.0f;
+                    SlideList::iterator it = oldLast;
+                    --it;
+                    for ( ; it != m_activeElements.begin(); --it)
+                    {
+                        if ((*it)->elemType == SLIDE_ELEM_CANVAS_EFFECT && (*it)->typeCanvasEffect.effectType == CE_SCALE)
+                        {
+                            canvas.baseScale = (*it)->typeCanvasEffect.amount.asFloat;
+                            canvas.hardScale = (*it)->typeCanvasEffect.amount.asFloat;
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case CE_COLORIZE:
+                {
+                    // doesn't matter if it's hard change or not
+
+                    canvas.baseColor = MAKE_COLOR_RGBA(255,255,255,0);
+                    canvas.hardColorizeColor = canvas.baseColor;
+                    SlideList::iterator it = oldLast;
+                    --it;
+                    for ( ; it != m_activeElements.begin(); --it)
+                    {
+                        if ((*it)->elemType == SLIDE_ELEM_CANVAS_EFFECT && (*it)->typeCanvasEffect.effectType == CE_COLORIZE)
+                        {
+                            canvas.baseColor = (*it)->typeCanvasEffect.amount.asUnsigned;
+                            canvas.hardColorizeColor = (*it)->typeCanvasEffect.amount.asUnsigned;
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    SetBlocking(sStorage->IsSlideElementBlocking(m_slideElement, true));
 }
 
 SlideElement* PresentationMgr::GetActiveElementById(const wchar_t* id)
@@ -246,12 +453,18 @@ SlideElement* PresentationMgr::GetActiveElementById(const wchar_t* id)
     return NULL;
 }
 
+void PresentationMgr::SetBlocking(bool block)
+{
+    m_blocking = block;
+}
+
 void PresentationMgr::Run()
 {
 #ifdef _WIN32
     MSG msg;
 #endif
     SlideElement* tmp;
+    bool suppressPostAction, suppressPostBlocking;
 
 #ifdef _WIN32
     while (true)
@@ -291,6 +504,9 @@ void PresentationMgr::Run()
             }
         }
 #endif
+
+        suppressPostAction = false;
+        suppressPostBlocking = false;
 
         // SF before draw events
         sSimplyFlat->BeforeDraw();
@@ -337,11 +553,15 @@ void PresentationMgr::Run()
         AnimateCanvas(true);
 
         // draw active elements which should be drawn
-        for (SlideList::iterator itr = m_activeElements.begin(); itr != m_activeElements.end(); ++itr)
+        //for (SlideList::iterator itr = m_activeElements.begin(); itr != m_activeElements.end(); ++itr)
+        for (SlideList::iterator itr = firstActual; itr != m_activeElements.end(); ++itr)
         {
             // "drawable" parameter is set when building slide element prototype
             if ((*itr)->drawable)
                 (*itr)->Draw();
+
+            if (itr == lastActual)
+                break;
         }
 
         // Perform canvas effects after drawing like colorize and blur
@@ -351,7 +571,7 @@ void PresentationMgr::Run()
         sSimplyFlat->AfterDraw();
 
         // If something blocked our presentation, let's wait for some event to unblock it. It should be unblocked in PresentationMgr::InterfaceEvent
-        if (m_blocking)
+        if (IsBlocking())
         {
             // timer block
             if (m_slideElement && m_slideElement->elemType == SLIDE_ELEM_BLOCK && m_slideElement->typeBlock.time != 0 && m_slideElement->typeBlock.startTime + m_slideElement->typeBlock.time <= clock())
@@ -361,26 +581,54 @@ void PresentationMgr::Run()
         }
 
         // We are ready to move on
-        tmp = sStorage->GetSlideElement(m_slideElementPos);
-        if (!tmp)
-            PRESENTATION_BREAK;
 
-        // We have to copy the element from prototype to active element, which we would draw
-        // This is due to future support for instancing elements and duplicating them - we would like to take the prototype and just copy it
-        m_slideElement = new SlideElement;
-        memcpy(m_slideElement, tmp, sizeof(SlideElement));
-        tmp = NULL;
+        SlideList::iterator iter = lastActual;
+        if (iter != m_activeElements.end())
+            iter++;
 
-        // Effect creation
-        // If effect is blocking, then block presentation from any other actions until effect ends
-        m_slideElement->CreateEffectIfAny();
-        if ((m_slideElement->myEffect && m_slideElement->myEffect->getEffectProto()->isBlocking)
-            || (m_slideElement->elemType == SLIDE_ELEM_BLOCK))
-            m_blocking = true;
+        if (iter != m_activeElements.end())
+        {
+            // i.e. to avoid useless blocks
+            //if ((*lastActual)->elemType == SLIDE_ELEM_PLAY_EFFECT)
+            //    suppressPostBlocking = true;
 
-        // And again - if element is drawable (or have some other reason for being stored for future handling), then we have to store it
-        if (m_slideElement->drawable)
+            lastActual++;
+
+            m_slideElement = (*iter);
+
+            if (m_slideElement->myEffect)
+                m_slideElement->myEffect->RollBack();
+
+            // i.e. avoid queuing already queued effect
+            //suppressPostAction = true;
+        }
+        else
+        {
+            tmp = sStorage->GetSlideElement(m_slideElementPos);
+            if (!tmp)
+                PRESENTATION_BREAK;
+
+            // We have to copy the element from prototype to active element, which we would draw
+            // This is due to future support for instancing elements and duplicating them - we would like to take the prototype and just copy it
+            m_slideElement = new SlideElement;
+            memcpy(m_slideElement, tmp, sizeof(SlideElement));
+            tmp = NULL;
+
+            // Effect creation
+            // If effect is blocking, then block presentation from any other actions until effect ends
+            m_slideElement->CreateEffectIfAny();
+            if ((m_slideElement->myEffect && m_slideElement->myEffect->getEffectProto()->isBlocking))
+                SetBlocking(true);
+
+            // store all elements due to both direction slide movement
             m_activeElements.push_back(m_slideElement);
+
+            // move last actual iterator to the last added element
+            if (lastActual == m_activeElements.end())
+                lastActual--;
+            else
+                lastActual++;
+        }
 
         // Special actions for some element types
         switch (m_slideElement->elemType)
@@ -388,10 +636,12 @@ void PresentationMgr::Run()
             // Both mouse and keyboard events are blocking
             case SLIDE_ELEM_MOUSE_EVENT:
             case SLIDE_ELEM_KEYBOARD_EVENT:
-                m_blocking = true;
+                if (!suppressPostBlocking)
+                    SetBlocking(true);
                 break;
             // General blocking element should also set time
             case SLIDE_ELEM_BLOCK:
+                SetBlocking(true);
                 m_slideElement->typeBlock.startTime = clock();
                 break;
             // Background slide element is also neccessary for handling here, we have to set the BG stuff before drawing another else
@@ -439,14 +689,14 @@ void PresentationMgr::Run()
                         }
                     }
                 }
-
-                //
-
                 break;
             }
             // We will also handle playing effects here
             case SLIDE_ELEM_PLAY_EFFECT:
             {
+                if (suppressPostAction)
+                    break;
+
                 SlideElement* target = GetActiveElementById(m_slideElement->elemId);
                 if (target)
                     target->PlayEffect(m_slideElement->elemEffect);
@@ -455,14 +705,8 @@ void PresentationMgr::Run()
             // New slide stuff is also needed to be handled there, this clears all drawable elements from screen
             case SLIDE_ELEM_NEW_SLIDE:
             {
-                for (SlideList::iterator itr = m_activeElements.begin(); itr != m_activeElements.end();)
-                {
-                    // drawable check for future and some kind of "hidden" effects
-                    if ((*itr)->drawable)
-                        itr = m_activeElements.erase(itr);
-                    else
-                        ++itr;
-                }
+                // new slide causes firstActual iterator to point at the same element as lastActual
+                firstActual = lastActual;
                 break;
             }
             case SLIDE_ELEM_CANVAS_EFFECT:
@@ -703,7 +947,7 @@ void PresentationMgr::AnimateCanvas(bool before)
     if (before)
     {
         // canvas movement
-        if (!(canvas.hardMove.x == 0 && canvas.hardMove.y == 0))
+        if (!(canvas.hardMove.x == 0 && canvas.hardMove.y == 0) || !(canvas.baseCoord.x == 0 && canvas.baseCoord.y == 0))
         {
             if (canvas.hardMove_time.deltaTime == 0)
                 timeCoef = 1.0f;
@@ -721,7 +965,7 @@ void PresentationMgr::AnimateCanvas(bool before)
         }
 
         // canvas rotate
-        if (canvas.hardRotateAngle != 0)
+        if (canvas.hardRotateAngle != 0 || canvas.baseAngle != 0)
         {
             if (canvas.hardRotate_time.deltaTime == 0)
                 timeCoef = 1.0f;
@@ -741,7 +985,7 @@ void PresentationMgr::AnimateCanvas(bool before)
         }
 
         // canvas scale
-        if (canvas.hardScale != 0.0f)
+        if (canvas.hardScale != 0.0f || canvas.baseScale != 0.0f)
         {
             if (canvas.hardScale_time.deltaTime == 0)
                 timeCoef = 1.0f;

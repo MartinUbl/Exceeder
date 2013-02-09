@@ -11,6 +11,12 @@ enum EffectProgress
     EP_QUADRATIC = 2, // y = x^2
 };
 
+enum EffectQueueFlags
+{
+    EFFECT_QF_ADDED_LATER = 0,
+    MAX_EFFECT_QF
+};
+
 class EffectHandler
 {
     public:
@@ -18,6 +24,8 @@ class EffectHandler
         ~EffectHandler();
 
         void Animate();
+        void RollBack();
+        void RollBackLastQueued();
         bool isExpired() { return expired; };
         bool isRunningQueue() { return runningQueue; };
 
@@ -54,15 +62,15 @@ class EffectHandler
         void CalculateEffectProgress(float &coef);
 
         void UnblockPresentationIfNeeded();
-        void SetExpired()
+        void SetExpired(bool set = true)
         {
-            expired = true;
+            expired = set;
             UnblockPresentationIfNeeded();
         };
         void SetSelfExpired()
         {
             if (m_effectQueue.empty())
-                SetExpired();
+                SetExpired(true);
             else
                 runningQueue = true;
         };
@@ -88,6 +96,9 @@ class EffectHandler
         SlideElement* effectOwner;
         Effect* effectProto;
         std::list<Effect*> m_effectQueue;
+        std::list<EffectHandler*> m_effectQueueHandlers;
+        uint32 m_queuePos;
+        std::map<Effect*, uint32> m_effectQueueFlags;
         EffectHandler* m_queuedEffectHandler;
 };
 

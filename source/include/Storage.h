@@ -118,7 +118,7 @@ class Storage
         {
             for (SlideElementVector::iterator itr = m_slideData.begin(); itr != m_slideData.end(); ++itr)
             {
-                if (EqualString((*itr)->elemId, id.c_str()))
+                if (EqualString((*itr)->elemId, id.c_str()) && (*itr)->elemType != SLIDE_ELEM_PLAY_EFFECT)
                     return (*itr);
             }
             return NULL;
@@ -133,6 +133,8 @@ class Storage
             }
             return NULL;
         }
+
+        bool IsSlideElementBlocking(SlideElement* src, bool staticOnly = false);
 
         bool AddMacro(std::wstring id, std::wstring value)
         {

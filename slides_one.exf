@@ -13,12 +13,23 @@
 
 \MOUSE_LEFT
 
-//\CANVAS_MOVE -100,0 1000 sinus
-//\CANVAS_COLORIZE GREEN 1000 15
+\CANVAS_MOVE -100,0 1000 sinus
+\CANVAS_COLORIZE GREEN 1000 15
 
-//\MOUSE_LEFT
+\block
 
-//\CANVAS_ROTATE 20 500 quadratic
+\canvas_rotate 45 1000 sinus
+
+\block
+
+\canvas_rotate 20 1000 quadratic
+
+\MOUSE_LEFT
+
+\CANVAS_ROTATE 20 500 quadratic hard
+
+\mouse_left
+
 \PLAY_EFFECT{E:left_continue_2}{ID:title_1}
 
 \MOUSE_LEFT
