@@ -34,6 +34,9 @@ class EffectHandler
         void AnimateFadeIn();
         void AnimateFadeOut();
 
+        // time coefficient could be reused
+        float timeCoef;
+
         bool GetTimeCoef(float &target)
         {
             // If the time coefficient is equal or larger than 1, then we passed the end of effect

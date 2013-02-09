@@ -161,32 +161,60 @@ void EffectHandler::Animate()
         return;
     }
 
-    // Linear movement
-    if (effectProto->moveType && (*effectProto->moveType) == MOVE_TYPE_LINEAR)
-        AnimateMoveLinear();
-    // Circle movement
-    else if (effectProto->moveType && (*effectProto->moveType) == MOVE_TYPE_CIRCULAR)
-        AnimateMoveCircular();
-    // Bezier movement (cubic)
-    else if (effectProto->moveType && (*effectProto->moveType) == MOVE_TYPE_BEZIER)
-        AnimateMoveBezier();
-
-    // Fade in
-    if (effectProto->fadeType && (*effectProto->fadeType) == FADE_TYPE_IN)
-        AnimateFadeIn();
-    else if (effectProto->fadeType && (*effectProto->fadeType) == FADE_TYPE_OUT)
-        AnimateFadeOut();
-
-    // Synchronize ending position with demanded coordinates
-    if (isExpired() && effectProto->moveType && (effectOwner->position[0] != endPos[0] || effectOwner->position[1] != endPos[1]))
+    // Calculate time coefficient to determine position
+    // if this method returns false, the effect just finished
+    if (!(effectProto->effectTimer))
     {
-        effectOwner->position[0] = endPos[0];
-        effectOwner->position[1] = endPos[1];
+        timeCoef = 1.0;
+        SetSelfExpired();
+    }
+    else
+    {
+        if (!GetTimeCoef(timeCoef))
+            SetSelfExpired();
+
+        CalculateEffectProgress(timeCoef);
     }
 
-    // Synchronize also opacity
-    if (isExpired() && effectProto->fadeType && effectProto->destOpacity && effectOwner->opacity != (*effectProto->destOpacity))
-        effectOwner->opacity = (*effectProto->destOpacity);
+    // movement
+    if (effectProto->moveType)
+    {
+        // Linear movement
+        if ((*effectProto->moveType) == MOVE_TYPE_LINEAR)
+            AnimateMoveLinear();
+        // Circle movement
+        else if ((*effectProto->moveType) == MOVE_TYPE_CIRCULAR)
+            AnimateMoveCircular();
+        // Bezier movement (cubic)
+        else if ((*effectProto->moveType) == MOVE_TYPE_BEZIER)
+            AnimateMoveBezier();
+    }
+
+    // fade
+    if (effectProto->fadeType)
+    {
+        // Fade in
+        if ((*effectProto->fadeType) == FADE_TYPE_IN)
+            AnimateFadeIn();
+        // Fade out
+        else if ((*effectProto->fadeType) == FADE_TYPE_OUT)
+            AnimateFadeOut();
+    }
+
+    // Synchronization
+    if (isExpired())
+    {
+        // Synchronize ending position with demanded coordinates
+        if (effectProto->moveType && (effectOwner->position[0] != endPos[0] || effectOwner->position[1] != endPos[1]))
+        {
+            effectOwner->position[0] = endPos[0];
+            effectOwner->position[1] = endPos[1];
+        }
+
+        // Synchronize also opacity
+        if (effectProto->fadeType && effectProto->destOpacity && effectOwner->opacity != (*effectProto->destOpacity))
+            effectOwner->opacity = (*effectProto->destOpacity);
+    }
 }
 
 void EffectHandler::CalculateEffectProgress(float &coef, uint8 progressType)
@@ -214,16 +242,8 @@ void EffectHandler::CalculateEffectProgress(float &coef)
 void EffectHandler::AnimateMoveLinear()
 {
     // Check for required things
-    if (!(effectProto->effectTimer && effectProto->startPos && effectProto->endPos))
+    if (!(effectProto->startPos && effectProto->endPos))
         return;
-
-    // Calculate time coefficient to determine position
-    float timeCoef;
-    // if this method returns false, the effect just finished
-    if (!GetTimeCoef(timeCoef))
-        SetSelfExpired();
-
-    CalculateEffectProgress(timeCoef);
 
     for (uint32 i = 0; i <= 1; i++)
         effectOwner->position[i] = int32(startPos[i]) + int32(timeCoef * float(int32(endPos[i]) - int32(startPos[i])));
@@ -232,16 +252,8 @@ void EffectHandler::AnimateMoveLinear()
 void EffectHandler::AnimateMoveCircular()
 {
     // Check for required things
-    if (!(effectProto->effectTimer && effectProto->startPos && effectProto->endPos))
+    if (!(effectProto->startPos && effectProto->endPos))
         return;
-
-    // Calculate time coefficient to determine position
-    float timeCoef;
-    // if this method returns false, the effect just finished
-    if (!GetTimeCoef(timeCoef))
-        SetSelfExpired();
-
-    CalculateEffectProgress(timeCoef);
 
     float angle = phase;
 
@@ -257,16 +269,8 @@ void EffectHandler::AnimateMoveCircular()
 void EffectHandler::AnimateMoveBezier()
 {
     // Check for required things
-    if (!(effectProto->effectTimer && effectProto->startPos && effectProto->endPos && effectProto->bezierVector))
+    if (!(effectProto->startPos && effectProto->endPos && effectProto->bezierVector))
         return;
-
-    // Calculate time coefficient to determine position
-    float timeCoef;
-    // if this method returns false, the effect just finished
-    if (!GetTimeCoef(timeCoef))
-        SetSelfExpired();
-
-    CalculateEffectProgress(timeCoef);
 
     CVector2 AC = effectProto->bezierVector[0];
     CVector2 BD = effectProto->bezierVector[1];
@@ -297,16 +301,8 @@ void EffectHandler::AnimateMoveBezier()
 void EffectHandler::AnimateFadeIn()
 {
     // Check for required things
-    if (!(effectProto->effectTimer) || !(effectProto->destOpacity))
+    if (!(effectProto->destOpacity))
         return;
-
-    // Calculate time coefficient to determine position
-    float timeCoef;
-    // if this method returns false, the effect just finished
-    if (!GetTimeCoef(timeCoef))
-        SetSelfExpired();
-
-    CalculateEffectProgress(timeCoef);
 
     effectOwner->opacity = uint8(startOpacity + float((*effectProto->destOpacity) - startOpacity)*timeCoef);
 }
@@ -314,16 +310,8 @@ void EffectHandler::AnimateFadeIn()
 void EffectHandler::AnimateFadeOut()
 {
     // Check for required things
-    if (!(effectProto->effectTimer) || !(effectProto->destOpacity))
+    if (!(effectProto->destOpacity))
         return;
-
-    // Calculate time coefficient to determine position
-    float timeCoef;
-    // if this method returns false, the effect just finished
-    if (!GetTimeCoef(timeCoef))
-        SetSelfExpired();
-
-    CalculateEffectProgress(timeCoef);
 
     effectOwner->opacity = uint8(startOpacity - float(startOpacity - (*effectProto->destOpacity))*timeCoef);
 }
