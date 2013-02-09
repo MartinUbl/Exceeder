@@ -150,10 +150,20 @@ bool PresentationMgr::Init()
 
 void PresentationMgr::InterfaceEvent(InterfaceEventTypes type, int32 param1, int32 param2)
 {
-    if (param1 == 37 && type == IE_KEYBOARD_PRESS)
+    // rolling back
+    if (type == IE_KEYBOARD_PRESS)
     {
-        MoveBack(false);
-        return;
+        if ((param1 == VK_LEFT || param1 == VK_UP))
+        {
+            MoveBack(false);
+            return;
+        }
+        // hard rolling back (page up)
+        if (param1 == VK_PRIOR)
+        {
+            MoveBack(true);
+            return;
+        }
     }
 
     // general blocking element {without timer ? TODO: decide!} set is unblocked with every interface event
@@ -252,52 +262,83 @@ void PresentationMgr::MoveBack(bool hard)
 
     uint32 posDelta = 0;
 
-    for ( ; ; itr--)
+    if (hard)
     {
-        if (itr == m_activeElements.begin() || itr == m_activeElements.end())
-        {
-            firstActual = m_activeElements.begin();
-            lastActual = m_activeElements.begin();
+        itr = firstActual;
+        if (itr != m_activeElements.begin() && itr != m_activeElements.end())
+            itr--;
+
+        for ( ; lastActual != firstActual; --lastActual)
             posDelta++;
-            break;
-        }
 
-        // if we reached first actual slide element, we need to find previous checkpoint
-        if (itr == firstActual)
+        for ( ; ; itr--)
         {
-            SlideList::iterator ittr = firstActual;
-            if (ittr != m_activeElements.begin() && ittr != m_activeElements.end())
+            if (itr == m_activeElements.begin() || itr == m_activeElements.end())
             {
-                ittr--;
-
-                for ( ; ; ittr--)
-                {
-                    if (ittr == m_activeElements.begin() || ittr == m_activeElements.end())
-                    {
-                        firstActual = m_activeElements.begin();
-                        break;
-                    }
-
-                    if ((*ittr)->elemType == SLIDE_ELEM_NEW_SLIDE)
-                    {
-                        firstActual = ittr;
-                        break;
-                    }
-                }
+                firstActual = m_activeElements.begin();
+                //lastActual = m_activeElements.begin();
+                break;
             }
 
-            // is this necessary?
-            continue; // yes, it is
+            if ((*itr)->elemType == SLIDE_ELEM_NEW_SLIDE)
+            {
+                firstActual = itr;
+                break;
+            }
         }
 
-        if (sStorage->IsSlideElementBlocking(*itr, true))
-        {
-            lastActual = itr;
+        for ( ; !sStorage->IsSlideElementBlocking(*lastActual) && lastActual != m_activeElements.begin() && lastActual != m_activeElements.end(); --lastActual)
             posDelta++;
-            break;
-        }
+    }
+    else
+    {
+        for ( ; ; itr--)
+        {
+            if (itr == m_activeElements.begin() || itr == m_activeElements.end())
+            {
+                firstActual = m_activeElements.begin();
+                lastActual = m_activeElements.begin();
+                posDelta++;
+                break;
+            }
 
-        posDelta++;
+            // if we reached first actual slide element, we need to find previous checkpoint
+            if (itr == firstActual)
+            {
+                SlideList::iterator ittr = firstActual;
+                if (ittr != m_activeElements.begin() && ittr != m_activeElements.end())
+                {
+                    ittr--;
+
+                    for ( ; ; ittr--)
+                    {
+                        if (ittr == m_activeElements.begin() || ittr == m_activeElements.end())
+                        {
+                            firstActual = m_activeElements.begin();
+                            break;
+                        }
+
+                        if ((*ittr)->elemType == SLIDE_ELEM_NEW_SLIDE)
+                        {
+                            firstActual = ittr;
+                            break;
+                        }
+                    }
+                }
+
+                // is this necessary?
+                continue; // yes, it is
+            }
+
+            if (sStorage->IsSlideElementBlocking(*itr, true))
+            {
+                lastActual = itr;
+                posDelta++;
+                break;
+            }
+
+            posDelta++;
+        }
     }
 
     m_slideElementPos -= posDelta;
