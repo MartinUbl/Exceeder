@@ -6,6 +6,8 @@
 \BLUETOOTH_INTERFACE COM9
 \network_control 3693
 
+\fullscreen no
+
 \SLIDES
  slides_one.exf
 

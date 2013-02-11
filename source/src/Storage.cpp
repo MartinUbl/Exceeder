@@ -15,6 +15,7 @@ Storage::Storage()
     // implicit screen resolution
     m_screenWidth = 800;
     m_screenHeight = 600;
+    m_fullscreen = true;
 
     m_defaultFontId = -1;
     m_defaultTextStyle = NULL;

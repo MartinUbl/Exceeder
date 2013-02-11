@@ -173,6 +173,21 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
             if (right && wcslen(right) > 0)
                 sStorage->SetDefaultStyleName(right);
         }
+        // fullscreen settings
+        else if (EqualString(left, L"\\FULLSCREEN", true))
+        {
+            if (right && wcslen(right) > 0)
+            {
+                if (EqualString(right, L"OFF", true) || EqualString(right, L"NO", true))
+                    sStorage->AllowFullscreen(false);
+                else if (EqualString(right, L"ON", true) || EqualString(right, L"YES", true))
+                    sStorage->AllowFullscreen(true);
+                else
+                    RAISE_ERROR("SupfileParser: unknown token '%S' supplied as fullscreen parameter", right);
+            }
+            else
+                sStorage->AllowFullscreen(true);
+        }
         // slide files
         else if (EqualString(left, L"\\SLIDES", true))
         {

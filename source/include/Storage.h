@@ -45,6 +45,8 @@ class Storage
         void SetScreenHeight(uint32 height) { m_screenHeight = height; };
         uint32 GetScreenWidth() { return m_screenWidth; };
         uint32 GetScreenHeight() { return m_screenHeight; };
+        void AllowFullscreen(bool allow) { m_fullscreen = allow; };
+        bool IsFullscreenAllowed() { return m_fullscreen; };
 
         void SetSupfileVersion(std::wstring ver) { m_supfileVersion = ver.c_str(); };
         const wchar_t* GetSupfileVersion() { return m_supfileVersion.c_str(); };
@@ -222,6 +224,7 @@ class Storage
 
         uint32 m_screenWidth;
         uint32 m_screenHeight;
+        bool m_fullscreen;
 
         // content
         StyleMap m_styleMap;

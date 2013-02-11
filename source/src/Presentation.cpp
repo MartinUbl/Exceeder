@@ -73,11 +73,11 @@ bool PresentationMgr::Init()
 #ifdef _WIN32
     // Use SimplyFlat framework to initialize everything for us
     if (!sSimplyFlat->CreateMainWindow("Exceeder Presentation", sStorage->GetScreenWidth(), sStorage->GetScreenHeight(),
-        32, false, 60, &MyWndProc))
+        32, sStorage->IsFullscreenAllowed(), 60, &MyWndProc))
         RAISE_ERROR("Could not initialize main window!");
 #else
     if (!sSimplyFlat->CreateMainWindow(sApplication->argc, sApplication->argv, "Exceeder Presentation", sStorage->GetScreenWidth(), sStorage->GetScreenHeight(),
-        32, false, 60, &presentationRun))
+        32, sStorage->IsFullscreenAllowed(), 60, &presentationRun))
         RAISE_ERROR("Could not initialize main window!");
 #endif
 
