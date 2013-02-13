@@ -577,7 +577,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                 tmp->typeImage.size[1] = res->implicitHeight;
             }
             else
-                sLog->ErrorLog("SlideParser: no valid dimensions for resource 's' specified!", right);
+                sLog->ErrorLog("SlideParser: no valid dimensions for resource '%s' specified!", right);
         }
 
         return tmp;

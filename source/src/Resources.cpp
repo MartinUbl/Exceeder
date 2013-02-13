@@ -12,7 +12,11 @@ ResourceEntry::ResourceEntry()
 void ResourceEntry::Prepare(ResourceTypes type, const wchar_t* name, const wchar_t *path)
 {
     if (type == RESOURCE_IMAGE)
+    {
         image = new ImageResourceEntry;
+        image->colorOverlay = 0;
+        image->colors = ICP_FULL;
+    }
 
     this->type = type;
     this->name = name;

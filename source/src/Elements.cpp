@@ -128,8 +128,6 @@ void SlideElement::elemImageData::Draw(SlideElement* parent)
 
     if (wcslen(parent->elemStyle) > 0)
         myStyle = sStorage->GetStyle(parent->elemStyle);
-    else
-        myStyle = sStorage->GetDefaultStyle();
 
     if (parent->typeImage.resourceId > 0)
     {
@@ -138,7 +136,7 @@ void SlideElement::elemImageData::Draw(SlideElement* parent)
         uint32 color = 0;
         if (res->image->colorOverlay)
             color = res->image->colorOverlay;
-        else if (myStyle->overlayColor)
+        else if (myStyle && myStyle->overlayColor)
             color = (*(myStyle->overlayColor));
 
         uint8 newOpacity = uint8( float(COLOR_A(color)) * ((float)parent->opacity)/255.0f );

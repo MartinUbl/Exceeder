@@ -791,7 +791,12 @@ void PresentationMgr::Run()
 
             // move last actual iterator to the last added element
             if (lastActual == m_activeElements.end())
+            {
                 lastActual--;
+
+                if (firstActual == m_activeElements.end())
+                    firstActual = lastActual;
+            }
             else
                 lastActual++;
         }
@@ -849,7 +854,7 @@ void PresentationMgr::Run()
                             canvas.hardMove = CVector2(0.0f, 0.0f);
                             canvas.hardRotateAngle = 0.0f;
                             canvas.hardScale = 100.0f;
-                            canvas.hardColorizeColor = MAKE_COLOR_RGBA(255, 255, 255, 255);
+                            canvas.hardColorizeColor = MAKE_COLOR_RGBA(255, 255, 255, 0);
                             break;
                         }
 
