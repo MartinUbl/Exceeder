@@ -780,6 +780,8 @@ void PresentationMgr::Run()
             memcpy(m_slideElement, tmp, sizeof(SlideElement));
             tmp = NULL;
 
+            m_slideElement->OnCreate();
+
             // Effect creation
             // If effect is blocking, then block presentation from any other actions until effect ends
             m_slideElement->CreateEffectIfAny();

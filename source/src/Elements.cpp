@@ -23,6 +23,56 @@ void SlideElement::CreateEffectIfAny()
     }
 }
 
+void SlideElement::OnCreate()
+{
+    Style* myStyle = NULL;
+
+    if (wcslen(elemStyle) > 0)
+        myStyle = sStorage->GetStyle(elemStyle);
+
+    if (!myStyle)
+        myStyle = sStorage->GetDefaultStyle();
+
+    uint32 width = 0, height = 0;
+    if (elemType == SLIDE_ELEM_TEXT)
+    {
+        if (typeText.outlist && typeText.outlist->size() > 0)
+        {
+            for (StyledTextList::const_iterator itr = typeText.outlist->begin(); itr != typeText.outlist->end(); ++itr)
+            {
+                if (SF->Drawing->GetFontHeight((*itr)->fontId) > height)
+                    height = SF->Drawing->GetFontHeight((*itr)->fontId);
+
+                width += SF->Drawing->GetTextWidth((*itr)->fontId, (*itr)->feature, (*itr)->text);
+            }
+        }
+        else
+        {
+            width = SF->Drawing->GetTextWidth(myStyle->fontId, elemTextData::GetFeatureArrayIndexOf(myStyle), typeText.text);
+            height = SF->Drawing->GetFontHeight(myStyle->fontId);
+        }
+    }
+    else if (elemType == SLIDE_ELEM_IMAGE)
+    {
+        width = typeImage.size[0];
+        height = typeImage.size[1];
+    }
+
+    if (position[0] == POS_CENTER)
+        position[0] = (sStorage->GetScreenWidth()-width) / 2;
+    else if (position[0] == POS_LEFT)
+        position[0] = 0;
+    else if (position[0] == POS_RIGHT)
+        position[0] = sStorage->GetScreenWidth()-width;
+
+    if (position[1] == POS_CENTER)
+        position[1] = (sStorage->GetScreenHeight()-height) / 2;
+    else if (position[1] == POS_TOP)
+        position[1] = 0;
+    else if (position[1] == POS_BOTTOM)
+        position[1] = sStorage->GetScreenHeight()-height;
+}
+
 void SlideElement::PlayEffect(const wchar_t* effectId)
 {
     Effect* tmp = sStorage->GetEffect(effectId);

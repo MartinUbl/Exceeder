@@ -1,6 +1,17 @@
 #ifndef EXCDR_HELPERS_H
 #define EXCDR_HELPERS_H
 
+#define SPEC_BASE -INT_MAX
+
+enum PositionSpecial
+{
+    POS_CENTER     = SPEC_BASE+1,
+    POS_LEFT       = SPEC_BASE+2,
+    POS_RIGHT      = SPEC_BASE+3,
+    POS_TOP        = SPEC_BASE+4,
+    POS_BOTTOM     = SPEC_BASE+5
+};
+
 typedef std::list< std::pair<const wchar_t*, std::wstring> > ParsedDefs;
 
 extern wchar_t* CharVectorToString(std::vector<wchar_t>* vect);

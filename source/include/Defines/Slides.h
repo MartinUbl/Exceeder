@@ -39,17 +39,6 @@ enum KeyboardEventTypes
     KEYBOARD_EVENT_MAX
 };
 
-#define SPEC_BASE -INT_MAX
-
-enum PositionSpecial
-{
-    POS_CENTER     = SPEC_BASE+1,
-    POS_LEFT       = SPEC_BASE+2,
-    POS_RIGHT      = SPEC_BASE+3,
-    POS_TOP        = SPEC_BASE+4,
-    POS_BOTTOM     = SPEC_BASE+5
-};
-
 enum Spread
 {
     SPREAD_NONE   = 0,
@@ -142,6 +131,7 @@ struct SlideElement
 
     uint8 opacity;
 
+    void OnCreate();
     void CreateEffectIfAny();
     void PlayEffect(const wchar_t* effectId);
     void Draw();

@@ -273,12 +273,35 @@ void GetPositionDefinitionKeyValue(ParsedDefs* input, const wchar_t* key, int32*
         {
             const wchar_t* xpos = LeftSide(pos, ',');
             const wchar_t* ypos = RightSide(pos, ',');
-            if (IsNumeric(xpos) && IsNumeric(ypos))
+
+            if (destX)
             {
-                if (destX)
-                    (*destX) = ToInt(xpos);
-                if (destY)
+                if (IsNumeric(xpos))
+                        (*destX) = ToInt(xpos);
+                else
+                {
+                    if (EqualString(xpos, L"CENTER", true))
+                        (*destX) = POS_CENTER;
+                    else if (EqualString(xpos, L"LEFT", true))
+                        (*destX) = POS_LEFT;
+                    else if (EqualString(xpos, L"RIGHT", true))
+                        (*destX) = POS_RIGHT;
+                }
+            }
+
+            if (destY)
+            {
+                if (IsNumeric(ypos))
                     (*destY) = ToInt(ypos);
+                else
+                {
+                    if (EqualString(ypos, L"CENTER", true))
+                        (*destY) = POS_CENTER;
+                    else if (EqualString(ypos, L"TOP", true))
+                        (*destY) = POS_TOP;
+                    else if (EqualString(ypos, L"BOTTOM", true))
+                        (*destY) = POS_BOTTOM;
+                }
             }
         }
     }
