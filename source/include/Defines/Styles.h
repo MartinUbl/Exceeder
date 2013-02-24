@@ -21,13 +21,6 @@ static const KnownColor KnownColors[] = {
 #define COLOR_B(c) uint8(c >> 8)
 #define COLOR_A(c) uint8(c)
 
-enum TextPosition
-{
-    TEXT_POSITION_LEFT   = 0,
-    TEXT_POSITION_CENTER = 1,
-    TEXT_POSITION_RIGHT  = 2
-};
-
 #ifndef FW_DONTCARE
   #define FW_DONTCARE 0
 #endif
@@ -54,8 +47,6 @@ struct Style
     uint32*     overlayColor;
 
     int32       fontId;                  // built font id - created after style definition (DEF_END)
-
-    TextPosition* textPosition;
 };
 
 typedef std::map<const wchar_t*, Style*> StyleMap;

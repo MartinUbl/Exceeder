@@ -167,23 +167,36 @@ void Storage::SetupDefaultStyle()
     if (m_defaultTextStyle)
         delete m_defaultTextStyle;
 
-    m_defaultTextStyle = new Style;
-    memset(m_defaultTextStyle, 0, sizeof(Style));
+    m_defaultTextStyle = NULL;
 
     if (m_defaultStyleName.size() > 0)
     {
         Style* st = sStorage->GetStyle(m_defaultStyleName.c_str());
-        if (!st)
+        if (st)
         {
-            delete m_defaultTextStyle;
-            m_defaultTextStyle = NULL;
+            m_defaultTextStyle = new Style;
+            memset(m_defaultTextStyle, 0, sizeof(Style));
+
+            if (st->fontColor)
+                m_defaultTextStyle->fontColor = new uint32(*st->fontColor);
+
+            m_defaultTextStyle->fontFamily = new wchar_t[wcslen(st->fontFamily)+1];
+            memset((void*)m_defaultTextStyle->fontFamily, 0, wcslen(st->fontFamily)+1);
+            wcsncpy((wchar_t*)m_defaultTextStyle->fontFamily, st->fontFamily, wcslen(st->fontFamily));
+
+            if (st->fontSize)
+                m_defaultTextStyle->fontSize = new uint32(*st->fontSize);
+
+            if (st->overlayColor)
+                m_defaultTextStyle->overlayColor = new uint32(*st->overlayColor);
         }
-        else
-            memcpy(m_defaultTextStyle, st, sizeof(Style));
     }
 
     if (!m_defaultTextStyle)
     {
+        m_defaultTextStyle = new Style;
+        memset(m_defaultTextStyle, 0, sizeof(Style));
+
         m_defaultTextStyle->fontId = sStorage->GetDefaultFontId();
         m_defaultTextStyle->fontSize = new uint32(DEFAULT_FONT_SIZE);
         m_defaultTextStyle->fontFamily = DEFAULT_FONT_FAMILY;
