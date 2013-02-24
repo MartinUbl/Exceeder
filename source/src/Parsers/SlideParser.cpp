@@ -502,6 +502,10 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
 
         tmp->typeText.wrapSign = WW_PREWRAP;
 
+        if (const wchar_t* wrapsign = GetDefinitionKeyValue(&defs, L"W"))
+            if (EqualString(wrapsign, L"NONE", true))
+                tmp->typeText.wrapSign = WW_NO_WRAP;
+
         // Text elements needs to be postparsed due to possibility of marking
         sStorage->AddPostParseElement(tmp);
 
@@ -922,6 +926,55 @@ void SlideParser::ParseMarkup(const wchar_t *input, const wchar_t* stylename, St
                     ExpressionTreeElement* elmnt = ExpressionParser::BuildTree(exvec, 0, exvec->size());
                     elmnt->SimplifyChildren();
                     ((*exmap)[target->size()-1]) = *elmnt;
+
+                    i = j+1;
+                    lastTextBegin = i;
+                    goto outer_continue;
+                }
+            }
+        }
+        // char code
+        if (i < len-2 && input[i] == L'{' && input[i+1] == L'%')
+        {
+            for (uint32 j = i+2; j < len; j++)
+            {
+                if (input[j] == L'}')
+                {
+                    if (!target)
+                    target = new StyledTextList;
+
+                    tmp = new printTextData;
+
+                    tmp->fontId = defstyle->fontId;
+
+                    tmp->feature = SlideElement::elemTextData::GetFeatureArrayIndexOf(defstyle);
+                    tmp->colorize = !(defstyle->fontColor == NULL);
+                    if (tmp->colorize)
+                        tmp->color = (*(defstyle->fontColor));
+
+                    tmp->text = new wchar_t[i-lastTextBegin+1];
+                    memset(tmp->text, 0, sizeof(wchar_t)*(i-lastTextBegin+1));
+                    wcsncpy(tmp->text, &(input[lastTextBegin]), i-lastTextBegin);
+
+                    target->push_back(tmp);
+
+                    tmp = new printTextData;
+                    tmp->fontId = defstyle->fontId;
+                    tmp->feature = SlideElement::elemTextData::GetFeatureArrayIndexOf(defstyle);
+                    tmp->colorize = !(defstyle->fontColor == NULL);
+                    if (tmp->colorize)
+                        tmp->color = (*(defstyle->fontColor));
+
+                    wchar_t* codestr = new wchar_t[j-i-1];
+                    memset(codestr, 0, sizeof(wchar_t)*(j-i-1));
+                    wcsncpy(codestr, &(input[i+2]), j-i-2);
+
+                    tmp->text = new wchar_t[2];
+                    memset(tmp->text, 0, sizeof(wchar_t)*2);
+                    if (IsNumeric(codestr))
+                        tmp->text[0] = (wchar_t)ToInt(codestr);
+
+                    target->push_back(tmp);
 
                     i = j+1;
                     lastTextBegin = i;

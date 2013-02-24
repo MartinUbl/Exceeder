@@ -850,7 +850,7 @@ void PresentationMgr::Run()
                         {
                             canvas.baseCoord = CVector2(0.0f, 0.0f);
                             canvas.baseAngle = 0.0f;
-                            canvas.baseScale = 0.0f;
+                            canvas.baseScale = 100.0f;
                             canvas.baseColor = MAKE_COLOR_RGBA(255, 255, 255, 255);
 
                             canvas.hardMove = CVector2(0.0f, 0.0f);
