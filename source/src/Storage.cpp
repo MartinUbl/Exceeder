@@ -189,6 +189,9 @@ void Storage::SetupDefaultStyle()
 
             if (st->overlayColor)
                 m_defaultTextStyle->overlayColor = new uint32(*st->overlayColor);
+
+            if (st->fontId)
+                m_defaultTextStyle->fontId = st->fontId;
         }
     }
 
