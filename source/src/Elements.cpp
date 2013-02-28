@@ -87,6 +87,8 @@ void SlideElement::PlayEffect(const wchar_t* effectId)
 
 void SlideElement::Draw()
 {
+    glPushMatrix();
+
     if (myEffect && !myEffect->isExpired())
         myEffect->Animate();
 
@@ -100,6 +102,8 @@ void SlideElement::Draw()
         default:
             break;
     }
+
+    glPopMatrix();
 }
 
 uint8 SlideElement::elemTextData::GetFeatureArrayIndexOf(Style* style)
@@ -137,6 +141,10 @@ void SlideElement::elemTextData::Draw(SlideElement* parent)
             color = (*(myStyle->overlayColor));
             glColor4ub(COLOR_R(color),COLOR_G(color),COLOR_B(color), parent->opacity);
         }
+
+        glTranslatef((GLfloat)parent->position[0], (GLfloat)parent->position[1], 0);
+        glScalef(parent->scale, parent->scale, parent->scale);
+        glTranslatef(-(GLfloat)parent->position[0], -(GLfloat)parent->position[1], 0);
 
         int32 wrap = WW_NO_WRAP;
         if (parent->typeText.wrapSign == WW_PREWRAP)

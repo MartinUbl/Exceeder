@@ -18,6 +18,12 @@ enum FadeType
     MAX_FADE_TYPE
 };
 
+enum ScaleType
+{
+    SCALE_TYPE_SCALE     = 0,
+    MAX_SCALE_TYPE
+};
+
 enum OffsetType
 {
     OFFSET_TYPE_ABSOLUTE = 0,
@@ -46,6 +52,11 @@ struct Effect
     uint32* fadeType;
     uint8* srcOpacity;
     uint8* destOpacity;
+
+    // scale data
+    uint32* scaleType;
+    float* srcScale;
+    float* destScale;
 
     // movement data specific for each one type
     bool* circlePlus;

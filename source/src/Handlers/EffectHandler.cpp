@@ -110,6 +110,11 @@ EffectHandler::EffectHandler(SlideElement *parent, Effect *elementEffect, bool f
     // save starting opacity for later calculation
     startOpacity = effectOwner->opacity;
 
+    if (effectProto->srcScale)
+        effectOwner->scale = (*effectProto->srcScale);
+
+    startScale = effectOwner->scale;
+
     startTime = clock();
 }
 
@@ -123,6 +128,9 @@ void EffectHandler::RollBack()
     {
         for (uint32 i = 0; i <= 1; i++)
             effectOwner->position[i] = startPos[i];
+
+        effectOwner->opacity = startOpacity;
+        effectOwner->scale = startScale;
     }
 
     startTime = clock();
@@ -163,6 +171,9 @@ void EffectHandler::RollBackLastQueued()
 
     for (i = 0; i <= 1; i++)
         effectOwner->position[i] = (*itr)->startPos[i];
+
+    effectOwner->opacity = (*itr)->startOpacity;
+    effectOwner->scale = (*itr)->startScale;
 
     if (m_queuePos != 0)
         m_queuePos--;
@@ -287,6 +298,13 @@ void EffectHandler::Animate()
             AnimateFadeOut();
     }
 
+    // scale
+    if (effectProto->scaleType)
+    {
+        if ((*effectProto->scaleType) == SCALE_TYPE_SCALE)
+            AnimateScaleScale();
+    }
+
     // Synchronization
     if (isExpired())
     {
@@ -400,4 +418,12 @@ void EffectHandler::AnimateFadeOut()
         return;
 
     effectOwner->opacity = uint8(startOpacity - float(startOpacity - (*effectProto->destOpacity))*timeCoef);
+}
+
+void EffectHandler::AnimateScaleScale()
+{
+    if (!(effectProto->destScale))
+        return;
+
+    effectOwner->scale = startScale + ((*effectProto->destScale) - startScale)*timeCoef;
 }

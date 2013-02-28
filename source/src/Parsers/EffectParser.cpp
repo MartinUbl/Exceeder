@@ -225,6 +225,43 @@ bool EffectParser::Parse(std::vector<std::wstring> *input)
 
                 tmp->destOpacity = new uint8( uint8(255.0f*(float)val/100.0f) );
             }
+            // scale
+            else if (EqualString(left, L"\\SCALE", true))
+            {
+                tmp->scaleType = new uint32(SCALE_TYPE_SCALE);
+
+                if (!right)
+                    RAISE_ERROR("EffectParser: no parameters supplied for final scale of effect '%S'", effname);
+
+                if (!IsNumeric(right))
+                    RAISE_ERROR("EffectParser: non-numeric argument '%S' supplied as final scale value of effect '%S'", right, effname);
+
+                float val = (float)ToInt(right);
+
+                if (tmp->destScale)
+                    (*tmp->destScale) = val/100.0f;
+                else
+                    tmp->destScale = new float(val/100.0f);
+
+                if (!tmp->srcScale)
+                    tmp->srcScale = new float(1.0f);
+            }
+            // source scale
+            else if (EqualString(left, L"\\START_SCALE", true))
+            {
+                if (!right)
+                    RAISE_ERROR("EffectParser: no parameters supplied for starting scale of effect '%S'", effname);
+
+                if (!IsNumeric(right))
+                    RAISE_ERROR("EffectParser: non-numeric argument '%S' supplied as starting scale value of effect '%S'", right, effname);
+
+                float val = (float)ToInt(right);
+
+                if (tmp->srcScale)
+                    (*tmp->srcScale) = val/100.0f;
+                else
+                    tmp->srcScale = new float(val/100.0f);
+            }
             // time for whole effect
             else if (EqualString(left, L"\\TIMER", true))
             {

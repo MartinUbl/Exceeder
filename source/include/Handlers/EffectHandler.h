@@ -41,6 +41,7 @@ class EffectHandler
         void AnimateMoveBezier();
         void AnimateFadeIn();
         void AnimateFadeOut();
+        void AnimateScaleScale();
 
         // time coefficient could be reused
         float timeCoef;
@@ -84,6 +85,9 @@ class EffectHandler
 
         // cached opacity
         uint8 startOpacity;
+
+        // cached scale
+        float startScale;
 
         // For circular and bezier movement
         CVector2 movementVector[2];
