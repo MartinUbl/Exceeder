@@ -159,6 +159,12 @@ void SlideElement::elemTextData::Draw(SlideElement* parent)
                 swprintf(((*tmp)[(*itr).first])->text, 255, L"%li", val);
             }
 
+            for (StyledTextList::iterator itr = tmp->begin(); itr != tmp->end(); ++itr)
+            {
+                (*itr)->color &= 0xFFFFFF00; // remove alpha value
+                (*itr)->color |= uint8(parent->opacity); // and add parent opacity
+            }
+
             sSimplyFlat->Drawing->PrintStyledText(parent->position[0], parent->position[1], wrap, tmp);
         }
         else if (myStyle->fontId >= 0)
