@@ -159,6 +159,10 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
 
             SlideElement* live = sStorage->GetTemplateSlideElementById(idstr.c_str());
 
+            wchar_t* efc = GetDefinitionKeyValue(&defs, L"E");
+            if (efc)
+                live->elemEffect = efc;
+
             if (!live)
                 RAISE_ERROR("SlideParser: template filling: couldn't find element with ID '%S' in template '%S'", idc, persistentIdentificator);
 
