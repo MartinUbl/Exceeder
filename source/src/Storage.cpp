@@ -23,6 +23,8 @@ Storage::Storage()
 
     m_btInterface = NULL;
     m_networkPort = 0;
+
+    m_lastOverwrittenElement = m_slideData.end();
 }
 
 Storage::~Storage()

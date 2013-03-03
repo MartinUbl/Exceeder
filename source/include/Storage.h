@@ -111,6 +111,31 @@ class Storage
         {
             m_slideData.push_back(elem);
         }
+        void InsertAfterLastOverwritten(SlideElement* elem)
+        {
+            if (m_lastOverwrittenElement._Has_container() && m_lastOverwrittenElement != m_slideData.end())
+                m_slideData.insert(m_lastOverwrittenElement, elem);
+        }
+        void UpdateLastOverwritten(std::wstring elemId)
+        {
+            SlideElementVector::reverse_iterator itr = m_slideData.rbegin();
+
+            // if element ID equals empty string, we use last added element
+            if (elemId.size() == 0)
+            {
+                m_lastOverwrittenElement = itr.base();
+                return;
+            }
+
+            for ( ; itr != m_slideData.rend(); ++itr)
+            {
+                if (EqualString((*itr)->elemId, elemId.c_str()))
+                {
+                    m_lastOverwrittenElement = itr.base();
+                    return;
+                }
+            }
+        }
         SlideElement* GetSlideElement(uint32 pos)
         {
             if (m_slideData.size() <= pos)
@@ -225,6 +250,8 @@ class Storage
         uint32 m_screenWidth;
         uint32 m_screenHeight;
         bool m_fullscreen;
+
+        SlideElementVector::iterator m_lastOverwrittenElement;
 
         // content
         StyleMap m_styleMap;

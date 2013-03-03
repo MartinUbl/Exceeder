@@ -146,29 +146,50 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
         }
         else
         {
-            ParseInputDefinitions(middle, &defs);
-
-            const wchar_t* idc = GetDefinitionKeyValue(&defs, L"ID");
-
-            if (!idc)
-                RAISE_ERROR("SlideParser: template filling: couldn't parse element replacement line '%S'", input);
-
-            std::wstring idstr = idc;
-            idstr.append(TEMPLATE_ID_DELIMITER);
-            idstr.append((*persistentIdentificator));
-
-            SlideElement* live = sStorage->GetTemplateSlideElementById(idstr.c_str());
-
-            wchar_t* efc = GetDefinitionKeyValue(&defs, L"E");
-            if (efc)
-                live->elemEffect = efc;
-
-            if (!live)
-                RAISE_ERROR("SlideParser: template filling: couldn't find element with ID '%S' in template '%S'", idc, persistentIdentificator);
-
-            if (live->elemType == SLIDE_ELEM_TEXT)
+            // check if it's attempt to add new element (left side has more chars than \), or overwrite existing (left side has only \)
+            if (wcslen(left) > 1)
             {
-                live->typeText.text = right;
+                uint8 outputSpecial = 0;
+                SlideElement* ntmp = ParseElement(input, &outputSpecial, NULL);
+
+                // this means, that we are attempting to parse new template call inside template call
+                // DiCaprio would hate me --> avoiding inception
+                if (outputSpecial & SEPF_ONLY_TEMPLATE)
+                    return NULL;
+
+                sStorage->InsertAfterLastOverwritten(ntmp);
+
+                return NULL;
+            }
+            else
+            {
+                ParseInputDefinitions(middle, &defs);
+
+                const wchar_t* idc = GetDefinitionKeyValue(&defs, L"ID");
+
+                if (!idc)
+                    RAISE_ERROR("SlideParser: template filling: couldn't parse element replacement line '%S'", input);
+
+                std::wstring idstr = idc;
+                idstr.append(TEMPLATE_ID_DELIMITER);
+                idstr.append((*persistentIdentificator));
+
+                SlideElement* live = sStorage->GetTemplateSlideElementById(idstr.c_str());
+
+                if (!live)
+                    RAISE_ERROR("SlideParser: template filling: couldn't find element with ID '%S' in template '%S'", idc, persistentIdentificator);
+
+                wchar_t* efc = GetDefinitionKeyValue(&defs, L"E");
+                if (efc)
+                    live->elemEffect = efc;
+
+                sStorage->UpdateLastOverwritten(idstr.c_str());
+
+                if (live->elemType == SLIDE_ELEM_TEXT)
+                {
+                    if (wcslen(right) > 0)
+                        live->typeText.text = right;
+                }
             }
         }
 
@@ -817,6 +838,17 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
 
         if (!mytmp)
             RAISE_ERROR("SlideParser: couldn't find template named '%S'!",((right != NULL)?right:L"unknown"));
+
+        if (persistentIdentificator == NULL)
+        {
+            if (special)
+                (*special) = SEPF_ONLY_TEMPLATE;
+            return NULL;
+        }
+
+        // this causes marking of last added slide element as last overwritten
+        // allows us to add raw elements to template
+        sStorage->UpdateLastOverwritten(L"");
 
         (*persistentIdentificator) = new wchar_t[wcslen(right)+1];
         memset((*persistentIdentificator), 0, sizeof(wchar_t)*(wcslen(right)+1));
