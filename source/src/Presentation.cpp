@@ -338,7 +338,8 @@ void PresentationMgr::MoveBack(bool hard)
                 }
 
                 // is this necessary?
-                continue; // yes, it is
+                //continue; // yes, it is
+                // no, it isn't
             }
 
             if (sStorage->IsSlideElementBlocking(*itr, true))
@@ -600,6 +601,10 @@ void PresentationMgr::MoveBack(bool hard)
             }
         }
     }
+
+    // blocking element with timer set has to be set again
+    if (m_slideElement->elemType == SLIDE_ELEM_BLOCK && m_slideElement->typeBlock.time != 0)
+        m_slideElement->typeBlock.startTime = clock();
 
     SetBlocking(sStorage->IsSlideElementBlocking(m_slideElement, true));
 }
