@@ -174,6 +174,8 @@ void SlideElement::elemTextData::Draw(SlideElement* parent)
             }
 
             sSimplyFlat->Drawing->PrintStyledText(parent->position[0], parent->position[1], wrap, tmp);
+
+            delete tmp;
         }
         else if (myStyle->fontId >= 0)
             sSimplyFlat->Drawing->PrintText(myStyle->fontId, parent->position[0], parent->position[1], GetFeatureArrayIndexOf(myStyle), wrap, parent->typeText.text);
