@@ -205,6 +205,7 @@ struct SlideElement
     {
         uint32 time;               // 0 for interface event, other positive value for timer
         clock_t startTime;         // dynamic value stored at element creation - since memory is copied, it's safe
+        bool passthrough;          // indicator of reverse blocking (when going back, this causes reverse algorhitm to go to the previous elements)
     } typeBlock;
 };
 

@@ -106,8 +106,16 @@ bool Storage::IsSlideElementBlocking(SlideElement* src, bool staticOnly)
     if (!src)
         return false;
 
+    if (src->elemType == SLIDE_ELEM_BLOCK)
+    {
+        if (src->typeBlock.passthrough && staticOnly)
+            return false;
+        else
+            return true;
+    }
+
     // certain slide element types are blocking by default
-    if (src->elemType == SLIDE_ELEM_MOUSE_EVENT || src->elemType == SLIDE_ELEM_KEYBOARD_EVENT || src->elemType == SLIDE_ELEM_BLOCK)
+    if (src->elemType == SLIDE_ELEM_MOUSE_EVENT || src->elemType == SLIDE_ELEM_KEYBOARD_EVENT)
         return true;
 
     // and some elements have only blocking effect on them

@@ -542,13 +542,23 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
         tmp = new SlideElement;
         tmp->elemType = SLIDE_ELEM_BLOCK;
         tmp->typeBlock.time = 0;
+        tmp->typeBlock.passthrough = false;
 
-        if (right)
+        while (right)
         {
-            if (IsNumeric(right))
-                tmp->typeBlock.time = ToInt(right);
-            else
-                RAISE_ERROR("SlideParser: invalid timer value '%S' used for blocking event", right);
+            left = LeftSide(right, L' ');
+
+            if (left)
+            {
+                if (IsNumeric(left))
+                    tmp->typeBlock.time = ToInt(left);
+                else if (EqualString(left, L"passthrough", true))
+                    tmp->typeBlock.passthrough = true;
+                else
+                    RAISE_ERROR("SlideParser: invalid value '%S' used as parameter for blocking event", left);
+            }
+
+            right = RightSide(right, L' ');
         }
 
         return tmp;
