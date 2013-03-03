@@ -595,6 +595,8 @@ void PresentationMgr::MoveBack(bool hard)
                             canvas.hardColorizeColor = (*it)->typeCanvasEffect.amount.asUnsigned;
                             break;
                         }
+                        else if ((*it)->elemType == SLIDE_ELEM_CANVAS_EFFECT && (*it)->typeCanvasEffect.effectType == CE_RESET)
+                            break;
                     }
                     break;
                 }
@@ -1208,9 +1210,11 @@ void PresentationMgr::AnimateCanvas(bool before)
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-            glColor4ub(uint8(255 - (COLOR_R(canvas.baseColor) - COLOR_R(canvas.hardColorizeColor))*timeCoef),
-                       uint8(255 - (COLOR_G(canvas.baseColor) - COLOR_G(canvas.hardColorizeColor))*timeCoef),
-                       uint8(255 - (COLOR_B(canvas.baseColor) - COLOR_B(canvas.hardColorizeColor))*timeCoef),
+            uint8 r = uint8(COLOR_R(canvas.baseColor) - (COLOR_R(canvas.baseColor) - COLOR_R(canvas.hardColorizeColor))*timeCoef);
+            uint8 g = uint8(COLOR_G(canvas.baseColor) - (COLOR_G(canvas.baseColor) - COLOR_G(canvas.hardColorizeColor))*timeCoef);
+            uint8 b = uint8(COLOR_B(canvas.baseColor) - (COLOR_B(canvas.baseColor) - COLOR_B(canvas.hardColorizeColor))*timeCoef);
+
+            glColor4ub(r, g, b,
                        uint8(COLOR_A(canvas.baseColor) + (COLOR_A(canvas.hardColorizeColor) - COLOR_A(canvas.baseColor))*timeCoef));
 
             glBegin(GL_QUADS);
