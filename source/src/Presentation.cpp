@@ -681,6 +681,10 @@ void PresentationMgr::Run()
         suppressPostAction = false;
         suppressPostBlocking = false;
 
+        // Rebuild fonts if needed- sometimes a font change occurs. This will lead fontId to be set to -2
+        // this handler iterates through all the styles and check whether fontId is -2. If yes, it will build the font
+        sStorage->BuildStyleFonts();
+
         // SF before draw events
         sSimplyFlat->BeforeDraw();
 

@@ -148,9 +148,12 @@ void Storage::BuildStyleFonts()
                     && iter->underline == itr->second->underline
                     && iter->strikeout == itr->second->strikeout)
                 {
-                    itr->second->fontId = iter->fontId;
-                    fontMatch = true;
-                    break;
+                    if (iter->fontId >= 0)
+                    {
+                        itr->second->fontId = iter->fontId;
+                        fontMatch = true;
+                        break;
+                    }
                 }
             }
             if (fontMatch)
