@@ -52,6 +52,8 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
 
     for (std::vector<std::wstring>::const_iterator itr = input->begin(); itr != input->end(); ++itr)
     {
+        sStorage->SetCriticalError(false);
+
         tmp = ParseElement(itr->c_str(), &special, &persistent);
 
         if (tmp != NULL)
@@ -97,7 +99,15 @@ bool SlideParser::Parse(std::vector<std::wstring> *input)
         }
         else
         {
-            RAISE_ERROR("SlideParser: Line '%S' Unrecognized key '%S'", itr->c_str(), left);
+            if (special & SEPF_REPORT_ERROR)
+            {
+                sLog->ErrorLog("SlideParser: Line '%S' Unrecognized key '%S'", itr->c_str(), left);
+                special &= ~SEPF_REPORT_ERROR;
+            }
+
+            // break the process only if the error is unrecoverable
+            if (sStorage->IsCriticalError())
+                return false;
         }
     }
 
@@ -168,7 +178,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                 const wchar_t* idc = GetDefinitionKeyValue(&defs, L"ID");
 
                 if (!idc)
-                    RAISE_ERROR("SlideParser: template filling: couldn't parse element replacement line '%S'", input);
+                    RAISE_ERROR_NULL("SlideParser: template filling: couldn't parse element replacement line '%S' - ID armugent missing", input);
 
                 std::wstring idstr = idc;
                 idstr.append(TEMPLATE_ID_DELIMITER);
@@ -177,7 +187,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                 SlideElement* live = sStorage->GetTemplateSlideElementById(idstr.c_str());
 
                 if (!live)
-                    RAISE_ERROR("SlideParser: template filling: couldn't find element with ID '%S' in template '%S'", idc, persistentIdentificator);
+                    RAISE_ERROR_NULL("SlideParser: template filling: couldn't find element with ID '%S' in template '%S'", idc, persistentIdentificator);
 
                 wchar_t* efc = GetDefinitionKeyValue(&defs, L"E");
                 if (efc)
@@ -232,22 +242,22 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
             inner_value = RightSide(el, L'=');
 
             if (!inner_value)
-                RAISE_ERROR("SlideParser: invalid background definition chunk identified by %s", (inner_id != NULL)?ToMultiByteString(inner_id):"nothing");
+                RAISE_ERROR_NULL("SlideParser: invalid background definition chunk identified by %s", (inner_id != NULL)?ToMultiByteString(inner_id):"nothing");
 
             // Background mono-color
             if (EqualString(inner_id, L"COLOR", true))
             {
                 if (!StyleParser::ParseColor(inner_value, &tmp->typeBackground.color))
-                    RAISE_ERROR("SlideParser: invalid color name / value used in background definition: %s", ToMultiByteString(inner_value));
+                    RAISE_ERROR_NULL("SlideParser: invalid color name / value used in background definition: %s", ToMultiByteString(inner_value));
             }
             // Image as background
             else if (EqualString(inner_id, L"RESOURCE", true) || EqualString(inner_id, L"IMAGE", true))
             {
                 ResourceEntry* res = sStorage->GetResource(inner_value);
                 if (!res)
-                    RAISE_ERROR("SlideParser: Resource identified by '%s' not found", (inner_value)?ToMultiByteString(inner_value):"none");
+                    RAISE_ERROR_NULL("SlideParser: Resource identified by '%s' not found", (inner_value)?ToMultiByteString(inner_value):"none");
                 if (res->type != RESOURCE_IMAGE)
-                    RAISE_ERROR("SlideParser: Resource identified by '%s' is not an image", (inner_value)?ToMultiByteString(inner_value):"none");
+                    RAISE_ERROR_NULL("SlideParser: Resource identified by '%s' is not an image", (inner_value)?ToMultiByteString(inner_value):"none");
 
                 tmp->typeBackground.imageResourceId = res->internalId;
 
@@ -268,7 +278,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                 else if (IsNumeric(inner_value))
                     tmp->typeBackground.position[0] = ToInt(inner_value);
                 else
-                    RAISE_ERROR("SlideParser: invalid (non-numeric or special) value '%s' used as X position of background", ToMultiByteString(inner_value));
+                    RAISE_ERROR_NULL("SlideParser: invalid (non-numeric or special) value '%s' used as X position of background", ToMultiByteString(inner_value));
             }
             // vertical position of background
             else if (EqualString(inner_id, L"POS-Y", true))
@@ -282,7 +292,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                 else if (IsNumeric(inner_value))
                     tmp->typeBackground.position[1] = ToInt(inner_value);
                 else
-                    RAISE_ERROR("SlideParser: invalid (non-numeric or special) value '%s' used as Y position of background", ToMultiByteString(inner_value));
+                    RAISE_ERROR_NULL("SlideParser: invalid (non-numeric or special) value '%s' used as Y position of background", ToMultiByteString(inner_value));
             }
             // horizontal and vertical position of background
             else if (EqualString(inner_id, L"POS", true))
@@ -321,7 +331,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                     tmp->typeBackground.position[1] = POS_BOTTOM;
                 }
                 else
-                    RAISE_ERROR("SlideParser: invalid value '%s' used as X-Y position of background", ToMultiByteString(inner_value));
+                    RAISE_ERROR_NULL("SlideParser: invalid value '%s' used as X-Y position of background", ToMultiByteString(inner_value));
             }
             // image width/height spread
             else if (EqualString(inner_id, L"SPREAD", true))
@@ -335,7 +345,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                 else if (EqualString(inner_value, L"BOTH", true))
                     tmp->typeBackground.spread = SPREAD_BOTH;
                 else
-                    RAISE_ERROR("SlideParser: invalid value '%s' used as background spread", ToMultiByteString(inner_value));
+                    RAISE_ERROR_NULL("SlideParser: invalid value '%s' used as background spread", ToMultiByteString(inner_value));
             }
             // image width dimension
             else if (EqualString(inner_id, L"WIDTH", true))
@@ -345,7 +355,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                 else if (IsNumeric(inner_value))
                     tmp->typeBackground.dimensions[0] = ToInt(inner_value);
                 else
-                    RAISE_ERROR("SlideParser: invalid (non-numeric or special) value '%s' used as background width", ToMultiByteString(inner_value));
+                    RAISE_ERROR_NULL("SlideParser: invalid (non-numeric or special) value '%s' used as background width", ToMultiByteString(inner_value));
             }
             // image height dimension
             else if (EqualString(inner_id, L"HEIGHT", true))
@@ -355,7 +365,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                 else if (IsNumeric(inner_value))
                     tmp->typeBackground.dimensions[1] = ToInt(inner_value);
                 else
-                    RAISE_ERROR("SlideParser: invalid (non-numeric or special) value '%s' used as background height", ToMultiByteString(inner_value));
+                    RAISE_ERROR_NULL("SlideParser: invalid (non-numeric or special) value '%s' used as background height", ToMultiByteString(inner_value));
             }
             // gradients
             else if (EqualString(inner_id, L"GRADIENT", true))
@@ -363,9 +373,9 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                 el = LeftSide(inner_value, L' ');
                 wchar_t* col = RightSide(inner_value, L' ');
                 if (!el)
-                    RAISE_ERROR("SlideParser: invalid gradient definition for background - arguments missing");
+                    RAISE_ERROR_NULL("SlideParser: invalid gradient definition for background - arguments missing");
                 if (!col)
-                    RAISE_ERROR("SlideParser: not enough parameters for gradient background - color argument missing");
+                    RAISE_ERROR_NULL("SlideParser: not enough parameters for gradient background - color argument missing");
 
                 GradientData* gd = new GradientData;
 
@@ -376,14 +386,14 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                 else if (EqualString(el, L"EDGE", true))
                     tmp->typeBackground.gradientEdges = true;
                 else
-                    RAISE_ERROR("SlideParser: invalid gradient definition for background - invalid size '%s'", ToMultiByteString(el));
+                    RAISE_ERROR_NULL("SlideParser: invalid gradient definition for background - invalid size '%s'", ToMultiByteString(el));
 
                 // Is this function neccessary? Do we really need it in percents?
                 //if (el[wcslen(el)-1] == L'%')
                 //    el[wcslen(el)-1] = L'\0';
 
                 if (!StyleParser::ParseColor(col, &gd->color))
-                    RAISE_ERROR("SlideParser: invalid expression '%s' used as color value for background gradient", ToMultiByteString(col));
+                    RAISE_ERROR_NULL("SlideParser: invalid expression '%s' used as color value for background gradient", ToMultiByteString(col));
 
                 // make all gradient data pointers to point to the same piece of memory
                 for (uint32 i = 0; i < GRAD_MAX; i++)
@@ -395,9 +405,9 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                 el = LeftSide(inner_value, L' ');
                 wchar_t* col = RightSide(inner_value, L' ');
                 if (!el)
-                    RAISE_ERROR("SlideParser: invalid top gradient definition for background - arguments missing");
+                    RAISE_ERROR_NULL("SlideParser: invalid top gradient definition for background - arguments missing");
                 if (!col)
-                    RAISE_ERROR("SlideParser: not enough parameters for top gradient background - color argument missing");
+                    RAISE_ERROR_NULL("SlideParser: not enough parameters for top gradient background - color argument missing");
                 GradientData* gd = new GradientData;
 
                 if (IsNumeric(el))
@@ -407,10 +417,10 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                 else if (EqualString(el, L"EDGE", true))
                     tmp->typeBackground.gradientEdges = true;
                 else
-                    RAISE_ERROR("SlideParser: invalid gradient definition for background - invalid size '%s'", ToMultiByteString(el));
+                    RAISE_ERROR_NULL("SlideParser: invalid gradient definition for background - invalid size '%s'", ToMultiByteString(el));
 
                 if (!StyleParser::ParseColor(col, &gd->color))
-                    RAISE_ERROR("SlideParser: invalid expression '%s' used as color value for background top gradient", ToMultiByteString(col));
+                    RAISE_ERROR_NULL("SlideParser: invalid expression '%s' used as color value for background top gradient", ToMultiByteString(col));
 
                 tmp->typeBackground.gradients[GRAD_TOP] = gd;
             }
@@ -420,9 +430,9 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                 el = LeftSide(inner_value, L' ');
                 wchar_t* col = RightSide(inner_value, L' ');
                 if (!el)
-                    RAISE_ERROR("SlideParser: invalid left gradient definition for background - arguments missing");
+                    RAISE_ERROR_NULL("SlideParser: invalid left gradient definition for background - arguments missing");
                 if (!col)
-                    RAISE_ERROR("SlideParser: not enough parameters for left gradient background - color argument missing");
+                    RAISE_ERROR_NULL("SlideParser: not enough parameters for left gradient background - color argument missing");
 
                 GradientData* gd = new GradientData;
 
@@ -433,10 +443,10 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                 else if (EqualString(el, L"EDGE", true))
                     tmp->typeBackground.gradientEdges = true;
                 else
-                    RAISE_ERROR("SlideParser: invalid gradient definition for background - invalid size '%s'", ToMultiByteString(el));
+                    RAISE_ERROR_NULL("SlideParser: invalid gradient definition for background - invalid size '%s'", ToMultiByteString(el));
 
                 if (!StyleParser::ParseColor(col, &gd->color))
-                    RAISE_ERROR("SlideParser: invalid expression '%s' used as color value for background left gradient", ToMultiByteString(col));
+                    RAISE_ERROR_NULL("SlideParser: invalid expression '%s' used as color value for background left gradient", ToMultiByteString(col));
 
                 tmp->typeBackground.gradients[GRAD_LEFT] = gd;
             }
@@ -446,9 +456,9 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                 el = LeftSide(inner_value, L' ');
                 wchar_t* col = RightSide(inner_value, L' ');
                 if (!el)
-                    RAISE_ERROR("SlideParser: invalid right gradient definition for background - arguments missing");
+                    RAISE_ERROR_NULL("SlideParser: invalid right gradient definition for background - arguments missing");
                 if (!col)
-                    RAISE_ERROR("SlideParser: not enough parameters for right gradient background - color argument missing");
+                    RAISE_ERROR_NULL("SlideParser: not enough parameters for right gradient background - color argument missing");
 
                 GradientData* gd = new GradientData;
 
@@ -459,10 +469,10 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                 else if (EqualString(el, L"EDGE", true))
                     tmp->typeBackground.gradientEdges = true;
                 else
-                    RAISE_ERROR("SlideParser: invalid gradient definition for background - invalid size '%s'", ToMultiByteString(el));
+                    RAISE_ERROR_NULL("SlideParser: invalid gradient definition for background - invalid size '%s'", ToMultiByteString(el));
 
                 if (!StyleParser::ParseColor(col, &gd->color))
-                    RAISE_ERROR("SlideParser: invalid expression '%s' used as color value for background right gradient", ToMultiByteString(col));
+                    RAISE_ERROR_NULL("SlideParser: invalid expression '%s' used as color value for background right gradient", ToMultiByteString(col));
 
                 tmp->typeBackground.gradients[GRAD_RIGHT] = gd;
             }
@@ -472,9 +482,9 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                 el = LeftSide(inner_value, L' ');
                 wchar_t* col = RightSide(inner_value, L' ');
                 if (!el)
-                    RAISE_ERROR("SlideParser: invalid bottom gradient definition for background - arguments missing");
+                    RAISE_ERROR_NULL("SlideParser: invalid bottom gradient definition for background - arguments missing");
                 if (!col)
-                    RAISE_ERROR("SlideParser: not enough parameters for bottom gradient background - color argument missing");
+                    RAISE_ERROR_NULL("SlideParser: not enough parameters for bottom gradient background - color argument missing");
 
                 GradientData* gd = new GradientData;
 
@@ -485,10 +495,10 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                 else if (EqualString(el, L"EDGE", true))
                     tmp->typeBackground.gradientEdges = true;
                 else
-                    RAISE_ERROR("SlideParser: invalid gradient definition for background - invalid size '%s'", ToMultiByteString(el));
+                    RAISE_ERROR_NULL("SlideParser: invalid gradient definition for background - invalid size '%s'", ToMultiByteString(el));
 
                 if (!StyleParser::ParseColor(col, &gd->color))
-                    RAISE_ERROR("SlideParser: invalid expression '%s' used as color value for background bottom gradient", ToMultiByteString(col));
+                    RAISE_ERROR_NULL("SlideParser: invalid expression '%s' used as color value for background bottom gradient", ToMultiByteString(col));
 
                 tmp->typeBackground.gradients[GRAD_BOTTOM] = gd;
             }
@@ -555,7 +565,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                 else if (EqualString(left, L"passthrough", true))
                     tmp->typeBlock.passthrough = true;
                 else
-                    RAISE_ERROR("SlideParser: invalid value '%S' used as parameter for blocking event", left);
+                    RAISE_ERROR_NULL("SlideParser: invalid value '%S' used as parameter for blocking event", left);
             }
 
             right = RightSide(right, L' ');
@@ -572,9 +582,9 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
         path = RemoveBeginningSpaces(RightSide(right, ','));
 
         if (name.size() < 2)
-            RAISE_ERROR("SlideParser: Invalid name %s - name must have at least 2 characters", name.c_str());
+            RAISE_ERROR_NULL("SlideParser: Invalid name %s - name must have at least 2 characters", name.c_str());
         if (path.size() < 1)
-            RAISE_ERROR("SlideParser: Invalid path - not entered or not valid");
+            RAISE_ERROR_NULL("SlideParser: Invalid path - not entered or not valid");
 
         sStorage->PrepareImageResource(name.c_str(), path.c_str());
 
@@ -713,7 +723,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
 
             float* movevect = ParseVector2(left, L',');
             if (!movevect)
-                RAISE_ERROR("SlideParser: invalid movement vector '%S' in canvas move definition", left?ToMultiByteString(left):"");
+                RAISE_ERROR_NULL("SlideParser: invalid movement vector '%S' in canvas move definition", left?ToMultiByteString(left):"");
 
             tmp->typeCanvasEffect.moveVector.x = movevect[0];
             tmp->typeCanvasEffect.moveVector.y = movevect[1];
@@ -730,7 +740,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
             left = LeftSide(right, L' ');
 
             if (!IsNumeric(left))
-                RAISE_ERROR("SlideParser: invalid angle value '%S' in canvas rotate definition", left?ToMultiByteString(left):"");
+                RAISE_ERROR_NULL("SlideParser: invalid angle value '%S' in canvas rotate definition", left?ToMultiByteString(left):"");
 
             tmp->typeCanvasEffect.amount.asFloat = (float)ToInt(left);
 
@@ -749,7 +759,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
             left = LeftSide(right, L' ');
 
             if (!IsNumeric(left))
-                RAISE_ERROR("SlideParser: invalid scale value '%S' in canvas scale definition", left?ToMultiByteString(left):"");
+                RAISE_ERROR_NULL("SlideParser: invalid scale value '%S' in canvas scale definition", left?ToMultiByteString(left):"");
 
             tmp->typeCanvasEffect.amount.asFloat = (float)ToInt(left);
         }
@@ -765,7 +775,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
             left = LeftSide(right, L' ');
 
             if (!StyleParser::ParseColor(left, &tmp->typeCanvasEffect.amount.asUnsigned))
-                RAISE_ERROR("SlideParser: unrecognized know value or invalid color value '%S' in canvas rotate definition", left?ToMultiByteString(left):"");
+                RAISE_ERROR_NULL("SlideParser: unrecognized know value or invalid color value '%S' in canvas rotate definition", left?ToMultiByteString(left):"");
 
             // remove alpha byte
             tmp->typeCanvasEffect.amount.asUnsigned &= 0xFFFFFF00;
@@ -784,7 +794,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
         {
             left = LeftSide(right, L' ');
             if (!IsNumeric(left))
-                RAISE_ERROR("SlideParser: invalid value '%s' used as timer for canvas move effect", left?ToMultiByteString(left):"");
+                RAISE_ERROR_NULL("SlideParser: invalid value '%s' used as timer for canvas move effect", left?ToMultiByteString(left):"");
 
             tmp->typeCanvasEffect.effectTimer = ToInt(left);
 
@@ -829,7 +839,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
                             }
                         }
                         else
-                            RAISE_ERROR("SlideParser: unknown definition '%s' as canvas move parameter", left?ToMultiByteString(left):"");
+                            RAISE_ERROR_NULL("SlideParser: unknown definition '%s' as canvas move parameter", left?ToMultiByteString(left):"");
                     }
                 }
             } while ((right = RightSide(right, L' ')) != NULL);
@@ -847,7 +857,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
         SlideTemplate* mytmp = sStorage->GetSlideTemplate(right);
 
         if (!mytmp)
-            RAISE_ERROR("SlideParser: couldn't find template named '%S'!",((right != NULL)?right:L"unknown"));
+            RAISE_ERROR_NULL("SlideParser: couldn't find template named '%S'!",((right != NULL)?right:L"unknown"));
 
         if (persistentIdentificator == NULL)
         {
@@ -888,6 +898,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
         return NULL;
     }
 
+    (*special) |= SEPF_REPORT_ERROR;
     return NULL;
 }
 

@@ -229,6 +229,15 @@ class Storage
             return (m_networkPort > 0);
         }
 
+        void SetCriticalError(bool state)
+        {
+            m_criticalError = state;
+        }
+        bool IsCriticalError()
+        {
+            return m_criticalError;
+        }
+
     private:
 
         typedef std::pair<std::wstring, std::wstring> MacroPair;
@@ -266,6 +275,8 @@ class Storage
         std::list<StoredFont> m_fontMap;
         Style* m_defaultTextStyle;
         std::wstring m_defaultStyleName;
+
+        bool m_criticalError;
 
         std::list<SlideElement*> m_postParseList;
 };

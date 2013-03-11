@@ -25,11 +25,13 @@ class Log
 #ifdef _WIN32
 
 #define RAISE_ERROR(a, ...) { sLog->ErrorLog(a, __VA_ARGS__); return false; }
+#define RAISE_ERROR_NULL(a, ...) { sLog->ErrorLog(a, __VA_ARGS__); return NULL; }
 #define RAISE_ERROR_NORETVAL(a, ...) { sLog->ErrorLog(a, __VA_ARGS__); return;}
 
 #else
 
 #define RAISE_ERROR(a, ...) { sLog->ErrorLog(a, ##__VA_ARGS__); return false; }
+#define RAISE_ERROR_NULL(a, ...) { sLog->ErrorLog(a, ##__VA_ARGS__); return NULL; }
 #define RAISE_ERROR_NORETVAL(a, ...) { sLog->ErrorLog(a, ##__VA_ARGS__); return;}
 
 #endif
