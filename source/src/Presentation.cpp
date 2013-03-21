@@ -408,7 +408,8 @@ void PresentationMgr::MoveBack(bool hard)
 
                     bool move = false, rotate = false, scale = false, colorize = false;
                     SlideList::iterator it = oldLast;
-                    --it;
+                    if (it != m_activeElements.begin())
+                        --it;
                     CVector2 modVector(0,0);
                     float modRotate = 0.0f, frst = 0.0f;
                     for ( ; it != m_activeElements.begin(); --it)
@@ -493,7 +494,8 @@ void PresentationMgr::MoveBack(bool hard)
                     if ((*oldLast)->typeCanvasEffect.hard)
                     {
                         SlideList::iterator it = oldLast;
-                        --it;
+                        if (it != m_activeElements.begin())
+                            --it;
                         CVector2 modVector(0,0);
                         for ( ; it != m_activeElements.begin(); --it)
                         {
@@ -523,7 +525,8 @@ void PresentationMgr::MoveBack(bool hard)
                 case CE_ROTATE:
                 {
                     SlideList::iterator it = oldLast;
-                    --it;
+                    if (it != m_activeElements.begin())
+                        --it;
                     float mod = 0.0f, frst = 0.0f;
                     bool foundCheckpoint = false, foundSecond = false;
                     for ( ; it != m_activeElements.begin(); --it)
@@ -575,7 +578,8 @@ void PresentationMgr::MoveBack(bool hard)
                     canvas.baseScale = 100.0f;
                     canvas.hardScale = 100.0f;
                     SlideList::iterator it = lastActual;
-                    --it;
+                    if (it != m_activeElements.begin())
+                        --it;
                     for ( ; it != m_activeElements.begin(); --it)
                     {
                         if ((*it)->elemType == SLIDE_ELEM_CANVAS_EFFECT && (*it)->typeCanvasEffect.effectType == CE_SCALE)
@@ -596,7 +600,8 @@ void PresentationMgr::MoveBack(bool hard)
                     canvas.baseColor = MAKE_COLOR_RGBA(255,255,255,0);
                     canvas.hardColorizeColor = canvas.baseColor;
                     SlideList::iterator it = lastActual;
-                    --it;
+                    if (it != m_activeElements.begin())
+                        --it;
                     for ( ; it != m_activeElements.begin(); --it)
                     {
                         if ((*it)->elemType == SLIDE_ELEM_CANVAS_EFFECT && (*it)->typeCanvasEffect.effectType == CE_COLORIZE)
