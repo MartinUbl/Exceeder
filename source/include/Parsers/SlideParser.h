@@ -14,6 +14,7 @@ enum SlideElementParseFlag
     SEPF_NONE          = 0x00,
     SEPF_NON_TEMPLATE  = 0x01,
     SEPF_ONLY_TEMPLATE = 0x02,
+    SEPF_REPORT_ERROR  = 0x04,
 };
 
 class SlideParser: public Parser

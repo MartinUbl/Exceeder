@@ -120,6 +120,7 @@ struct SlideElement
 
     SlideElementTypes elemType;
     bool drawable;
+    bool needRecalc;
 
     wchar_t* elemId;
     wchar_t* elemStyle;
@@ -136,6 +137,7 @@ struct SlideElement
     void OnCreate();
     void CreateEffectIfAny();
     void PlayEffect(const wchar_t* effectId);
+    void CalculatePosition();
     void Draw();
 
     // Drawable slide element data

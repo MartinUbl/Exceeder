@@ -15,6 +15,8 @@ Storage::Storage()
     // implicit screen resolution
     m_screenWidth = 800;
     m_screenHeight = 600;
+    m_originalScreenWidth = 800;
+    m_originalScreenHeight = 600;
     m_fullscreen = true;
 
     m_defaultFontId = -1;
@@ -148,9 +150,12 @@ void Storage::BuildStyleFonts()
                     && iter->underline == itr->second->underline
                     && iter->strikeout == itr->second->strikeout)
                 {
-                    itr->second->fontId = iter->fontId;
-                    fontMatch = true;
-                    break;
+                    if (iter->fontId >= 0)
+                    {
+                        itr->second->fontId = iter->fontId;
+                        fontMatch = true;
+                        break;
+                    }
                 }
             }
             if (fontMatch)
@@ -170,6 +175,8 @@ void Storage::BuildStyleFonts()
             m_fontMap.push_back(fnt);
         }
     }
+
+    PostParseElements();
 }
 
 void Storage::SetupDefaultStyle()
@@ -224,7 +231,7 @@ void Storage::SetDefaultStyleName(const wchar_t* name)
 
 void Storage::PostParseElements()
 {
-    for (std::list<SlideElement*>::iterator itr = m_postParseList.begin(); itr != m_postParseList.end(); ++itr)
+    for (std::list<SlideElement*>::iterator itr = m_postParseList.begin(); itr != m_postParseList.end(); )
     {
         (*itr)->typeText.outlist = new StyledTextList;
         SlideParser::ParseMarkup((*itr)->typeText.text, (*itr)->elemStyle, (*itr)->typeText.outlist, &((*itr)->typeText.outlistExpressions));
@@ -232,8 +239,10 @@ void Storage::PostParseElements()
         {
             delete (*itr)->typeText.outlist;
             (*itr)->typeText.outlist = NULL;
+            ++itr;
+            continue;
         }
-    }
 
-    m_postParseList.clear();
+        itr = m_postParseList.erase(itr);
+    }
 }
