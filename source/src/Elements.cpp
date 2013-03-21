@@ -78,18 +78,18 @@ void SlideElement::CalculatePosition()
     if (!needRecalc)
     {
         if (position[0] == POS_CENTER)
-            position[0] = (sStorage->GetScreenWidth()-width) / 2;
+            position[0] = (sStorage->GetOriginalScreenWidth()-width) / 2;
         else if (position[0] == POS_LEFT)
             position[0] = 0;
         else if (position[0] == POS_RIGHT)
-            position[0] = sStorage->GetScreenWidth()-width;
+            position[0] = sStorage->GetOriginalScreenWidth()-width;
 
         if (position[1] == POS_CENTER)
-            position[1] = (sStorage->GetScreenHeight()-height) / 2;
+            position[1] = (sStorage->GetOriginalScreenHeight()-height) / 2;
         else if (position[1] == POS_TOP)
             position[1] = 0;
         else if (position[1] == POS_BOTTOM)
-            position[1] = sStorage->GetScreenHeight()-height;
+            position[1] = sStorage->GetOriginalScreenHeight()-height;
     }
 }
 
@@ -110,7 +110,7 @@ void SlideElement::Draw()
     if (needRecalc)
         CalculatePosition();
 
-    glPushMatrix();
+    sSimplyFlat->Drawing->PushMatrix();
 
     if (myEffect && !myEffect->isExpired())
         myEffect->Animate();
@@ -126,7 +126,7 @@ void SlideElement::Draw()
             break;
     }
 
-    glPopMatrix();
+    sSimplyFlat->Drawing->PopMatrix();
 }
 
 uint8 SlideElement::elemTextData::GetFeatureArrayIndexOf(Style* style)

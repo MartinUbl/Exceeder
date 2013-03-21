@@ -197,7 +197,9 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
 
                 if (live->elemType == SLIDE_ELEM_TEXT)
                 {
-                    if (wcslen(right) > 0)
+                    if (!right)
+                        live->typeText.text = L"";
+                    else if (wcslen(right) > 0)
                         live->typeText.text = right;
                 }
             }
@@ -745,7 +747,7 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
             tmp->typeCanvasEffect.amount.asFloat = (float)ToInt(left);
 
             // implicit rotation center is in the middle of the screen
-            tmp->typeCanvasEffect.moveVector = CVector2(sStorage->GetScreenWidth() / 2.0f, sStorage->GetScreenHeight() / 2.0f);
+            tmp->typeCanvasEffect.moveVector = CVector2(sStorage->GetOriginalScreenWidth() / 2.0f, sStorage->GetOriginalScreenHeight() / 2.0f);
         }
         else if (EqualString(left, L"\\CANVAS_SCALE", true))
         {
@@ -949,7 +951,13 @@ void SlideParser::ParseMarkup(const wchar_t *input, const wchar_t* stylename, St
                 if (input[j] == L'}')
                 {
                     if (!target)
-                    target = new StyledTextList;
+                        target = new StyledTextList;
+                    // delay markup build
+                    if (!defstyle)
+                    {
+                        target->clear();
+                        return;
+                    }
 
                     tmp = new printTextData;
 
@@ -998,7 +1006,14 @@ void SlideParser::ParseMarkup(const wchar_t *input, const wchar_t* stylename, St
                 if (input[j] == L'}')
                 {
                     if (!target)
-                    target = new StyledTextList;
+                        target = new StyledTextList;
+
+                    // delay markup build
+                    if (!defstyle)
+                    {
+                        target->clear();
+                        return;
+                    }
 
                     tmp = new printTextData;
 
@@ -1047,6 +1062,12 @@ void SlideParser::ParseMarkup(const wchar_t *input, const wchar_t* stylename, St
             {
                 if (!target)
                     target = new StyledTextList;
+                // delay markup build
+                if (!defstyle)
+                {
+                    target->clear();
+                    return;
+                }
 
                 tmp = new printTextData;
 
@@ -1109,6 +1130,12 @@ void SlideParser::ParseMarkup(const wchar_t *input, const wchar_t* stylename, St
             {
                 if (!target)
                     target = new StyledTextList;
+                // delay markup build
+                if (!defstyle)
+                {
+                    target->clear();
+                    return;
+                }
 
                 tmp = new printTextData;
 
@@ -1164,6 +1191,14 @@ outer_continue:;
         tmp = new printTextData;
 
         tmp->fontId = (defstyle != NULL) ? defstyle->fontId : sStorage->GetDefaultFontId();
+
+        // If some of fonts hasn't been rendered yet, invalidate the whole printlist and delay its generation
+        if (tmp->fontId < 0)
+        {
+            delete tmp;
+            target->clear();
+            return;
+        }
 
         tmp->feature = (defstyle != NULL) ? SlideElement::elemTextData::GetFeatureArrayIndexOf(defstyle) : 0;
         tmp->colorize = (defstyle != NULL) ? !(defstyle->fontColor == NULL) : false;

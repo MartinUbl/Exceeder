@@ -81,6 +81,10 @@ bool PresentationMgr::Init()
         RAISE_ERROR("Could not initialize main window!");
 #endif
 
+    // Persistent scale is decided using original and actual screen height
+    // its due to font height not being so dynamic as we would want it to be
+    sSimplyFlat->Drawing->SetPersistentScale((float)sStorage->GetScreenHeight() / (float)sStorage->GetOriginalScreenHeight());
+
     // Hook events usable for our presentation mode (key press/release + mouse button press)
     sSimplyFlat->Interface->HookEvent(0, KeyPressed);
     sSimplyFlat->Interface->HookMouseEvent(MouseButtonPress);
@@ -702,13 +706,13 @@ void PresentationMgr::Run()
             if (bgData.source->typeBackground.gradientEdges)
             {
                 if (ptr[GRAD_TOP])
-                    sSimplyFlat->Drawing->DrawRectangleGradient(0,0,sStorage->GetScreenWidth(), ptr[GRAD_TOP]->size, ptr[GRAD_TOP]->color | 0xFF, ptr[GRAD_TOP]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_BOTTOM);
+                    sSimplyFlat->Drawing->DrawRectangleGradient(0,0,sStorage->GetOriginalScreenWidth(), ptr[GRAD_TOP]->size, ptr[GRAD_TOP]->color | 0xFF, ptr[GRAD_TOP]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_BOTTOM);
                 if (ptr[GRAD_BOTTOM])
-                    sSimplyFlat->Drawing->DrawRectangleGradient(0,sStorage->GetScreenHeight()-ptr[GRAD_BOTTOM]->size, sStorage->GetScreenWidth(), ptr[GRAD_BOTTOM]->size, ptr[GRAD_BOTTOM]->color | 0xFF, ptr[GRAD_BOTTOM]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_TOP);
+                    sSimplyFlat->Drawing->DrawRectangleGradient(0,sStorage->GetOriginalScreenHeight()-ptr[GRAD_BOTTOM]->size, sStorage->GetOriginalScreenWidth(), ptr[GRAD_BOTTOM]->size, ptr[GRAD_BOTTOM]->color | 0xFF, ptr[GRAD_BOTTOM]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_TOP);
                 if (ptr[GRAD_LEFT])
-                    sSimplyFlat->Drawing->DrawRectangleGradient(0,0, ptr[GRAD_LEFT]->size, sStorage->GetScreenHeight(), ptr[GRAD_LEFT]->color | 0xFF, ptr[GRAD_LEFT]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_RIGHT);
+                    sSimplyFlat->Drawing->DrawRectangleGradient(0,0, ptr[GRAD_LEFT]->size, sStorage->GetOriginalScreenHeight(), ptr[GRAD_LEFT]->color | 0xFF, ptr[GRAD_LEFT]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_RIGHT);
                 if (ptr[GRAD_RIGHT])
-                    sSimplyFlat->Drawing->DrawRectangleGradient(sStorage->GetScreenWidth()-ptr[GRAD_RIGHT]->size, 0, ptr[GRAD_RIGHT]->size, sStorage->GetScreenHeight(), ptr[GRAD_RIGHT]->color | 0xFF, ptr[GRAD_RIGHT]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_LEFT);
+                    sSimplyFlat->Drawing->DrawRectangleGradient(sStorage->GetOriginalScreenWidth()-ptr[GRAD_RIGHT]->size, 0, ptr[GRAD_RIGHT]->size, sStorage->GetOriginalScreenHeight(), ptr[GRAD_RIGHT]->color | 0xFF, ptr[GRAD_RIGHT]->color | MAKE_COLOR_RGBA(0,0,0,0), VERT_LEFT);
             }
             else
             {
@@ -716,13 +720,13 @@ void PresentationMgr::Run()
                 // if there are more than one gradient set, it's users fault and we are going to draw all of them
 
                 if (ptr[GRAD_TOP])
-                    sSimplyFlat->Drawing->DrawRectangleGradient(0,0,sStorage->GetScreenWidth(), sStorage->GetScreenHeight(), ptr[GRAD_TOP]->color | 0xFF, bgData.color | 0xFF, VERT_BOTTOM);
+                    sSimplyFlat->Drawing->DrawRectangleGradient(0,0,sStorage->GetOriginalScreenWidth(), sStorage->GetOriginalScreenHeight(), ptr[GRAD_TOP]->color | 0xFF, bgData.color | 0xFF, VERT_BOTTOM);
                 if (ptr[GRAD_BOTTOM])
-                    sSimplyFlat->Drawing->DrawRectangleGradient(0,0,sStorage->GetScreenWidth(), sStorage->GetScreenHeight(), ptr[GRAD_BOTTOM]->color | 0xFF, bgData.color | 0xFF, VERT_TOP);
+                    sSimplyFlat->Drawing->DrawRectangleGradient(0,0,sStorage->GetOriginalScreenWidth(), sStorage->GetOriginalScreenHeight(), ptr[GRAD_BOTTOM]->color | 0xFF, bgData.color | 0xFF, VERT_TOP);
                 if (ptr[GRAD_LEFT])
-                    sSimplyFlat->Drawing->DrawRectangleGradient(0,0,sStorage->GetScreenWidth(), sStorage->GetScreenHeight(), ptr[GRAD_LEFT]->color | 0xFF, bgData.color | 0xFF, VERT_RIGHT);
+                    sSimplyFlat->Drawing->DrawRectangleGradient(0,0,sStorage->GetOriginalScreenWidth(), sStorage->GetOriginalScreenHeight(), ptr[GRAD_LEFT]->color | 0xFF, bgData.color | 0xFF, VERT_RIGHT);
                 if (ptr[GRAD_RIGHT])
-                    sSimplyFlat->Drawing->DrawRectangleGradient(0,0,sStorage->GetScreenWidth(), sStorage->GetScreenHeight(), ptr[GRAD_RIGHT]->color | 0xFF, bgData.color | 0xFF, VERT_LEFT);
+                    sSimplyFlat->Drawing->DrawRectangleGradient(0,0,sStorage->GetOriginalScreenWidth(), sStorage->GetOriginalScreenHeight(), ptr[GRAD_RIGHT]->color | 0xFF, bgData.color | 0xFF, VERT_LEFT);
             }
         }
 
@@ -730,7 +734,6 @@ void PresentationMgr::Run()
         AnimateCanvas(true);
 
         // draw active elements which should be drawn
-        //for (SlideList::iterator itr = m_activeElements.begin(); itr != m_activeElements.end(); ++itr)
         for (SlideList::iterator itr = firstActual; itr != m_activeElements.end(); ++itr)
         {
             // "drawable" parameter is set when building slide element prototype
@@ -975,9 +978,9 @@ void PresentationMgr::ApplyBackgroundElement(SlideElement* elem)
     for (uint32 i = 0; i <= 1; i++)
     {
         if (i == 0 && (elem->typeBackground.spread == SPREAD_BOTH || elem->typeBackground.spread == SPREAD_WIDTH))
-            bgData.backgroundDimensions[0] = sStorage->GetScreenWidth();
+            bgData.backgroundDimensions[0] = sStorage->GetOriginalScreenWidth();
         else if (i == 1 && (elem->typeBackground.spread == SPREAD_BOTH || elem->typeBackground.spread == SPREAD_HEIGHT))
-            bgData.backgroundDimensions[1] = sStorage->GetScreenHeight();
+            bgData.backgroundDimensions[1] = sStorage->GetOriginalScreenHeight();
         else if (elem->typeBackground.dimensions[i] > 0)
             bgData.backgroundDimensions[i] = elem->typeBackground.dimensions[i];
     }
@@ -992,17 +995,17 @@ void PresentationMgr::ApplyBackgroundElement(SlideElement* elem)
             if (elem->typeBackground.position[i] == POS_LEFT)
                 bgData.backgroundPosition[i] = 0;
             else if (elem->typeBackground.position[i] == POS_RIGHT)
-                bgData.backgroundPosition[i] = sStorage->GetScreenWidth()-bgData.backgroundDimensions[i];
+                bgData.backgroundPosition[i] = sStorage->GetOriginalScreenWidth()-bgData.backgroundDimensions[i];
             else if (elem->typeBackground.position[i] == POS_TOP)
                 bgData.backgroundPosition[i] = 0;
             else if (elem->typeBackground.position[i] == POS_BOTTOM)
-                bgData.backgroundPosition[i] = sStorage->GetScreenHeight()-bgData.backgroundDimensions[i];
+                bgData.backgroundPosition[i] = sStorage->GetOriginalScreenHeight()-bgData.backgroundDimensions[i];
             else if (elem->typeBackground.position[i] == POS_CENTER)
             {
                 if (i == 0)
-                    bgData.backgroundPosition[i] = (sStorage->GetScreenWidth()-bgData.backgroundDimensions[i])/2;
+                    bgData.backgroundPosition[i] = (sStorage->GetOriginalScreenWidth()-bgData.backgroundDimensions[i])/2;
                 else
-                    bgData.backgroundPosition[i] = (sStorage->GetScreenHeight()-bgData.backgroundDimensions[i])/2;
+                    bgData.backgroundPosition[i] = (sStorage->GetOriginalScreenHeight()-bgData.backgroundDimensions[i])/2;
             }
         }
     }
@@ -1100,9 +1103,9 @@ int64 PresentationMgr::GetElementReferenceValue(wchar_t *input)
     if (!right)
     {
         if (EqualString(left, L"width", true))
-            return sStorage->GetScreenWidth();
+            return sStorage->GetOriginalScreenWidth();
         else if (EqualString(left, L"height", true))
-            return sStorage->GetScreenHeight();
+            return sStorage->GetOriginalScreenHeight();
 
         return 0;
     }
@@ -1191,7 +1194,8 @@ void PresentationMgr::AnimateCanvas(bool before)
 
             EffectHandler::CalculateEffectProgress(timeCoef, canvas.hardScale_time.progressType);
 
-            glScalef((canvas.baseScale/100.0f) + ((canvas.hardScale-canvas.baseScale)/100.0f) * timeCoef, (canvas.baseScale/100.0f) + ((canvas.hardScale-canvas.baseScale)/100.0f) * timeCoef, 0.0f);
+            float val = (canvas.baseScale/100.0f) + ((canvas.hardScale-canvas.baseScale)/100.0f) * timeCoef;
+            glScalef(val, val, 0.0f);
         }
     }
     else // after main drawing
@@ -1223,9 +1227,9 @@ void PresentationMgr::AnimateCanvas(bool before)
 
             glBegin(GL_QUADS);
                 glTexCoord2f(0.0f, 0.0f); glVertex2d(0, 0);
-                glTexCoord2f(1.0f, 0.0f); glVertex2d(sStorage->GetScreenWidth(), 0);
-                glTexCoord2f(1.0f, 1.0f); glVertex2d(sStorage->GetScreenWidth(), sStorage->GetScreenHeight());
-                glTexCoord2f(0.0f, 1.0f); glVertex2d(0, sStorage->GetScreenHeight());
+                glTexCoord2f(1.0f, 0.0f); glVertex2d(sStorage->GetOriginalScreenWidth(), 0);
+                glTexCoord2f(1.0f, 1.0f); glVertex2d(sStorage->GetOriginalScreenWidth(), sStorage->GetOriginalScreenHeight());
+                glTexCoord2f(0.0f, 1.0f); glVertex2d(0, sStorage->GetOriginalScreenHeight());
             glEnd();
 
             glDisable(GL_BLEND);

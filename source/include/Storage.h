@@ -24,7 +24,7 @@ struct StoredFont
     bool underline;
     bool strikeout;
 
-    uint32 fontId;
+    int32 fontId;
 };
 
 class Storage
@@ -47,6 +47,10 @@ class Storage
         uint32 GetScreenHeight() { return m_screenHeight; };
         void AllowFullscreen(bool allow) { m_fullscreen = allow; };
         bool IsFullscreenAllowed() { return m_fullscreen; };
+        void SetOriginalScreenWidth(uint32 width) { m_originalScreenWidth = width; };
+        void SetOriginalScreenHeight(uint32 height) { m_originalScreenHeight = height; };
+        uint32 GetOriginalScreenWidth() { return m_originalScreenWidth; };
+        uint32 GetOriginalScreenHeight() { return m_originalScreenHeight; };
 
         void SetSupfileVersion(std::wstring ver) { m_supfileVersion = ver.c_str(); };
         const wchar_t* GetSupfileVersion() { return m_supfileVersion.c_str(); };
@@ -258,6 +262,8 @@ class Storage
 
         uint32 m_screenWidth;
         uint32 m_screenHeight;
+        uint32 m_originalScreenWidth;
+        uint32 m_originalScreenHeight;
         bool m_fullscreen;
 
         SlideElementVector::iterator m_lastOverwrittenElement;

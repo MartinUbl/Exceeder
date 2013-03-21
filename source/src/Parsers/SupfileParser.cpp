@@ -148,6 +148,22 @@ bool SupfileParser::Parse(std::vector<std::wstring>* input)
             else
                 RAISE_ERROR("SupfileParser: Non-numeric value '%s' for screen height", right);
         }
+        // original screen width
+        else if (EqualString(left, L"\\ORIGINAL_WIDTH", true))
+        {
+            if (IsNumeric(right))
+                sStorage->SetOriginalScreenWidth(ToInt(right));
+            else
+                RAISE_ERROR("SupfileParser: Non-numeric value '%s' for original screen width", right);
+        }
+        // original screen height
+        else if (EqualString(left, L"\\ORIGINAL_HEIGHT", true))
+        {
+            if (IsNumeric(right))
+                sStorage->SetOriginalScreenHeight(ToInt(right));
+            else
+                RAISE_ERROR("SupfileParser: Non-numeric value '%s' for original screen height", right);
+        }
         // bluetooth interface if needed
         else if (EqualString(left, L"\\BLUETOOTH_INTERFACE", true))
         {
