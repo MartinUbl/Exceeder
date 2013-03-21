@@ -503,6 +503,8 @@ void PresentationMgr::MoveBack(bool hard)
                                 else
                                     modVector = modVector + (*it)->typeCanvasEffect.moveVector;
                             }
+                            else if ((*it)->elemType == SLIDE_ELEM_CANVAS_EFFECT && (*it)->typeCanvasEffect.effectType == CE_RESET)
+                                break;
                         }
                         canvas.baseCoord = CVector2(0,0);
                         canvas.hardMove  = modVector;
@@ -546,6 +548,8 @@ void PresentationMgr::MoveBack(bool hard)
                                 }
                             }
                         }
+                        else if ((*it)->elemType == SLIDE_ELEM_CANVAS_EFFECT && (*it)->typeCanvasEffect.effectType == CE_RESET)
+                            break;
                     }
                     // mod is 0 only when reached hard effect
                     if ((*oldLast)->typeCanvasEffect.hard || mod != 0.0f)
@@ -566,7 +570,7 @@ void PresentationMgr::MoveBack(bool hard)
 
                     canvas.baseScale = 100.0f;
                     canvas.hardScale = 100.0f;
-                    SlideList::iterator it = oldLast;
+                    SlideList::iterator it = lastActual;
                     --it;
                     for ( ; it != m_activeElements.begin(); --it)
                     {
@@ -576,6 +580,8 @@ void PresentationMgr::MoveBack(bool hard)
                             canvas.hardScale = (*it)->typeCanvasEffect.amount.asFloat;
                             break;
                         }
+                        else if ((*it)->elemType == SLIDE_ELEM_CANVAS_EFFECT && (*it)->typeCanvasEffect.effectType == CE_RESET)
+                            break;
                     }
                     break;
                 }
@@ -585,7 +591,7 @@ void PresentationMgr::MoveBack(bool hard)
 
                     canvas.baseColor = MAKE_COLOR_RGBA(255,255,255,0);
                     canvas.hardColorizeColor = canvas.baseColor;
-                    SlideList::iterator it = oldLast;
+                    SlideList::iterator it = lastActual;
                     --it;
                     for ( ; it != m_activeElements.begin(); --it)
                     {
