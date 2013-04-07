@@ -685,6 +685,87 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
         tmp = new SlideElement;
         tmp->elemType = SLIDE_ELEM_NEW_SLIDE;
 
+        while (right)
+        {
+            left = LeftSide(right, L' ');
+
+            if (EqualString(left, L"FADE", true))
+            {
+                // canvas effect --> colorize 100% opacity, delete elements, move on, decolorize
+
+                tmp->elemType = SLIDE_ELEM_CANVAS_EFFECT;
+
+                tmp->typeCanvasEffect.hard = true;
+                tmp->typeCanvasEffect.effectType = CE_COLORIZE;
+                tmp->typeCanvasEffect.effectTimer = 0;
+                tmp->typeCanvasEffect.effProgress = EP_LINEAR;
+
+                uint32 effTimer = 0;
+                uint8 progress = EP_LINEAR;
+
+                right = RightSide(right, L' ');
+                while (right)
+                {
+                    left = LeftSide(right, L' ');
+
+                    if (EqualString(left, L"quadratic", true))
+                        progress = EP_QUADRATIC;
+                    else if (EqualString(left, L"sinus", true))
+                        progress = EP_SINUS;
+                    else if (EqualString(left, L"linear", true))
+                        progress = EP_LINEAR;
+                    else if (IsNumeric(left))
+                        effTimer = ToInt(left);
+                    else
+                    {
+                        if (StyleParser::ParseColor(left, &tmp->typeCanvasEffect.amount.asUnsigned))
+                            tmp->typeCanvasEffect.amount.asUnsigned |= COLOR_A(255);
+                        else
+                            RAISE_ERROR_NULL("SlideParser: invalid input '%S' in new slide definition", left);
+                    }
+
+                    right = RightSide(right, L' ');
+                }
+
+                tmp->typeCanvasEffect.effProgress = progress;
+                tmp->typeCanvasEffect.effectTimer = effTimer;
+
+                sStorage->AddSlideElement(tmp);
+
+                tmp = new SlideElement;
+                tmp->elemType = SLIDE_ELEM_BLOCK;
+                tmp->typeBlock.time = effTimer;
+                tmp->typeBlock.passthrough = true;
+
+                sStorage->AddSlideElement(tmp);
+
+                tmp = new SlideElement;
+                tmp->elemType = SLIDE_ELEM_CANVAS_EFFECT;
+                tmp->typeCanvasEffect.hard = false;
+                tmp->typeCanvasEffect.amount.asUnsigned = MAKE_COLOR_RGBA(255, 255, 255, 0);
+                tmp->typeCanvasEffect.effectType = CE_COLORIZE;
+                tmp->typeCanvasEffect.effProgress = progress;
+                tmp->typeCanvasEffect.effectTimer = effTimer;
+
+                sStorage->AddSlideElement(tmp);
+
+                tmp = new SlideElement;
+                tmp->elemType = SLIDE_ELEM_NEW_SLIDE;
+
+                return tmp;
+            }
+            else if (EqualString(left, L"MOVE", true))
+            {
+                // create fake effect for every element on slide to allow generic reverting
+            }
+            else if (EqualString(left, L"DISPERSE", true))
+            {
+                // same as move --> move every element to different direction
+            }
+
+            right = RightSide(right, L' ');
+        }
+
         return tmp;
     }
     // play effect on specified element

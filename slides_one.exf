@@ -49,6 +49,8 @@
 \BACKGROUND color=#555555      // just demonstrates, that color in hexa format _could_ be prefixed with #
 \MOUSE_LEFT
 
+\NEW_SLIDE fade 1000 BLACK
+
 \TEMPLATE_CALL mytemp
 \{ID:podnadpis} Přepsání textu {B}tučně{/B}
 \TEMPLATE_END
@@ -56,7 +58,7 @@
 \{ID:podnadpis} Druhý slajd stejného ražení
 \TEMPLATE_END
 
-\NEW_SLIDE
+\NEW_SLIDE fade 1000 BLACK
 
 \background resource=obrazek,color=black,spread=none,pos=topright,gradient-left=body white
 
