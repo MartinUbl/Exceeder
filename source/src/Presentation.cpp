@@ -876,7 +876,7 @@ void PresentationMgr::Run()
                             canvas.baseCoord = CVector2(0.0f, 0.0f);
                             canvas.baseAngle = 0.0f;
                             canvas.baseScale = 100.0f;
-                            canvas.baseColor = MAKE_COLOR_RGBA(255, 255, 255, 255);
+                            canvas.baseColor = MAKE_COLOR_RGBA(255, 255, 255, 0);
 
                             canvas.hardMove = CVector2(0.0f, 0.0f);
                             canvas.hardRotateAngle = 0.0f;
@@ -893,7 +893,7 @@ void PresentationMgr::Run()
                         canvas.hardMove = -canvas.baseCoord;
                         canvas.hardRotateAngle = -canvas.baseAngle;
                         canvas.hardScale = 100.0f;
-                        canvas.hardColorizeColor = MAKE_COLOR_RGBA(255, 255, 255, 0);
+                        canvas.hardColorizeColor &= 0xFFFFFF00;
 
                         canvas.hardMove_time.startTime = clock();
                         canvas.hardMove_time.deltaTime = m_slideElement->typeCanvasEffect.effectTimer;
@@ -948,7 +948,7 @@ void PresentationMgr::Run()
                         if (!m_slideElement->typeCanvasEffect.hard)
                             canvas.baseColor = canvas.hardColorizeColor;
                         else
-                            canvas.baseColor = MAKE_COLOR_RGBA(255, 255, 255, 255);
+                            canvas.baseColor = MAKE_COLOR_RGBA(255, 255, 255, 0);
 
                         canvas.hardColorizeColor = m_slideElement->typeCanvasEffect.amount.asUnsigned;
                         canvas.hardColorize_time.startTime = clock();
@@ -1229,9 +1229,32 @@ void PresentationMgr::AnimateCanvas(bool before)
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-            uint8 r = uint8(COLOR_R(canvas.baseColor) - (COLOR_R(canvas.baseColor) - COLOR_R(canvas.hardColorizeColor))*timeCoef);
-            uint8 g = uint8(COLOR_G(canvas.baseColor) - (COLOR_G(canvas.baseColor) - COLOR_G(canvas.hardColorizeColor))*timeCoef);
-            uint8 b = uint8(COLOR_B(canvas.baseColor) - (COLOR_B(canvas.baseColor) - COLOR_B(canvas.hardColorizeColor))*timeCoef);
+            uint8 r = 0, g = 0, b = 0;
+
+            if (COLOR_A(canvas.baseColor) > 0)
+            {
+                if (COLOR_A(canvas.hardColorizeColor) > 0)
+                {
+                    r = uint8(COLOR_R(canvas.baseColor) - (COLOR_R(canvas.baseColor) - COLOR_R(canvas.hardColorizeColor))*timeCoef);
+                    g = uint8(COLOR_G(canvas.baseColor) - (COLOR_G(canvas.baseColor) - COLOR_G(canvas.hardColorizeColor))*timeCoef);
+                    b = uint8(COLOR_B(canvas.baseColor) - (COLOR_B(canvas.baseColor) - COLOR_B(canvas.hardColorizeColor))*timeCoef);
+                }
+                else
+                {
+                    r = uint8(COLOR_R(canvas.baseColor));
+                    g = uint8(COLOR_R(canvas.baseColor));
+                    b = uint8(COLOR_R(canvas.baseColor));
+                }
+            }
+            else
+            {
+                if (COLOR_A(canvas.hardColorizeColor) > 0)
+                {
+                    r = uint8(COLOR_R(canvas.hardColorizeColor));
+                    g = uint8(COLOR_G(canvas.hardColorizeColor));
+                    b = uint8(COLOR_B(canvas.hardColorizeColor));
+                }
+            }
 
             glColor4ub(r, g, b,
                        uint8(COLOR_A(canvas.baseColor) + (COLOR_A(canvas.hardColorizeColor) - COLOR_A(canvas.baseColor))*timeCoef));
