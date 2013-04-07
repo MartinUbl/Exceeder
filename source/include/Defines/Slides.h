@@ -72,6 +72,14 @@ enum CanvasEffects
     CE_COLORIZE = 5
 };
 
+enum SlideSwitchType
+{
+    SST_NONE     = 0,
+    SST_FADE     = 1,
+    SST_MOVE     = 2,
+    SST_DISPERSE = 3,
+};
+
 struct EffectTime
 {
     clock_t startTime;
@@ -137,6 +145,7 @@ struct SlideElement
     void OnCreate();
     void CreateEffectIfAny();
     void PlayEffect(const wchar_t* effectId);
+    void PlayEffect(Effect* eff);
     void CalculatePosition();
     void Draw();
 
@@ -209,6 +218,13 @@ struct SlideElement
         clock_t startTime;         // dynamic value stored at element creation - since memory is copied, it's safe
         bool passthrough;          // indicator of reverse blocking (when going back, this causes reverse algorhitm to go to the previous elements)
     } typeBlock;
+
+    struct elemNewSlide
+    {
+        SlideSwitchType type;      // type of slide switch
+        float moveAngle;           // in case of movement, we need an angle to move all stuff away
+        Effect* effect;            // effect, created once at first usage
+    } typeNewSlide;
 };
 
 typedef std::vector<SlideElement*> SlideElementVector;

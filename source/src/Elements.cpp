@@ -99,10 +99,18 @@ void SlideElement::PlayEffect(const wchar_t* effectId)
     if (!tmp)
         return;
 
+    PlayEffect(tmp);
+}
+
+void SlideElement::PlayEffect(Effect* eff)
+{
+    if (!eff)
+        return;
+
     if (myEffect)
-        myEffect->QueueEffect(tmp);
+        myEffect->QueueEffect(eff);
     else
-        myEffect = new EffectHandler(this, tmp);
+        myEffect = new EffectHandler(this, eff);
 }
 
 void SlideElement::Draw()

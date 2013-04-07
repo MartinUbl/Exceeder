@@ -684,11 +684,13 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
     {
         tmp = new SlideElement;
         tmp->elemType = SLIDE_ELEM_NEW_SLIDE;
+        tmp->typeNewSlide.type = SST_NONE;
 
-        while (right)
-        {
+        if (right)
             left = LeftSide(right, L' ');
 
+        if (left && right)
+        {
             if (EqualString(left, L"FADE", true))
             {
                 // canvas effect --> colorize 100% opacity, delete elements, move on, decolorize
@@ -751,19 +753,20 @@ SlideElement* SlideParser::ParseElement(const wchar_t *input, uint8* special, wc
 
                 tmp = new SlideElement;
                 tmp->elemType = SLIDE_ELEM_NEW_SLIDE;
+                tmp->typeNewSlide.type = SST_FADE;
 
                 return tmp;
             }
             else if (EqualString(left, L"MOVE", true))
             {
                 // create fake effect for every element on slide to allow generic reverting
+                tmp->typeNewSlide.type = SST_MOVE;
             }
             else if (EqualString(left, L"DISPERSE", true))
             {
                 // same as move --> move every element to different direction
+                tmp->typeNewSlide.type = SST_DISPERSE;
             }
-
-            right = RightSide(right, L' ');
         }
 
         return tmp;
